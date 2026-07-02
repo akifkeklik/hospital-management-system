@@ -10,7 +10,11 @@ export default function Header() {
   const [theme, setTheme] = useState('light');
   const [userProfile, setUserProfile] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef(null);
+  const notifRef = useRef(null);
   const { t } = useSettings();
 
   useEffect(() => {
@@ -24,6 +28,11 @@ export default function Header() {
       try {
         const data = await AuthService.getMe();
         setUserProfile(data);
+        if (data && data.id) {
+          const notifs = await import('../services/api').then(m => m.NotificationService.getByPatient(data.id));
+          setNotifications(notifs.slice(0, 5));
+          setUnreadCount(notifs.filter(n => !n.read).length);
+        }
       } catch (error) {
         console.error("Profil bilgisi alınamadı:", error);
       }
@@ -34,6 +43,9 @@ export default function Header() {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsDropdownOpen(false);
+      }
+      if (notifRef.current && !notifRef.current.contains(event.target)) {
+        setIsNotifOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -57,8 +69,8 @@ export default function Header() {
     router.push('/login');
   };
 
-  const roleText = userProfile?.role === 'ROLE_PATIENT' ? t('patient') : 
-                   userProfile?.role === 'ROLE_DOCTOR' ? t('doctor') : t('admin_role');
+  const roleText = (userProfile?.role === 'ROLE_PATIENT' || userProfile?.role === 'PATIENT' || userProfile?.role === 'HASTA') ? t('patient') : 
+                   (userProfile?.role === 'ROLE_DOCTOR' || userProfile?.role === 'DOCTOR' || userProfile?.role === 'HEKIM' || userProfile?.role === 'HEKİM') ? t('doctor') : t('admin_role');
 
   const initial = userProfile?.firstName && userProfile?.lastName 
     ? `${userProfile.firstName.charAt(0)}${userProfile.lastName.charAt(0)}`.toUpperCase() 
@@ -89,6 +101,73 @@ export default function Header() {
             </svg>
           )}
         </button>
+
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }} ref={notifRef}>
+          <button 
+            onClick={() => setIsNotifOpen(!isNotifOpen)} 
+            className={styles.themeToggle}
+            title="Bildirimler"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            {unreadCount > 0 && (
+              <span style={{ position: 'absolute', top: '8px', right: '8px', width: '8px', height: '8px', backgroundColor: '#ef4444', borderRadius: '50%' }}></span>
+            )}
+          </button>
+          
+          {isNotifOpen && (
+            <div style={{
+              position: 'absolute', top: 'calc(100% + 10px)', right: '0', width: '320px', 
+              backgroundColor: 'var(--surface)', border: '1px solid var(--border)', 
+              borderRadius: '16px', boxShadow: '0 10px 40px -10px rgba(0,0,0,0.2)', 
+              zIndex: 100, overflow: 'hidden'
+            }}>
+              <div style={{ padding: '1.2rem', background: 'linear-gradient(135deg, rgba(var(--primary-rgb), 0.1), transparent)', borderBottom: '1px solid var(--border)' }}>
+                <strong style={{ color: 'var(--text-main)', fontSize: '1.05rem', display: 'block' }}>Bildirimler</strong>
+              </div>
+              <div style={{ maxHeight: '300px', overflowY: 'auto', padding: '0' }}>
+                {notifications.length === 0 ? (
+                  <div style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Hiç bildiriminiz yok.</div>
+                ) : (
+                  notifications.map(notif => (
+                    <div 
+                      key={notif.id} 
+                      style={{ 
+                        padding: '1rem', 
+                        borderBottom: '1px solid var(--border)',
+                        backgroundColor: notif.read ? 'transparent' : 'rgba(16, 185, 129, 0.05)',
+                        cursor: 'pointer'
+                      }}
+                      onClick={() => {
+                        setIsNotifOpen(false);
+                        router.push('/patient-notifications');
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                        {!notif.read && <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#ef4444' }}></div>}
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                          {new Date(notif.createdAt).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' })}
+                        </span>
+                      </div>
+                      <p style={{ color: notif.read ? 'var(--text-muted)' : 'var(--text-main)', fontSize: '0.85rem', margin: 0, fontWeight: notif.read ? '400' : '500', lineHeight: '1.4' }}>
+                        {notif.message}
+                      </p>
+                    </div>
+                  ))
+                )}
+              </div>
+              <div style={{ padding: '1rem', borderTop: '1px solid var(--border)', backgroundColor: 'rgba(var(--background-rgb), 0.5)' }}>
+                <button 
+                  onClick={() => { setIsNotifOpen(false); router.push('/patient-notifications'); }} 
+                  style={{ width: '100%', padding: '0.5rem', backgroundColor: 'transparent', color: 'var(--primary)', border: 'none', textAlign: 'center', cursor: 'pointer', fontWeight: '600'}}
+                  onMouseOver={(e) => { e.currentTarget.style.textDecoration = 'underline'; }}
+                  onMouseOut={(e) => { e.currentTarget.style.textDecoration = 'none'; }}
+                >
+                  Tüm Bildirimleri Gör
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
         
         <div className={styles.profileContainer} ref={dropdownRef}>
           <div className={styles.profile} onClick={() => setIsDropdownOpen(!isDropdownOpen)}>

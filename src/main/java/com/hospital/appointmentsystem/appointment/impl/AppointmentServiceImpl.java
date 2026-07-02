@@ -271,7 +271,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         } catch (IllegalArgumentException e) {
             throw new RuntimeException(
                     "Geçersiz randevu durumu: " + status +
-                    ". Geçerli değerler: SCHEDULED, COMPLETED, CANCELLED, NO_SHOW"
+                    ". Geçerli değerler: SCHEDULED, ARRIVED, IN_EXAMINATION, COMPLETED, CANCELLED, NO_SHOW"
             );
         }
 
@@ -284,6 +284,11 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Silinecek randevu bulunamadı! ID: " + id));
         appointmentRepository.deleteById(id);
+    }
+
+    @Override
+    public AppointmentDto cancelAppointment(Long id) {
+        return updateAppointmentStatus(id, "CANCELLED");
     }
 
     // ── Dönüşüm Metotları ──

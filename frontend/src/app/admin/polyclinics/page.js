@@ -1,0 +1,269 @@
+'use client';
+import { useEffect, useState } from 'react';
+import { PolyclinicService, DepartmentService } from '../../../services/api';
+import { toast } from '../../../components/Toast';
+import styles from '../../shared.module.css';
+
+export default function PolyclinicsPage() {
+  const [polyclinics, setPolyclinics] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const [name, setName] = useState('');
+  const [roomNumber, setRoomNumber] = useState('');
+  const [departmentId, setDepartmentId] = useState('');
+  
+  // Fakülte gruplaması (Simüle edilmiş statik gruplama)
+  const faculties = [
+    { id: 'dahili', name: 'Dahili Bilimler' },
+    { id: 'cerrahi', name: 'Cerrahi Bilimler' },
+    { id: 'temel', name: 'Temel Bilimler' }
+  ];
+
+  useEffect(() => {
+    setMounted(true);
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const [polyData, deptData] = await Promise.all([
+        PolyclinicService.getAll(),
+        DepartmentService.getAll(0, 100)
+      ]);
+      setPolyclinics(polyData);
+      setDepartments(deptData.content || deptData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddPolyclinic = async (e) => {
+    e.preventDefault();
+    try {
+      await PolyclinicService.create({
+        name,
+        roomNumber,
+        departmentId: parseInt(departmentId)
+      });
+      toast.success('Poliklinik başarıyla eklendi!');
+      setName('');
+      setRoomNumber('');
+      setDepartmentId('');
+      fetchData();
+    } catch (error) {
+      toast.error('Poliklinik eklenirken hata oluştu.');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (confirm('Bu polikliniği silmek istediğinize emin misiniz?')) {
+      try {
+        await PolyclinicService.delete(id);
+        fetchData();
+      } catch (error) {
+        toast.error('Silinemedi.');
+      }
+    }
+  };
+
+  if (!mounted) return null;
+
+  const getDeptName = (id) => {
+    const dept = departments.find(d => d.id === parseInt(id));
+    return dept ? dept.name : 'Bilinmeyen Bölüm';
+  };
+
+  // Bölümleri statik olarak fakültelere dağıtıyoruz (Görsel amaçlı simülasyon)
+  const groupedDepartments = {
+    dahili: departments.filter((d, i) => i % 3 === 0),
+    cerrahi: departments.filter((d, i) => i % 3 === 1),
+    temel: departments.filter((d, i) => i % 3 === 2),
+  };
+
+  return (
+    <div className={styles.container}>
+      <div className={styles.header} style={{ marginBottom: '2rem' }}>
+        <div>
+          <h1 className={styles.title} style={{ fontSize: '1.8rem', fontWeight: '700', color: 'var(--text-main)' }}>Poliklinik Yönetimi</h1>
+          <p style={{ color: 'var(--text-muted)', marginTop: '0.5rem' }}>Hastanede bulunan oda ve poliklinik tanımlamalarını yönetin.</p>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2.5fr', gap: '2rem' }}>
+        
+        {/* Ekleme Formu */}
+        <div style={{ 
+          backgroundColor: 'var(--surface)', 
+          padding: '1.5rem', 
+          borderRadius: '16px', 
+          boxShadow: '0 4px 20px rgba(0,0,0,0.05)', 
+          border: '1px solid rgba(var(--primary-rgb), 0.1)',
+          height: 'fit-content'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
+            <div style={{ padding: '8px', backgroundColor: 'rgba(var(--primary-rgb), 0.1)', borderRadius: '8px', color: 'var(--primary)' }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+            </div>
+            <h2 style={{ fontSize: '1.1rem', fontWeight: '600', color: 'var(--text-main)', margin: 0 }}>Yeni Poliklinik Tanımla</h2>
+          </div>
+
+          <form onSubmit={handleAddPolyclinic} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-muted)' }}>Bağlı Olduğu Bölüm</label>
+              <select 
+                required 
+                value={departmentId} 
+                onChange={(e) => setDepartmentId(e.target.value)}
+                style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)', outline: 'none' }}
+              >
+                <option value="" disabled>-- Bölüm Seçiniz --</option>
+                {faculties.map(fac => (
+                  <optgroup key={fac.id} label={fac.name}>
+                    {groupedDepartments[fac.id]?.map(dept => (
+                      <option key={dept.id} value={dept.id}>{dept.name}</option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-muted)' }}>Poliklinik Adı</label>
+              <input 
+                type="text" 
+                placeholder="Örn: Dahiliye Polikliniği 1" 
+                required 
+                value={name} 
+                onChange={(e) => setName(e.target.value)} 
+                style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)', outline: 'none' }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-muted)' }}>Oda Numarası</label>
+              <input 
+                type="text" 
+                placeholder="Örn: B Blok 104" 
+                required 
+                value={roomNumber} 
+                onChange={(e) => setRoomNumber(e.target.value)} 
+                style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)', outline: 'none' }}
+              />
+            </div>
+            
+            <button type="submit" style={{ 
+              padding: '0.8rem', 
+              backgroundColor: 'var(--primary)', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '8px', 
+              fontWeight: '600',
+              marginTop: '0.5rem',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s',
+              boxShadow: '0 4px 12px rgba(var(--primary-rgb), 0.3)'
+            }}>
+              Sisteme Kaydet
+            </button>
+          </form>
+        </div>
+
+        {/* Liste */}
+        <div style={{ 
+          backgroundColor: 'var(--surface)', 
+          padding: '0', 
+          borderRadius: '16px', 
+          boxShadow: '0 4px 20px rgba(0,0,0,0.05)', 
+          border: '1px solid var(--border)',
+          overflow: 'hidden'
+        }}>
+          <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(var(--background-rgb), 0.5)' }}>
+            <h2 style={{ fontSize: '1.1rem', fontWeight: '600', color: 'var(--text-main)', margin: 0 }}>Mevcut Poliklinikler</h2>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', backgroundColor: 'var(--background)', padding: '4px 12px', borderRadius: '20px', border: '1px solid var(--border)' }}>
+              Toplam: {polyclinics.length}
+            </span>
+          </div>
+
+          {loading ? (
+            <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+              <div style={{ width: '40px', height: '40px', border: '3px solid rgba(var(--primary-rgb), 0.2)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 1rem' }}></div>
+              Veriler yükleniyor...
+            </div>
+          ) : polyclinics.length === 0 ? (
+            <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '1rem', opacity: 0.5 }}><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              <p>Sistemde henüz kayıtlı poliklinik bulunmamaktadır.</p>
+            </div>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ backgroundColor: 'rgba(var(--background-rgb), 0.3)' }}>
+                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}>Oda No</th>
+                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}>Poliklinik Adı</th>
+                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}>Bağlı Bölüm</th>
+                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', textAlign: 'right' }}>İşlem</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {polyclinics.map((poly, idx) => (
+                    <tr key={poly.id} style={{ borderBottom: idx === polyclinics.length - 1 ? 'none' : '1px solid var(--border)', transition: 'background-color 0.15s' }}>
+                      <td style={{ padding: '1rem 1.5rem', fontWeight: '500', color: 'var(--text-main)' }}>
+                        <div style={{ display: 'inline-block', padding: '4px 8px', backgroundColor: 'var(--background)', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '0.85rem' }}>
+                          {poly.roomNumber}
+                        </div>
+                      </td>
+                      <td style={{ padding: '1rem 1.5rem', color: 'var(--text-main)', fontWeight: '500' }}>{poly.name}</td>
+                      <td style={{ padding: '1rem 1.5rem' }}>
+                        <span style={{ 
+                          display: 'inline-flex', alignItems: 'center', gap: '4px',
+                          padding: '4px 10px', 
+                          backgroundColor: 'rgba(var(--primary-rgb), 0.08)', 
+                          color: 'var(--primary)', 
+                          borderRadius: '20px', 
+                          fontSize: '0.85rem',
+                          fontWeight: '500'
+                        }}>
+                          <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
+                          {getDeptName(poly.departmentId)}
+                        </span>
+                      </td>
+                      <td style={{ padding: '1rem 1.5rem', textAlign: 'right' }}>
+                        <button 
+                          onClick={() => handleDelete(poly.id)} 
+                          style={{ 
+                            padding: '6px 12px', 
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)', 
+                            color: '#ef4444', 
+                            border: '1px solid rgba(239, 68, 68, 0.2)', 
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontSize: '0.85rem',
+                            fontWeight: '500',
+                            transition: 'all 0.2s'
+                          }}
+                          onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#ef4444'; e.currentTarget.style.color = 'white'; }}
+                          onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)'; e.currentTarget.style.color = '#ef4444'; }}
+                        >
+                          Sil
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+      `}} />
+    </div>
+  );
+}

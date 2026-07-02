@@ -4,6 +4,8 @@ import com.hospital.appointmentsystem.department.impl.Department;
 import com.hospital.appointmentsystem.department.impl.DepartmentRepository;
 import com.hospital.appointmentsystem.doctor.api.DoctorDto;
 import com.hospital.appointmentsystem.doctor.api.DoctorService;
+import com.hospital.appointmentsystem.polyclinic.impl.Polyclinic;
+import com.hospital.appointmentsystem.polyclinic.impl.PolyclinicRepository;
 import com.hospital.appointmentsystem.user.api.UserService;
 import org.springframework.stereotype.Service;
 
@@ -36,14 +38,16 @@ public class DoctorServiceImpl implements DoctorService {
     // ⭐ İKİ repository — çünkü iki tabloyla işimiz var
     private final DoctorRepository doctorRepository;
     private final DepartmentRepository departmentRepository;
+    private final PolyclinicRepository polyclinicRepository;
     private final UserService userService;
 
-    // Constructor Injection — Spring ikisini de otomatik verir
     public DoctorServiceImpl(DoctorRepository doctorRepository,
                              DepartmentRepository departmentRepository,
+                             PolyclinicRepository polyclinicRepository,
                              UserService userService) {
         this.doctorRepository = doctorRepository;
         this.departmentRepository = departmentRepository;
+        this.polyclinicRepository = polyclinicRepository;
         this.userService = userService;
     }
 
@@ -59,9 +63,16 @@ public class DoctorServiceImpl implements DoctorService {
                         "Bölüm bulunamadı! ID: " + doctorDto.getDepartmentId()
                 ));
 
+        Polyclinic polyclinic = null;
+        if (doctorDto.getPolyclinicId() != null) {
+            polyclinic = polyclinicRepository.findById(doctorDto.getPolyclinicId())
+                    .orElseThrow(() -> new RuntimeException("Poliklinik bulunamadı! ID: " + doctorDto.getPolyclinicId()));
+        }
+
         // DTO → Entity dönüşümü + Department bağlama
         Doctor doctor = mapToEntity(doctorDto);
         doctor.setDepartment(department); // ⭐ İlişkiyi kuruyoruz!
+        doctor.setPolyclinic(polyclinic);
 
         Doctor savedDoctor = doctorRepository.save(doctor);
 
@@ -110,12 +121,19 @@ public class DoctorServiceImpl implements DoctorService {
                         "Bölüm bulunamadı! ID: " + doctorDto.getDepartmentId()
                 ));
 
+        Polyclinic polyclinic = null;
+        if (doctorDto.getPolyclinicId() != null) {
+            polyclinic = polyclinicRepository.findById(doctorDto.getPolyclinicId())
+                    .orElseThrow(() -> new RuntimeException("Poliklinik bulunamadı! ID: " + doctorDto.getPolyclinicId()));
+        }
+
         existingDoctor.setFirstName(doctorDto.getFirstName());
         existingDoctor.setLastName(doctorDto.getLastName());
         existingDoctor.setSpecialization(doctorDto.getSpecialization());
         existingDoctor.setPhoneNumber(doctorDto.getPhoneNumber());
         existingDoctor.setEmail(doctorDto.getEmail());
         existingDoctor.setDepartment(department);
+        existingDoctor.setPolyclinic(polyclinic);
 
         Doctor updatedDoctor = doctorRepository.save(existingDoctor);
         return mapToDto(updatedDoctor);
@@ -142,9 +160,17 @@ public class DoctorServiceImpl implements DoctorService {
 
         // ⭐ İlişkili entity'den bilgi alma
         // doctor.getDepartment() → Department objesini verir
-        // onun getId() ve getName() metotlarıyla bilgiye ulaşırız
-        dto.setDepartmentId(doctor.getDepartment().getId());
-        dto.setDepartmentName(doctor.getDepartment().getName());
+        dto.setEmail(doctor.getEmail());
+
+        if (doctor.getDepartment() != null) {
+            dto.setDepartmentId(doctor.getDepartment().getId());
+            dto.setDepartmentName(doctor.getDepartment().getName());
+        }
+
+        if (doctor.getPolyclinic() != null) {
+            dto.setPolyclinicId(doctor.getPolyclinic().getId());
+            dto.setPolyclinicName(doctor.getPolyclinic().getName());
+        }
 
         return dto;
     }

@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { DoctorService, DepartmentService } from '../../services/api';
+import { DoctorService, DepartmentService, PolyclinicService } from '../../services/api';
 import DataTable from '../../components/DataTable';
 import Modal from '../../components/Modal';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -12,24 +12,27 @@ export default function DoctorsPage() {
   const { t } = useSettings();
   const [doctors, setDoctors] = useState([]);
   const [departments, setDepartments] = useState([]);
+  const [polyclinics, setPolyclinics] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
   const [formData, setFormData] = useState({ 
-    firstName: '', lastName: '', specialization: '', phoneNumber: '', email: '', departmentId: '' 
+    firstName: '', lastName: '', specialization: '', phoneNumber: '', email: '', departmentId: '', polyclinicId: '' 
   });
   const [editingId, setEditingId] = useState(null);
 
   const fetchData = async () => {
     try {
-      const [docs, depts] = await Promise.all([
+      const [docs, depts, polys] = await Promise.all([
         DoctorService.getAll(page),
-        DepartmentService.getAll(0, 1000)
+        DepartmentService.getAll(0, 1000),
+        PolyclinicService.getAll()
       ]);
       setDoctors(docs.content || []);
       setTotalPages(docs.totalPages || 0);
       setDepartments(depts.content || []);
+      setPolyclinics(polys || []);
     } catch (error) {
       toast.error('Veriler yüklenemedi.');
     }
@@ -68,7 +71,8 @@ export default function DoctorsPage() {
       specialization: doctor.specialization,
       phoneNumber: doctor.phoneNumber || '',
       email: doctor.email || '',
-      departmentId: doctor.departmentId
+      departmentId: doctor.departmentId,
+      polyclinicId: doctor.polyclinicId || ''
     });
     setEditingId(doctor.id);
     setIsModalOpen(true);
@@ -93,8 +97,8 @@ export default function DoctorsPage() {
   const columns = [
     { header: t('title_desc'), render: (row) => `${row.specialization} ${row.firstName} ${row.lastName}` },
     { header: t('department'), render: (row) => t(row.departmentName) },
-    { header: t('phone'), accessor: 'phoneNumber' },
-    { header: t('email'), accessor: 'email' }
+    { header: t('polyclinics') || 'Poliklinik', render: (row) => row.polyclinicName || '-' },
+    { header: t('phone'), accessor: 'phoneNumber' }
   ];
 
   return (
@@ -104,7 +108,7 @@ export default function DoctorsPage() {
         <button 
           className={styles.primaryBtn} 
           onClick={() => {
-            setFormData({ firstName: '', lastName: '', specialization: '', phoneNumber: '', email: '', departmentId: '' });
+            setFormData({ firstName: '', lastName: '', specialization: '', phoneNumber: '', email: '', departmentId: '', polyclinicId: '' });
             setEditingId(null);
             setIsModalOpen(true);
           }}
@@ -145,7 +149,7 @@ export default function DoctorsPage() {
             <select 
               required 
               value={formData.departmentId} 
-              onChange={(e) => setFormData({...formData, departmentId: e.target.value})}
+              onChange={(e) => setFormData({...formData, departmentId: e.target.value, polyclinicId: ''})}
             >
               <option value="">-- Bölüm Seçin --</option>
               {departments.map(dept => (
@@ -153,6 +157,21 @@ export default function DoctorsPage() {
               ))}
             </select>
           </div>
+
+          {formData.departmentId && (
+            <div className={styles.formGroup}>
+              <label>Poliklinik (Oda)</label>
+              <select 
+                value={formData.polyclinicId} 
+                onChange={(e) => setFormData({...formData, polyclinicId: e.target.value})}
+              >
+                <option value="">-- Poliklinik Seçin (Opsiyonel) --</option>
+                {polyclinics.filter(p => p.departmentId === parseInt(formData.departmentId)).map(poly => (
+                  <option key={poly.id} value={poly.id}>{poly.name} ({poly.roomNumber})</option>
+                ))}
+              </select>
+            </div>
+          )}
           
           <div className={styles.formGroup}>
             <label>Uzmanlık (Örn: Uzm. Dr., Prof. Dr.)</label>

@@ -145,13 +145,58 @@ export const SystemSettingService = {
 
 // ── DOCTOR LEAVES API ──
 export const DoctorLeaveService = {
-  getAll: () => fetchAPI('/admin/doctor-leaves'),
-  getByDoctorId: (doctorId) => fetchAPI(`/admin/doctor-leaves/doctor/${doctorId}`),
-  create: (data) => fetchAPI('/admin/doctor-leaves', {
+  getAll: () => fetchAPI('/doctor-leaves'),
+  getByDoctorId: (doctorId) => fetchAPI(`/doctor-leaves/doctor/${doctorId}`),
+  create: (data) => fetchAPI('/doctor-leaves', {
     method: 'POST',
     body: JSON.stringify(data)
   }),
-  delete: (id) => fetchAPI(`/admin/doctor-leaves/${id}`, {
+  updateStatus: (id, status) => fetchAPI(`/doctor-leaves/${id}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status })
+  }),
+  delete: (id) => fetchAPI(`/doctor-leaves/${id}`, {
     method: 'DELETE'
   })
+};
+
+// ── NOTIFICATION API ──
+export const NotificationService = {
+  getByPatient: (patientId) => fetchAPI(`/notifications/patient/${patientId}`),
+  getUnreadCountByPatient: (patientId) => fetchAPI(`/notifications/patient/${patientId}/unread-count`),
+  getByDoctor: (doctorId) => fetchAPI(`/notifications/doctor/${doctorId}`),
+  getUnreadCountByDoctor: (doctorId) => fetchAPI(`/notifications/doctor/${doctorId}/unread-count`),
+  broadcastToDoctors: (message) => fetchAPI('/notifications/broadcast', {
+    method: 'POST',
+    body: message
+  }),
+  markAsRead: (id) => fetchAPI(`/notifications/${id}/read`, { method: 'PATCH' })
+};
+
+// ── POLYCLINIC API ──
+export const PolyclinicService = {
+  getAll: () => fetchAPI('/admin/polyclinics'),
+  getByDepartmentId: (departmentId) => fetchAPI(`/admin/polyclinics/department/${departmentId}`),
+  create: (data) => fetchAPI('/admin/polyclinics', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  }),
+  update: (id, data) => fetchAPI(`/admin/polyclinics/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  }),
+  delete: (id) => fetchAPI(`/admin/polyclinics/${id}`, {
+    method: 'DELETE'
+  })
+};
+
+// ── EXAMINATION API ──
+export const ExaminationService = {
+  addDiagnosis: (data) => fetchAPI('/examinations/diagnoses', { method: 'POST', body: JSON.stringify(data) }),
+  getDiagnoses: (appointmentId) => fetchAPI(`/examinations/appointments/${appointmentId}/diagnoses`),
+  deleteDiagnosis: (id) => fetchAPI(`/examinations/diagnoses/${id}`, { method: 'DELETE' }),
+  
+  addPrescription: (data) => fetchAPI('/examinations/prescriptions', { method: 'POST', body: JSON.stringify(data) }),
+  getPrescriptions: (appointmentId) => fetchAPI(`/examinations/appointments/${appointmentId}/prescriptions`),
+  deletePrescription: (id) => fetchAPI(`/examinations/prescriptions/${id}`, { method: 'DELETE' })
 };

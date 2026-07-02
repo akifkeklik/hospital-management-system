@@ -25,8 +25,28 @@ public class DoctorDto {
     // İlişkili entity'nin sadece ID ve adı
     private Long departmentId;
     private String departmentName;
+    private Long polyclinicId;
+    private String polyclinicName;
+    private Boolean isActive;
 
     public DoctorDto() {
+    }
+
+    public DoctorDto(Long id, String firstName, String lastName, String tcIdentityNumber,
+                     String specialization, String phoneNumber, String email, Long departmentId,
+                     String departmentName, Long polyclinicId, String polyclinicName, Boolean isActive) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.tcIdentityNumber = tcIdentityNumber;
+        this.specialization = specialization;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.departmentId = departmentId;
+        this.departmentName = departmentName;
+        this.polyclinicId = polyclinicId;
+        this.polyclinicName = polyclinicName;
+        this.isActive = isActive;
     }
 
     // ── Getter ve Setter ──
@@ -101,5 +121,29 @@ public class DoctorDto {
 
     public void setDepartmentName(String departmentName) {
         this.departmentName = departmentName;
+    }
+
+    public Long getPolyclinicId() {
+        return polyclinicId;
+    }
+
+    public void setPolyclinicId(Long polyclinicId) {
+        this.polyclinicId = polyclinicId;
+    }
+
+    public String getPolyclinicName() {
+        return polyclinicName;
+    }
+
+    public void setPolyclinicName(String polyclinicName) {
+        this.polyclinicName = polyclinicName;
+    }
+
+    public Boolean getActive() {
+        return isActive;
+    }
+
+    public void setActive(Boolean active) {
+        isActive = active;
     }
 }

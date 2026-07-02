@@ -1,19 +1,30 @@
 package com.hospital.appointmentsystem.doctorleave.impl;
 
+import com.hospital.appointmentsystem.appointment.api.AppointmentDto;
+import com.hospital.appointmentsystem.appointment.api.AppointmentService;
+import com.hospital.appointmentsystem.notification.api.NotificationService;
 import com.hospital.appointmentsystem.doctorleave.api.DoctorLeaveDto;
 import com.hospital.appointmentsystem.doctorleave.api.DoctorLeaveService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class DoctorLeaveServiceImpl implements DoctorLeaveService {
 
     private final DoctorLeaveRepository repository;
+    private final AppointmentService appointmentService;
+    private final NotificationService notificationService;
 
-    public DoctorLeaveServiceImpl(DoctorLeaveRepository repository) {
+    public DoctorLeaveServiceImpl(DoctorLeaveRepository repository,
+                                  AppointmentService appointmentService,
+                                  NotificationService notificationService) {
         this.repository = repository;
+        this.appointmentService = appointmentService;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -29,7 +40,32 @@ public class DoctorLeaveServiceImpl implements DoctorLeaveService {
     @Override
     public DoctorLeaveDto createLeave(DoctorLeaveDto dto) {
         DoctorLeave leave = new DoctorLeave(dto.getDoctorId(), dto.getStartDate(), dto.getEndDate(), dto.getReason());
+        leave.setStatus("PENDING");
         leave = repository.save(leave);
+        return mapToDto(leave);
+    }
+
+    @Override
+    public DoctorLeaveDto updateLeaveStatus(Long id, String status) {
+        DoctorLeave leave = repository.findById(id).orElseThrow(() -> new RuntimeException("İzin bulunamadı"));
+        leave.setStatus(status);
+        leave = repository.save(leave);
+
+        if ("APPROVED".equals(status)) {
+            // Find scheduled appointments and cancel them
+            List<AppointmentDto> doctorAppointments = appointmentService.getAppointmentsByDoctorId(leave.getDoctorId());
+            for (AppointmentDto app : doctorAppointments) {
+                if ("SCHEDULED".equals(app.getStatus())) {
+                    LocalDateTime appDate = app.getAppointmentDate();
+                    if (!appDate.toLocalDate().isBefore(leave.getStartDate()) && !appDate.toLocalDate().isAfter(leave.getEndDate())) {
+                        appointmentService.cancelAppointment(app.getId());
+                        notificationService.createNotification(app.getPatientId(), 
+                            "Hastane Başhekimliği: Sayın Hastamız, doktorumuzun izni sebebiyle " + appDate.toLocalDate() + " tarihindeki randevunuz iptal edilmiştir.");
+                    }
+                }
+            }
+        }
+
         return mapToDto(leave);
     }
 
@@ -39,6 +75,6 @@ public class DoctorLeaveServiceImpl implements DoctorLeaveService {
     }
 
     private DoctorLeaveDto mapToDto(DoctorLeave leave) {
-        return new DoctorLeaveDto(leave.getId(), leave.getDoctorId(), leave.getStartDate(), leave.getEndDate(), leave.getReason());
+        return new DoctorLeaveDto(leave.getId(), leave.getDoctorId(), leave.getStartDate(), leave.getEndDate(), leave.getReason(), leave.getStatus());
     }
 }

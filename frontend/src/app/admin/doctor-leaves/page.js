@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { DoctorLeaveService, DoctorService } from '../../../services/api';
+import { toast } from '../../../components/Toast';
 import styles from '../../shared.module.css';
 
 export default function DoctorLeavesPage() {
@@ -8,12 +9,6 @@ export default function DoctorLeavesPage() {
   const [doctors, setDoctors] = useState([]);
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
-
-  // New leave form state
-  const [selectedDoctor, setSelectedDoctor] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [reason, setReason] = useState('Yıllık İzin');
 
   useEffect(() => {
     setMounted(true);
@@ -36,116 +31,117 @@ export default function DoctorLeavesPage() {
     }
   };
 
-  const handleAddLeave = async (e) => {
-    e.preventDefault();
-    try {
-      await DoctorLeaveService.create({
-        doctorId: selectedDoctor,
-        startDate: startDate,
-        endDate: endDate,
-        reason: reason
-      });
-      alert('İzin başarıyla eklendi!');
-      setStartDate('');
-      setEndDate('');
-      fetchData();
-    } catch (error) {
-      alert('İzin eklenirken hata oluştu.');
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (confirm('Bu izni silmek istediğinize emin misiniz?')) {
+  const handleUpdateStatus = async (id, status) => {
+    if (confirm(`İzin talebini ${status === 'APPROVED' ? 'Onaylamak' : 'Reddetmek'} istediğinize emin misiniz?`)) {
       try {
-        await DoctorLeaveService.delete(id);
+        await DoctorLeaveService.updateStatus(id, status);
         fetchData();
       } catch (error) {
-        alert('İzin silinemedi.');
+        toast.error('İşlem sırasında hata oluştu.');
       }
     }
   };
 
   if (!mounted) return null;
 
-  const getDoctorName = (id) => {
-    const doc = doctors.find(d => d.id === parseInt(id));
-    return doc ? `${doc.firstName} ${doc.lastName}` : 'Bilinmeyen Doktor';
-  };
-
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>Doktor İzin Yönetimi (Enterprise)</h1>
+    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <div>
+          <h1 style={{ fontSize: '2rem', color: 'var(--primary)', marginBottom: '0.5rem' }}>
+            İzin Talepleri
+          </h1>
+          <p style={{ color: '#64748b' }}>
+            Doktorların izin taleplerini inceleyin ve onaylayın. Onaylanan izinlerin tarih aralığındaki randevular otomatik iptal edilecektir.
+          </p>
+        </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem', marginTop: '2rem' }}>
-        
-        {/* İzin Ekleme Formu */}
-        <div style={{ backgroundColor: 'var(--surface)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
-          <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem', color: 'var(--text-main)' }}>Yeni İzin Tanımla</h2>
-          <form onSubmit={handleAddLeave} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div>
-              <label>Doktor Seçin</label>
-              <select required value={selectedDoctor} onChange={(e) => setSelectedDoctor(e.target.value)}>
-                <option value="">-- Doktor Seç --</option>
-                {doctors.map(doc => (
-                  <option key={doc.id} value={doc.id}>{doc.firstName} {doc.lastName} ({doc.specialty})</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label>Başlangıç Tarihi</label>
-              <input type="date" required value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-            </div>
-            <div>
-              <label>Bitiş Tarihi</label>
-              <input type="date" required value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-            </div>
-            <div>
-              <label>İzin Sebebi / Türü</label>
-              <select required value={reason} onChange={(e) => setReason(e.target.value)}>
-                <option value="Yıllık İzin">Yıllık İzin</option>
-                <option value="Hastalık İzni">Hastalık İzni</option>
-                <option value="Ücretsiz İzin">Ücretsiz İzin</option>
-                <option value="Kongre / Seminer">Kongre / Eğitim</option>
-              </select>
-            </div>
-            <button type="submit" style={{ padding: '0.8rem', backgroundColor: 'var(--primary)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold' }}>
-              İzni Kaydet
-            </button>
-          </form>
+      <div className={styles.card}>
+        <div style={{ padding: '1.5rem', borderBottom: '1px solid #e2e8f0' }}>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1e293b' }}>İzin Talepleri</h2>
         </div>
-
-        {/* İzin Listesi */}
-        <div style={{ backgroundColor: 'var(--surface)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
-          <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem', color: 'var(--text-main)' }}>Mevcut İzinler</h2>
+        <div style={{ overflowX: 'auto' }}>
           {loading ? (
-            <p>Yükleniyor...</p>
+            <div style={{ padding: '3rem', textAlign: 'center', color: '#64748b' }}>Yükleniyor...</div>
           ) : leaves.length === 0 ? (
-            <p style={{ color: 'var(--text-muted)' }}>Sistemde kayıtlı doktor izni bulunmamaktadır.</p>
+            <div style={{ padding: '3rem', textAlign: 'center', color: '#64748b' }}>Kayıtlı izin talebi bulunmuyor.</div>
           ) : (
             <table className={styles.table}>
               <thead>
                 <tr>
                   <th>Doktor</th>
-                  <th>Başlangıç</th>
-                  <th>Bitiş</th>
+                  <th>Başlangıç Tarihi</th>
+                  <th>Bitiş Tarihi</th>
                   <th>Sebep</th>
-                  <th>İşlem</th>
+                  <th>Durum</th>
+                  <th style={{ textAlign: 'right' }}>İşlemler</th>
                 </tr>
               </thead>
               <tbody>
-                {leaves.map(leave => (
-                  <tr key={leave.id}>
-                    <td>{getDoctorName(leave.doctorId)}</td>
-                    <td>{leave.startDate}</td>
-                    <td>{leave.endDate}</td>
-                    <td><span style={{ padding: '4px 8px', backgroundColor: 'rgba(234, 179, 8, 0.2)', color: '#eab308', borderRadius: '4px', fontSize: '0.85rem' }}>{leave.reason}</span></td>
-                    <td>
-                      <button onClick={() => handleDelete(leave.id)} style={{ padding: '4px 8px', backgroundColor: 'var(--danger)', color: 'white', border: 'none', borderRadius: '4px' }}>Sil</button>
-                    </td>
-                  </tr>
-                ))}
+                {leaves.map(leave => {
+                  const doc = doctors.find(d => d.id === leave.doctorId);
+                  return (
+                    <tr key={leave.id}>
+                      <td>
+                        <div style={{ fontWeight: '500', color: '#0f172a' }}>
+                          {doc ? `Dr. ${doc.firstName} ${doc.lastName}` : 'Bilinmeyen'}
+                        </div>
+                      </td>
+                      <td>{leave.startDate}</td>
+                      <td>{leave.endDate}</td>
+                      <td>{leave.reason}</td>
+                      <td>
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          padding: '0.25rem 0.75rem',
+                          borderRadius: '9999px',
+                          fontSize: '0.875rem',
+                          fontWeight: '500',
+                          backgroundColor: leave.status === 'APPROVED' ? '#dcfce7' : leave.status === 'REJECTED' ? '#fee2e2' : '#fef3c7',
+                          color: leave.status === 'APPROVED' ? '#166534' : leave.status === 'REJECTED' ? '#991b1b' : '#92400e'
+                        }}>
+                          {leave.status === 'APPROVED' ? 'Onaylandı' : leave.status === 'REJECTED' ? 'Reddedildi' : 'Bekliyor'}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: 'right' }}>
+                        {leave.status === 'PENDING' && (
+                          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                            <button
+                              onClick={() => handleUpdateStatus(leave.id, 'APPROVED')}
+                              style={{
+                                padding: '0.375rem 0.75rem',
+                                backgroundColor: '#10b981',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '0.375rem',
+                                cursor: 'pointer',
+                                fontSize: '0.875rem'
+                              }}
+                            >
+                              Onayla
+                            </button>
+                            <button
+                              onClick={() => handleUpdateStatus(leave.id, 'REJECTED')}
+                              style={{
+                                padding: '0.375rem 0.75rem',
+                                backgroundColor: '#ef4444',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '0.375rem',
+                                cursor: 'pointer',
+                                fontSize: '0.875rem'
+                              }}
+                            >
+                              Reddet
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}

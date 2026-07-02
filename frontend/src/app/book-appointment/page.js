@@ -1,7 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { DepartmentService, DoctorService, AppointmentService, AuthService } from '../../services/api';
+import { AppointmentService, DepartmentService, PolyclinicService, DoctorService, PatientService, AuthService } from '../../services/api';
+import { toast } from '../../components/Toast';
 import { useSettings } from '../../context/SettingsContext';
 import styles from './page.module.css';
 
@@ -109,7 +110,7 @@ export default function BookAppointment() {
       });
       setStep(5);
     } catch (error) {
-      alert("Randevu alınırken bir hata oluştu: " + error.message);
+      toast.error("Randevu alınırken bir hata oluştu: " + error.message);
     } finally {
       setLoading(false);
     }

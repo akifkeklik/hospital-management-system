@@ -23,6 +23,9 @@ public class DoctorLeave {
     @Column(nullable = false)
     private String reason; // Yıllık İzin, Hastalık vb.
 
+    @Column(nullable = false)
+    private String status; // PENDING, APPROVED, REJECTED
+
     public DoctorLeave() {
     }
 
@@ -31,6 +34,7 @@ public class DoctorLeave {
         this.startDate = startDate;
         this.endDate = endDate;
         this.reason = reason;
+        this.status = "PENDING";
     }
 
     public Long getId() {
@@ -72,4 +76,7 @@ public class DoctorLeave {
     public void setReason(String reason) {
         this.reason = reason;
     }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 }

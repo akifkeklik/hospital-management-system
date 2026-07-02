@@ -2,6 +2,8 @@ export const dictionaries = {
   tr: {
     dashboard: "Ana Panel",
     departments: "Bölümler",
+    polyclinics: 'Poliklinikler',
+    notifications: 'Bildirimler',
     patients: "Hastalar",
     doctors: "Doktorlar",
     appointments: "Randevular",
@@ -87,8 +89,8 @@ export const dictionaries = {
     appointment_success: "Randevunuz başarıyla oluşturuldu!",
     appointment_error: "Randevu oluşturulurken bir hata oluştu.",
     close: "Kapat",
-    doctor_requests: "Doktor İstekleri",
-    doctor_requests_title: "Doktor Kayıt İstekleri",
+    doctor_requests: "Hekim Kayıt",
+    doctor_requests_title: "Hekim Kayıt",
     no_pending_requests: "Bekleyen İstek Yok",
     no_pending_requests_desc: "Şu anda incelenmeyi bekleyen yeni bir doktor kayıt isteği bulunmamaktadır. Yeni istekler geldiğinde burada listelenecektir.",
     approve: "Onayla",
@@ -102,6 +104,8 @@ export const dictionaries = {
   en: {
     dashboard: "Dashboard",
     departments: "Departments",
+    polyclinics: 'Poliklinikler',
+    notifications: 'Bildirimler',
     patients: "Patients",
     doctors: "Doctors",
     appointments: "Appointments",
@@ -213,6 +217,8 @@ export const dictionaries = {
   de: {
     dashboard: "Übersicht",
     departments: "Abteilungen",
+    polyclinics: 'Poliklinikler',
+    notifications: 'Bildirimler',
     patients: "Patienten",
     doctors: "Ärzte",
     appointments: "Termine",
@@ -324,6 +330,8 @@ export const dictionaries = {
   fr: {
     dashboard: "Tableau de Bord",
     departments: "Départements",
+    polyclinics: 'Poliklinikler',
+    notifications: 'Bildirimler',
     patients: "Patients",
     doctors: "Médecins",
     appointments: "Rendez-vous",
@@ -436,6 +444,8 @@ export const dictionaries = {
   es: {
     dashboard: "Panel",
     departments: "Departamentos",
+    polyclinics: 'Poliklinikler',
+    notifications: 'Bildirimler',
     patients: "Pacientes",
     doctors: "Doctores",
     appointments: "Citas",
@@ -547,6 +557,8 @@ export const dictionaries = {
   ru: {
     dashboard: "Панель",
     departments: "Отделения",
+    polyclinics: 'Poliklinikler',
+    notifications: 'Bildirimler',
     patients: "Пациенты",
     doctors: "Врачи",
     appointments: "Приемы",
@@ -658,6 +670,8 @@ export const dictionaries = {
   ar: {
     dashboard: "لوحة القيادة",
     departments: "الأقسام",
+    polyclinics: 'Poliklinikler',
+    notifications: 'Bildirimler',
     patients: "المرضى",
     doctors: "الأطباء",
     appointments: "المواعيد",
@@ -769,6 +783,8 @@ export const dictionaries = {
   zh: {
     dashboard: "仪表板",
     departments: "部门",
+    polyclinics: 'Poliklinikler',
+    notifications: 'Bildirimler',
     patients: "患者",
     doctors: "医生",
     appointments: "预约",

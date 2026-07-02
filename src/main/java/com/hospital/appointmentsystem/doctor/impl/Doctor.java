@@ -1,6 +1,7 @@
 package com.hospital.appointmentsystem.doctor.impl;
 
 import com.hospital.appointmentsystem.department.impl.Department;
+import com.hospital.appointmentsystem.polyclinic.impl.Polyclinic;
 import jakarta.persistence.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
@@ -102,6 +103,10 @@ public class Doctor {
     @JoinColumn(name = "department_id", nullable = false)
     private Department department;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "polyclinic_id", nullable = true)
+    private Polyclinic polyclinic;
+
     // JPA için ZORUNLU
     public Doctor() {
     }
@@ -115,6 +120,18 @@ public class Doctor {
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.department = department;
+    }
+
+    public Doctor(String firstName, String lastName, String tcIdentityNumber, String specialization,
+                  String phoneNumber, String email, Department department, Polyclinic polyclinic) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.tcIdentityNumber = tcIdentityNumber;
+        this.specialization = specialization;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.department = department;
+        this.polyclinic = polyclinic;
     }
 
     // ── Getter ve Setter ──
@@ -192,5 +209,13 @@ public class Doctor {
 
     public void setDepartment(Department department) {
         this.department = department;
+    }
+
+    public Polyclinic getPolyclinic() {
+        return polyclinic;
+    }
+
+    public void setPolyclinic(Polyclinic polyclinic) {
+        this.polyclinic = polyclinic;
     }
 }

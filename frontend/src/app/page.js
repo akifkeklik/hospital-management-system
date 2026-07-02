@@ -38,7 +38,7 @@ export default function Dashboard() {
       const decoded = parseJwt(token);
       if (decoded && decoded.role) {
         setRole(decoded.role);
-        if (decoded.role === 'ROLE_PATIENT' || decoded.role === 'ROLE_DOCTOR') {
+        if (decoded.role === 'ROLE_PATIENT' || decoded.role === 'ROLE_DOCTOR' || decoded.role === 'HEKIM' || decoded.role === 'ROLE_HEKIM' || decoded.role === 'HASTA' || decoded.role === 'ROLE_HASTA') {
           // Hasta veya Doktor ise genel istatistik çekmeye gerek yok, kendi dashboard'ları var
           setLoading(false);
           return;
@@ -77,11 +77,11 @@ export default function Dashboard() {
     fetchStats();
   }, []);
 
-  if (role === 'ROLE_PATIENT') {
+  if (role === 'ROLE_PATIENT' || role === 'PATIENT' || role === 'HASTA' || role === 'ROLE_HASTA') {
     return <PatientDashboard />;
   }
 
-  if (role === 'ROLE_DOCTOR') {
+  if (role === 'ROLE_DOCTOR' || role === 'DOCTOR' || role === 'HEKIM' || role === 'ROLE_HEKIM') {
     return <DoctorDashboard />;
   }
 

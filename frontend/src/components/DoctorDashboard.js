@@ -120,6 +120,29 @@ export default function DoctorDashboard() {
             <span>{t('total_appointments') || 'Toplam Randevu'}</span>
             <span className={styles.statNumber}>{appointments.length}</span>
           </div>
+          
+          <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
+            <h4 style={{ marginBottom: '1rem', color: 'var(--text-main)', fontSize: '0.95rem' }}>Hızlı İşlemler</h4>
+            <a 
+              href="/doctor/leaves" 
+              style={{ 
+                display: 'block', 
+                width: '100%', 
+                padding: '0.75rem 1rem', 
+                backgroundColor: 'var(--primary)', 
+                color: 'white', 
+                textAlign: 'center', 
+                borderRadius: '8px', 
+                textDecoration: 'none', 
+                fontWeight: '600', 
+                transition: 'opacity 0.2s' 
+              }}
+              onMouseOver={(e) => e.target.style.opacity = 0.9}
+              onMouseOut={(e) => e.target.style.opacity = 1}
+            >
+              📅 İzin Talebi Oluştur
+            </a>
+          </div>
         </div>
         
       </div>

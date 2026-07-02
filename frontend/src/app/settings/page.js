@@ -3,6 +3,7 @@ import { useSettings } from '../../context/SettingsContext';
 import styles from './page.module.css';
 import { useEffect, useState } from 'react';
 import { AuthService, SystemSettingService } from '../../services/api';
+import { toast } from '../../components/Toast';
 
 export default function SettingsPage() {
   const { language, changeLanguage, themeColor, applyThemeColor, t, THEMES, LANGUAGES } = useSettings();
@@ -44,9 +45,9 @@ export default function SettingsPage() {
         lunchBreakEnd: lunchBreakEnd,
         maintenanceMode: maintenanceMode
       });
-      alert("Sistem ayarları başarıyla güncellendi!");
+      toast.success("Sistem ayarları başarıyla güncellendi!");
     } catch (err) {
-      alert("Ayarlar güncellenirken bir hata oluştu.");
+      toast.error("Ayarlar güncellenirken bir hata oluştu.");
       console.error(err);
     }
   };
@@ -63,22 +64,22 @@ export default function SettingsPage() {
         
         {/* Sistem Ayarları (Sadece Admin Görür) */}
         {userProfile?.role === 'ROLE_ADMIN' && (
-          <section className={styles.section} style={{ gridColumn: '1 / -1' }}>
-            <div className={styles.sectionHeader}>
+          <section className={styles.section} style={{ gridColumn: '1 / -1', padding: '1rem' }}>
+            <div className={styles.sectionHeader} style={{ marginBottom: '0.5rem' }}>
               <div className={styles.sectionIcon}>⚙️</div>
               <div>
-                <h2 className={styles.sectionTitle}>Hastane Sistem Ayarları</h2>
-                <p className={styles.sectionDesc}>Sistemin genel işleyiş kurallarını buradan yönetebilirsiniz.</p>
+                <h2 className={styles.sectionTitle} style={{ fontSize: '1.1rem' }}>Hastane Sistem Ayarları</h2>
+                <p className={styles.sectionDesc} style={{ fontSize: '0.8rem' }}>Sistemin genel işleyiş kurallarını yönetin.</p>
               </div>
             </div>
             
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginTop: '1.5rem' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--text-main)' }}>Standart Randevu Süresi</label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', marginTop: '0.5rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-main)' }}>Standart Randevu Süresi</label>
                 <select 
                   value={apptDuration} 
                   onChange={(e) => setApptDuration(e.target.value)}
-                  style={{ padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)' }}
+                  style={{ padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)', fontSize: '0.85rem' }}
                 >
                   <option value="10">10 Dakika</option>
                   <option value="15">15 Dakika</option>
@@ -87,67 +88,67 @@ export default function SettingsPage() {
                 </select>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--text-main)' }}>Mesai Başlangıç Saati</label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-main)' }}>Mesai Başlangıç</label>
                 <input 
                   type="time" 
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
-                  style={{ padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)' }}
+                  style={{ padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)', fontSize: '0.85rem' }}
                 />
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--text-main)' }}>Mesai Bitiş Saati</label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-main)' }}>Mesai Bitiş</label>
                 <input 
                   type="time" 
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
-                  style={{ padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)' }}
+                  style={{ padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)', fontSize: '0.85rem' }}
                 />
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--text-main)' }}>Öğle Arası Başlangıç</label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-main)' }}>Öğle Arası Başlangıç</label>
                 <input 
                   type="time" 
                   value={lunchBreakStart}
                   onChange={(e) => setLunchBreakStart(e.target.value)}
-                  style={{ padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)' }}
+                  style={{ padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)', fontSize: '0.85rem' }}
                 />
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--text-main)' }}>Öğle Arası Bitiş</label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-main)' }}>Öğle Arası Bitiş</label>
                 <input 
                   type="time" 
                   value={lunchBreakEnd}
                   onChange={(e) => setLunchBreakEnd(e.target.value)}
-                  style={{ padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)' }}
+                  style={{ padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)', fontSize: '0.85rem' }}
                 />
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)', gridColumn: '1 / -1' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', backgroundColor: 'var(--background)', borderRadius: '6px', border: '1px solid var(--border)', gridColumn: '1 / -1' }}>
                 <div>
-                  <div style={{ fontWeight: '600', color: 'var(--text-main)' }}>Bakım Modu</div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Sistemi geçici olarak hasta erişimine kapatın.</div>
+                  <div style={{ fontWeight: '600', color: 'var(--text-main)', fontSize: '0.85rem' }}>Bakım Modu</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Sistemi geçici olarak hasta erişimine kapatın.</div>
                 </div>
                 <button 
                   onClick={() => setMaintenanceMode(!maintenanceMode)}
-                  style={{ padding: '0.5rem 1rem', borderRadius: '20px', border: 'none', cursor: 'pointer', fontWeight: 'bold', backgroundColor: maintenanceMode ? '#ef4444' : '#e2e8f0', color: maintenanceMode ? '#fff' : '#64748b' }}
+                  style={{ padding: '0.4rem 0.8rem', borderRadius: '15px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.8rem', backgroundColor: maintenanceMode ? '#ef4444' : '#e2e8f0', color: maintenanceMode ? '#fff' : '#64748b' }}
                 >
                   {maintenanceMode ? 'AÇIK' : 'KAPALI'}
                 </button>
               </div>
-            </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.5rem' }}>
-              <button 
-                onClick={handleSaveSystemSettings}
-                style={{ backgroundColor: 'var(--primary)', color: '#fff', padding: '0.8rem 1.5rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '600' }}
-              >
-                Sistem Ayarlarını Kaydet
-              </button>
+              <div style={{ gridColumn: '1 / -1', textAlign: 'right' }}>
+                <button 
+                  onClick={handleSaveSystemSettings}
+                  style={{ padding: '0.6rem 1.5rem', backgroundColor: 'var(--primary)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '0.9rem' }}
+                >
+                  Sistem Ayarlarını Kaydet
+                </button>
+              </div>
             </div>
           </section>
         )}

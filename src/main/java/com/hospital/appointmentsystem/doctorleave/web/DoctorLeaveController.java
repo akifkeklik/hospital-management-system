@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin/doctor-leaves")
+@RequestMapping("/api/doctor-leaves")
 public class DoctorLeaveController {
 
     private final DoctorLeaveService doctorLeaveService;
@@ -19,7 +19,7 @@ public class DoctorLeaveController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     public ResponseEntity<List<DoctorLeaveDto>> getAllLeaves() {
         return ResponseEntity.ok(doctorLeaveService.getAllLeaves());
     }
@@ -31,9 +31,16 @@ public class DoctorLeaveController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     public ResponseEntity<DoctorLeaveDto> createLeave(@RequestBody DoctorLeaveDto dto) {
         return ResponseEntity.ok(doctorLeaveService.createLeave(dto));
+    }
+
+    @PatchMapping("/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<DoctorLeaveDto> updateLeaveStatus(@PathVariable Long id, @RequestBody java.util.Map<String, String> statusUpdate) {
+        String newStatus = statusUpdate.get("status");
+        return ResponseEntity.ok(doctorLeaveService.updateLeaveStatus(id, newStatus));
     }
 
     @DeleteMapping("/{id}")

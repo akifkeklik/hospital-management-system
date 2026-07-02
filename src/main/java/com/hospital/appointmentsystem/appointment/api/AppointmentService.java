@@ -24,6 +24,9 @@ public interface AppointmentService {
     /** Belirli bir tarih ve doktor için müsait (boş) saat dilimlerini getir */
     List<String> getAvailableSlots(Long doctorId, java.time.LocalDate date);
 
+    /** Randevuyu iptal et */
+    AppointmentDto cancelAppointment(Long id);
+
     AppointmentDto updateAppointment(Long id, AppointmentDto appointmentDto);
 
     /** Randevu durumunu güncelle (ör: SCHEDULED → COMPLETED) */
