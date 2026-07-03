@@ -30,7 +30,12 @@ export default function Header() {
         const data = await AuthService.getMe();
         setUserProfile(data);
         if (data && data.id) {
-          const notifs = await import('../services/api').then(m => m.NotificationService.getByPatient(data.id));
+          let notifs = [];
+          if (data.role === 'DOCTOR' || data.role === 'ROLE_DOCTOR' || data.role === 'HEKIM' || data.role === 'ROLE_HEKIM') {
+            notifs = await import('../services/api').then(m => m.NotificationService.getByDoctor(data.id));
+          } else {
+            notifs = await import('../services/api').then(m => m.NotificationService.getByPatient(data.id));
+          }
           setNotifications(notifs.slice(0, 5));
           setUnreadCount(notifs.filter(n => !n.read).length);
         }

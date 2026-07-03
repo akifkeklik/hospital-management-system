@@ -25,11 +25,12 @@ export default function PatientNotificationsPage() {
       const me = await AuthService.getMe();
       if (me) {
         setUserRole(me.role);
-        if (me.role === 'PATIENT' || me.role === 'ROLE_PATIENT' || me.role === 'HASTA' || me.role === 'ROLE_HASTA') {
-          const myNotifications = await NotificationService.getByPatient(me.id);
-          setNotifications(myNotifications);
-        } else if (me.role === 'DOCTOR' || me.role === 'ROLE_DOCTOR' || me.role === 'HEKIM' || me.role === 'ROLE_HEKIM') {
+        if (me.role === 'DOCTOR' || me.role === 'ROLE_DOCTOR' || me.role === 'HEKIM' || me.role === 'ROLE_HEKIM') {
           const myNotifications = await NotificationService.getByDoctor(me.id);
+          setNotifications(myNotifications);
+        } else {
+          // Patient and Admin
+          const myNotifications = await NotificationService.getByPatient(me.id);
           setNotifications(myNotifications);
         }
       }
