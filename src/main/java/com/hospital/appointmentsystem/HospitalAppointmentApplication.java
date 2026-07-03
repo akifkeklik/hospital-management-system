@@ -57,7 +57,9 @@ public class HospitalAppointmentApplication {
             com.hospital.appointmentsystem.department.impl.DepartmentRepository departmentRepository,
             com.hospital.appointmentsystem.polyclinic.impl.PolyclinicRepository polyclinicRepository,
             com.hospital.appointmentsystem.doctor.impl.DoctorRepository doctorRepository,
-            com.hospital.appointmentsystem.doctor.api.DoctorService doctorService) {
+            com.hospital.appointmentsystem.doctor.api.DoctorService doctorService,
+            com.hospital.appointmentsystem.patient.api.PatientService patientService,
+            com.hospital.appointmentsystem.appointment.api.AppointmentService appointmentService) {
         
         return args -> {
             // 1. Varsayılan Admin Kullanıcısı Oluşturma
@@ -133,6 +135,64 @@ public class HospitalAppointmentApplication {
                         }
                         System.out.println("   + Kuruldu: " + deptName + " (Odalar ve Doktorlar dahil)");
                     }
+                }
+                
+                // 4. Örnek Hastaları ve Randevuları Kaydet
+                System.out.println("⏳ Örnek hastalar ve randevular oluşturuluyor...");
+                java.util.List<com.hospital.appointmentsystem.patient.api.PatientDto> createdPatients = new java.util.ArrayList<>();
+                for(int i=1; i<=6; i++) {
+                    boolean isMale = rand.nextBoolean();
+                    String firstName = isMale ? maleNames[rand.nextInt(maleNames.length)] : femaleNames[rand.nextInt(femaleNames.length)];
+                    String lastName = surnames[rand.nextInt(surnames.length)];
+                    String tc = "2" + String.format("%010d", Math.abs(rand.nextLong() % 10000000000L));
+                    String phone = "05" + String.format("%09d", Math.abs(rand.nextInt(1000000000)));
+                    
+                    com.hospital.appointmentsystem.patient.api.PatientDto patientDto = new com.hospital.appointmentsystem.patient.api.PatientDto();
+                    patientDto.setFirstName(firstName);
+                    patientDto.setLastName(lastName);
+                    patientDto.setTcIdentityNumber(tc);
+                    patientDto.setPhoneNumber(phone);
+                    patientDto.setEmail(firstName.toLowerCase() + "." + lastName.toLowerCase() + rand.nextInt(1000) + "@patient.com");
+                    
+                    try {
+                        createdPatients.add(patientService.createPatient(patientDto));
+                    } catch (Exception e) {
+                        System.out.println("Hasta oluşturulamadı: " + e.getMessage());
+                    }
+                }
+                
+                // Doktorları çekip onlara randevu atayalım
+                java.util.List<com.hospital.appointmentsystem.doctor.impl.Doctor> allDoctors = doctorRepository.findAll();
+                if (!allDoctors.isEmpty() && !createdPatients.isEmpty()) {
+                    for(int i=0; i<6; i++) {
+                        com.hospital.appointmentsystem.patient.api.PatientDto p = createdPatients.get(i % createdPatients.size());
+                        com.hospital.appointmentsystem.doctor.impl.Doctor d = allDoctors.get(i % allDoctors.size());
+                        
+                        com.hospital.appointmentsystem.appointment.api.AppointmentDto apptDto = new com.hospital.appointmentsystem.appointment.api.AppointmentDto();
+                        apptDto.setPatientId(p.getId());
+                        apptDto.setDoctorId(d.getId());
+                        
+                        // İleri bir tarih (yarın ile 10 gün sonrası arası)
+                        int daysAhead = rand.nextInt(10) + 1;
+                        java.time.LocalDate apptDate = java.time.LocalDate.now().plusDays(daysAhead);
+                        
+                        // Uygun saatleri çek
+                        java.util.List<String> availableSlots = appointmentService.getAvailableSlots(d.getId(), apptDate);
+                        if (!availableSlots.isEmpty()) {
+                            String slot = availableSlots.get(rand.nextInt(availableSlots.size()));
+                            String[] timeParts = slot.split(":");
+                            java.time.LocalTime apptTime = java.time.LocalTime.of(Integer.parseInt(timeParts[0]), Integer.parseInt(timeParts[1]));
+                            apptDto.setAppointmentDate(java.time.LocalDateTime.of(apptDate, apptTime));
+                            apptDto.setNotes("İlk kurulum otomatik randevusu.");
+                            
+                            try {
+                                appointmentService.createAppointment(apptDto);
+                            } catch (Exception e) {
+                                System.out.println("Randevu oluşturulamadı: " + e.getMessage());
+                            }
+                        }
+                    }
+                    System.out.println("   + Kuruldu: Örnek Hastalar ve Randevular");
                 }
                 
                 // Kurulumun bir daha çalışmaması için flag user oluşturuyoruz
