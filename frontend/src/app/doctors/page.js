@@ -184,20 +184,20 @@ export default function DoctorsPage() {
             </select>
           </div>
 
-          {formData.departmentId && (
-            <div className={styles.formGroup}>
-              <label>{t('polyclinics') || 'Poliklinik'}</label>
-              <select 
-                value={formData.polyclinicId} 
-                onChange={(e) => setFormData({...formData, polyclinicId: e.target.value})}
-              >
-                <option value="">-- {t('select_polyclinic') || 'Poliklinik Seçin'} --</option>
-                {polyclinics.filter(p => p.departmentId === parseInt(formData.departmentId)).map(poly => (
-                  <option key={poly.id} value={poly.id}>{poly.name} ({poly.roomNumber})</option>
-                ))}
-              </select>
-            </div>
-          )}
+          <div className={styles.formGroup}>
+            <label>{t('polyclinics') || 'Poliklinik'}</label>
+            <select 
+              value={formData.polyclinicId} 
+              onChange={(e) => setFormData({...formData, polyclinicId: e.target.value})}
+              disabled={!formData.departmentId}
+              title={!formData.departmentId ? "Önce bir bölüm seçmelisiniz" : ""}
+            >
+              <option value="">-- {t('select_polyclinic') || 'Poliklinik Seçin'} --</option>
+              {formData.departmentId && polyclinics.filter(p => p.departmentId === parseInt(formData.departmentId)).map(poly => (
+                <option key={poly.id} value={poly.id}>{poly.name} ({poly.roomNumber})</option>
+              ))}
+            </select>
+          </div>
           
           <div className={styles.formGroup}>
             <label>{t('specialization') || 'Uzmanlık'}</label>
