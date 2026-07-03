@@ -123,7 +123,7 @@ export default function DoctorsPage() {
     return fullName.includes(term) || deptName.includes(term) || polyName.includes(term);
   });
 
-  const PAGE_SIZE = 8;
+  const PAGE_SIZE = 5;
   const calculatedTotalPages = Math.ceil(filteredDoctors.length / PAGE_SIZE);
   const displayedDoctors = filteredDoctors.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 

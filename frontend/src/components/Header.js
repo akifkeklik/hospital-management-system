@@ -83,7 +83,12 @@ export default function Header() {
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    window.addEventListener("hiddenNotifsUpdate", fetchProfile);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("hiddenNotifsUpdate", fetchProfile);
+    };
   }, []);
 
   const toggleTheme = () => {
@@ -276,6 +281,7 @@ export default function Header() {
                       localStorage.setItem('hiddenNotifs', JSON.stringify(hiddenNotifs));
                       setNotifications([]);
                       setUnreadCount(0);
+                      window.dispatchEvent(new Event('hiddenNotifsUpdate'));
                     }}
                     style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '0.8rem', cursor: 'pointer', padding: '0', fontWeight: '500' }}
                     onMouseOver={(e) => e.currentTarget.style.textDecoration = 'underline'}
@@ -317,9 +323,10 @@ export default function Header() {
                             const hiddenNotifs = JSON.parse(localStorage.getItem('hiddenNotifs') || '[]');
                             if (!hiddenNotifs.includes(notif.id)) hiddenNotifs.push(notif.id);
                             localStorage.setItem('hiddenNotifs', JSON.stringify(hiddenNotifs));
-                            const updated = notifications.filter(n => n.id !== notif.id);
-                            setNotifications(updated);
-                            setUnreadCount(updated.filter(n => !n.read).length);
+                            const newNotifs = notifications.filter(n => n.id !== notif.id);
+                            setNotifications(newNotifs);
+                            setUnreadCount(newNotifs.filter(n => !n.read).length);
+                            window.dispatchEvent(new Event('hiddenNotifsUpdate'));
                           }}
                           style={{
                             background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center'

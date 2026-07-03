@@ -90,6 +90,7 @@ export default function PatientNotificationsPage() {
               notifications.forEach(n => { if (!hiddenNotifs.includes(n.id)) hiddenNotifs.push(n.id); });
               localStorage.setItem('hiddenNotifs', JSON.stringify(hiddenNotifs));
               setNotifications([]);
+              window.dispatchEvent(new Event('hiddenNotifsUpdate'));
             }} 
             style={{ 
               padding: '0.6rem 1.2rem', 
@@ -156,6 +157,7 @@ export default function PatientNotificationsPage() {
                       if (!hiddenNotifs.includes(notif.id)) hiddenNotifs.push(notif.id);
                       localStorage.setItem('hiddenNotifs', JSON.stringify(hiddenNotifs));
                       setNotifications(notifications.filter(n => n.id !== notif.id));
+                      window.dispatchEvent(new Event('hiddenNotifsUpdate'));
                     }}
                     style={{
                       background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%'

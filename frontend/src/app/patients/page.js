@@ -140,7 +140,16 @@ function PatientsContent() {
         </button>
       </div>
 
-      <Scanner onScan={(tc) => setSearchTerm(tc)} />
+      <Scanner onScan={(tc) => {
+        setSearchTerm(tc);
+        const exists = allPatients.some(p => p.tcIdentityNumber === tc);
+        if (!exists) {
+          toast.info('Bu kimlik numarasına sahip hasta bulunamadı. Kayıt penceresi açılıyor...');
+          setFormData({ tcIdentityNumber: tc, firstName: '', lastName: '', phoneNumber: '', email: '' });
+          setEditingId(null);
+          setIsModalOpen(true);
+        }
+      }} />
 
       <div style={{ marginBottom: '1rem', marginTop: '1rem' }}>
         <input 
