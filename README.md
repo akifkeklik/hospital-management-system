@@ -26,7 +26,7 @@ A modern, robust, and secure Hospital Information Management System (HIMS) built
 - **Java 17** & **Spring Boot 3**
 - Spring Security (JWT Authentication)
 - Spring Data JPA (Hibernate)
-- PostgreSQL / MySQL / H2 Database
+- PostgreSQL / MySQL
 - Maven & Docker
 
 **Frontend (Client)**
