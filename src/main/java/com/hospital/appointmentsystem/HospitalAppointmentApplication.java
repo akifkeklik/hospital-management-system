@@ -51,12 +51,53 @@ public class HospitalAppointmentApplication {
     }
 
     @Bean
-    public org.springframework.boot.CommandLineRunner initData(JdbcTemplate jdbcTemplate, UserService userService) {
+    public org.springframework.boot.CommandLineRunner initData(
+            JdbcTemplate jdbcTemplate, 
+            UserService userService,
+            com.hospital.appointmentsystem.department.impl.DepartmentRepository departmentRepository,
+            com.hospital.appointmentsystem.polyclinic.impl.PolyclinicRepository polyclinicRepository) {
+        
         return args -> {
-            // Varsayılan Admin Kullanıcısı Oluşturma
+            // 1. Varsayılan Admin Kullanıcısı Oluşturma
             if (!userService.existsByUsername("admin")) {
                 userService.registerUser("admin", "admin@hospital.com", "admin123", "ROLE_ADMIN", null);
                 System.out.println("✅ Varsayılan Sistem Yöneticisi (Admin) oluşturuldu. Kullanıcı: admin | Şifre: admin123");
+            }
+
+            // 2. Varsayılan Bölüm ve Polikliniklerin Eklenmesi (Eğer boşsa)
+            if (departmentRepository.count() == 0) {
+                System.out.println("⏳ Veritabanı boş! Varsayılan Ana Bilim Dalları ve Poliklinikler oluşturuluyor...");
+                
+                String[] defaultDepartments = {
+                    "İç Hastalıkları (Dahiliye)", 
+                    "Kulak Burun Boğaz (KBB)", 
+                    "Göz Hastalıkları", 
+                    "Genel Cerrahi", 
+                    "Kardiyoloji", 
+                    "Nöroloji", 
+                    "Ortopedi ve Travmatoloji",
+                    "Çocuk Sağlığı ve Hastalıkları"
+                };
+
+                for (int i = 0; i < defaultDepartments.length; i++) {
+                    String deptName = defaultDepartments[i];
+                    
+                    // Bölümü kaydet
+                    com.hospital.appointmentsystem.department.impl.Department dept = 
+                        new com.hospital.appointmentsystem.department.impl.Department(deptName, deptName + " Ana Bilim Dalı");
+                    dept = departmentRepository.save(dept);
+                    
+                    // Her bölüme 2 adet Poliklinik (Oda) bağla
+                    com.hospital.appointmentsystem.polyclinic.impl.Polyclinic poly1 = 
+                        new com.hospital.appointmentsystem.polyclinic.impl.Polyclinic(deptName + " 1. Poliklinik", "Kat " + (i+1) + " - Oda 1", dept.getId());
+                    com.hospital.appointmentsystem.polyclinic.impl.Polyclinic poly2 = 
+                        new com.hospital.appointmentsystem.polyclinic.impl.Polyclinic(deptName + " 2. Poliklinik", "Kat " + (i+1) + " - Oda 2", dept.getId());
+                    
+                    polyclinicRepository.save(poly1);
+                    polyclinicRepository.save(poly2);
+                }
+                
+                System.out.println("✅ Varsayılan Bölümler ve Poliklinikler başarıyla sisteme yüklendi!");
             }
         };
     }
