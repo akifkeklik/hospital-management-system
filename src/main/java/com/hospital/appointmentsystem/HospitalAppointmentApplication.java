@@ -55,7 +55,9 @@ public class HospitalAppointmentApplication {
             JdbcTemplate jdbcTemplate, 
             UserService userService,
             com.hospital.appointmentsystem.department.impl.DepartmentRepository departmentRepository,
-            com.hospital.appointmentsystem.polyclinic.impl.PolyclinicRepository polyclinicRepository) {
+            com.hospital.appointmentsystem.polyclinic.impl.PolyclinicRepository polyclinicRepository,
+            com.hospital.appointmentsystem.doctor.impl.DoctorRepository doctorRepository,
+            com.hospital.appointmentsystem.doctor.api.DoctorService doctorService) {
         
         return args -> {
             // 1. Varsayılan Admin Kullanıcısı Oluşturma
@@ -89,7 +91,7 @@ public class HospitalAppointmentApplication {
                     // Bölümü kaydet
                     com.hospital.appointmentsystem.department.impl.Department dept = 
                         new com.hospital.appointmentsystem.department.impl.Department(deptName, deptName + " Ana Bilim Dalı");
-                    dept = departmentRepository.save(dept);
+                    departmentRepository.save(dept);
                     
                     // Her bölüme 2 adet Poliklinik (Oda) bağla
                     com.hospital.appointmentsystem.polyclinic.impl.Polyclinic poly1 = 
@@ -99,10 +101,51 @@ public class HospitalAppointmentApplication {
                     
                     polyclinicRepository.save(poly1);
                     polyclinicRepository.save(poly2);
-                    System.out.println("   + Eklendi: " + deptName);
+                    System.out.println("   + Eklendi: " + deptName + " (ve Poliklinikleri)");
                 }
             }
-            System.out.println("✅ Eksik olan Varsayılan Bölümler ve Poliklinikler sisteme yüklendi!");
+
+            // 3. Varsayılan Doktorların Eklenmesi
+            System.out.println("⏳ Örnek Doktorlar kontrol ediliyor...");
+            String[] maleNames = {"Ahmet", "Mehmet", "Ali", "Can", "Burak", "Emre", "Hakan", "Volkan", "Mustafa", "Kemal"};
+            String[] femaleNames = {"Ayşe", "Fatma", "Zeynep", "Elif", "Merve", "Büşra", "Ceren", "Derya", "Esra", "Gamze"};
+            String[] surnames = {"Yılmaz", "Kaya", "Demir", "Çelik", "Şahin", "Yıldız", "Öztürk", "Aydın", "Özdemir", "Arslan"};
+            java.util.Random rand = new java.util.Random();
+
+            departmentRepository.findAll().forEach(dept -> {
+                long doctorCountInDept = doctorRepository.findAll().stream()
+                    .filter(d -> d.getDepartment() != null && d.getDepartment().getId().equals(dept.getId()))
+                    .count();
+                
+                if (doctorCountInDept == 0) {
+                    java.util.List<com.hospital.appointmentsystem.polyclinic.impl.Polyclinic> polys = polyclinicRepository.findByDepartmentId(dept.getId());
+                    if (polys != null && !polys.isEmpty()) {
+                        for(int j=0; j<2; j++) { // Her bölüme 2 doktor
+                            boolean isMale = rand.nextBoolean();
+                            String firstName = isMale ? maleNames[rand.nextInt(maleNames.length)] : femaleNames[rand.nextInt(femaleNames.length)];
+                            String lastName = surnames[rand.nextInt(surnames.length)];
+                            
+                            String tc = "1" + String.format("%010d", Math.abs(rand.nextLong() % 10000000000L));
+                            String phone = "05" + String.format("%09d", Math.abs(rand.nextInt(1000000000)));
+                            
+                            com.hospital.appointmentsystem.doctor.api.DoctorDto doc = new com.hospital.appointmentsystem.doctor.api.DoctorDto();
+                            doc.setFirstName(firstName);
+                            doc.setLastName(lastName);
+                            doc.setTcIdentityNumber(tc);
+                            doc.setSpecialization("Uzman Doktor");
+                            doc.setPhoneNumber(phone);
+                            doc.setEmail(firstName.toLowerCase() + "." + lastName.toLowerCase() + rand.nextInt(10000) + "@hospital.com");
+                            doc.setDepartmentId(dept.getId());
+                            doc.setPolyclinicId(polys.get(j % polys.size()).getId()); 
+                            doc.setActive(true);
+                            
+                            doctorService.createDoctor(doc);
+                        }
+                        System.out.println("   + " + dept.getName() + " bölümüne 2 doktor atandı.");
+                    }
+                }
+            });
+            System.out.println("✅ Sistem veritabanı kurulumu tamamlandı!");
         };
     }
 }
