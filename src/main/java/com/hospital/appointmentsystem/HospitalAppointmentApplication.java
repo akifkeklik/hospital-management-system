@@ -53,12 +53,6 @@ public class HospitalAppointmentApplication {
     @Bean
     public org.springframework.boot.CommandLineRunner initData(JdbcTemplate jdbcTemplate, UserService userService) {
         return args -> {
-            jdbcTemplate.execute("UPDATE departments SET is_active = 1 WHERE is_active IS NULL");
-            jdbcTemplate.execute("UPDATE patients SET is_active = 1 WHERE is_active IS NULL");
-            jdbcTemplate.execute("UPDATE doctors SET is_active = 1 WHERE is_active IS NULL");
-            jdbcTemplate.execute("UPDATE appointments SET is_active = 1 WHERE is_active IS NULL");
-            System.out.println("✅ Eski veriler Soft Delete (is_active=1) ile başarıyla güncellendi.");
-
             // Varsayılan Admin Kullanıcısı Oluşturma
             if (!userService.existsByUsername("admin")) {
                 userService.registerUser("admin", "admin@hospital.com", "admin123", "ROLE_ADMIN", null);
