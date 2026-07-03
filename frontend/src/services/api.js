@@ -65,7 +65,8 @@ async function fetchAPI(endpoint, options = {}) {
       return null;
     }
 
-    return await response.json();
+    const text = await response.text();
+    return text ? JSON.parse(text) : null;
   } catch (error) {
     // console.error(`Fetch error on ${url}:`, error); // Removed to prevent Next.js overlay
     throw error;
