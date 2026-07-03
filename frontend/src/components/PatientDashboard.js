@@ -70,7 +70,7 @@ export default function PatientDashboard() {
       <div style={welcomeSectionStyle}>
         <div style={welcomeTextContainer}>
           <h1 style={titleStyle}>
-            {t('welcome')} {userProfile?.firstName ? userProfile.firstName : t('patient')} 👋
+            {t('patient_welcome')} {userProfile?.firstName ? userProfile.firstName : t('patient')} 👋
           </h1>
           <p style={subtitleStyle}>
             {t('patient_dashboard_subtitle')}

@@ -99,7 +99,8 @@ export const dictionaries = {
     reject_confirm: "Bu isteği reddetmek istediğinize emin misiniz?",
     approve_success: "Doktor onaylandı!",
     reject_success: "İstek reddedildi.",
-    specialization: "Uzmanlık"
+    specialization: "Uzmanlık",
+    patient_welcome: "Sağlıklı Günler Dileriz,"
   },
   en: {
     dashboard: "Dashboard",
@@ -212,7 +213,8 @@ export const dictionaries = {
     reject_confirm: "Are you sure you want to reject this request?",
     approve_success: "Doctor approved!",
     reject_success: "Request rejected.",
-    specialization: "Specialization"
+    specialization: "Specialization",
+    patient_welcome: "Wishing You Health,"
   },
   de: {
     dashboard: "Übersicht",
@@ -325,7 +327,8 @@ export const dictionaries = {
     reject_confirm: "Sind Sie sicher, dass Sie diese Anfrage ablehnen möchten?",
     approve_success: "Arzt genehmigt!",
     reject_success: "Anfrage abgelehnt.",
-    specialization: "Fachgebiet"
+    specialization: "Fachgebiet",
+    patient_welcome: "Wir wünschen Ihnen Gesundheit,"
   },
   fr: {
     dashboard: "Tableau de Bord",
@@ -439,7 +442,8 @@ export const dictionaries = {
     reject_confirm: "Êtes-vous sûr de vouloir rejeter cette demande ?",
     approve_success: "Médecin approuvé !",
     reject_success: "Demande rejetée.",
-    specialization: "Spécialisation"
+    specialization: "Spécialisation",
+    patient_welcome: "Nous vous souhaitons une bonne santé,"
   },
   es: {
     dashboard: "Panel",
@@ -552,7 +556,8 @@ export const dictionaries = {
     reject_confirm: "¿Está seguro de que desea rechazar esta solicitud?",
     approve_success: "¡Doctor aprobado!",
     reject_success: "Solicitud rechazada.",
-    specialization: "Especialización"
+    specialization: "Especialización",
+    patient_welcome: "Le deseamos salud,"
   },
   ru: {
     dashboard: "Панель",
@@ -665,7 +670,8 @@ export const dictionaries = {
     reject_confirm: "Вы уверены, что хотите отклонить этот запрос?",
     approve_success: "Врач одобрен!",
     reject_success: "Запрос отклонен.",
-    specialization: "Специализация"
+    specialization: "Специализация",
+    patient_welcome: "Желаем вам здоровья,"
   },
   ar: {
     dashboard: "لوحة القيادة",
@@ -778,7 +784,8 @@ export const dictionaries = {
     reject_confirm: "هل أنت متأكد أنك تريد رفض هذا الطلب؟",
     approve_success: "تمت الموافقة على الطبيب!",
     reject_success: "تم رفض الطلب.",
-    specialization: "تخصص"
+    specialization: "تخصص",
+    patient_welcome: "نتمنى لك الصحة،"
   },
   zh: {
     dashboard: "仪表板",
@@ -891,6 +898,7 @@ export const dictionaries = {
     reject_confirm: "您确定要拒绝此请求吗？",
     approve_success: "医生已批准！",
     reject_success: "请求已拒绝。",
-    specialization: "专业"
+    specialization: "专业",
+    patient_welcome: "祝您健康，"
   }
 };
