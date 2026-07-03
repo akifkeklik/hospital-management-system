@@ -66,61 +66,51 @@ public class HospitalAppointmentApplication {
                 System.out.println("✅ Varsayılan Sistem Yöneticisi (Admin) oluşturuldu. Kullanıcı: admin | Şifre: admin123");
             }
 
-            // 2. Varsayılan Bölüm ve Polikliniklerin Eklenmesi
-            System.out.println("⏳ Varsayılan Ana Bilim Dalları kontrol ediliyor...");
-            
-            String[] defaultDepartments = {
-                "İç Hastalıkları (Dahiliye)", 
-                "Kulak Burun Boğaz (KBB)", 
-                "Göz Hastalıkları", 
-                "Genel Cerrahi", 
-                "Kardiyoloji", 
-                "Nöroloji", 
-                "Ortopedi ve Travmatoloji",
-                "Çocuk Sağlığı ve Hastalıkları"
-            };
-
-            for (int i = 0; i < defaultDepartments.length; i++) {
-                String deptName = defaultDepartments[i];
+            // 2. Varsayılan Verilerin Yüklenmesi (SADECE BİR KERE ÇALIŞIR)
+            // Kullanıcı bu verileri sonradan silerse, sunucu yeniden başladığında tekrar geri GELMESİN diye flag kullanıyoruz.
+            if (!userService.existsByUsername("system_seeded_flag")) {
+                System.out.println("⏳ İlk Kurulum: Varsayılan veriler yükleniyor...");
                 
-                // Bölüm zaten var mı kontrol et
-                boolean exists = departmentRepository.findAll().stream()
-                    .anyMatch(d -> d.getName().equals(deptName));
-                    
-                if (!exists) {
-                    // Bölümü kaydet
-                    com.hospital.appointmentsystem.department.impl.Department dept = 
-                        new com.hospital.appointmentsystem.department.impl.Department(deptName, deptName + " Ana Bilim Dalı");
-                    departmentRepository.save(dept);
-                    
-                    // Her bölüme 2 adet Poliklinik (Oda) bağla
-                    com.hospital.appointmentsystem.polyclinic.impl.Polyclinic poly1 = 
-                        new com.hospital.appointmentsystem.polyclinic.impl.Polyclinic(deptName + " 1. Poliklinik", "Kat " + (i+1) + " - Oda 1", dept.getId());
-                    com.hospital.appointmentsystem.polyclinic.impl.Polyclinic poly2 = 
-                        new com.hospital.appointmentsystem.polyclinic.impl.Polyclinic(deptName + " 2. Poliklinik", "Kat " + (i+1) + " - Oda 2", dept.getId());
-                    
-                    polyclinicRepository.save(poly1);
-                    polyclinicRepository.save(poly2);
-                    System.out.println("   + Eklendi: " + deptName + " (ve Poliklinikleri)");
-                }
-            }
+                String[] defaultDepartments = {
+                    "İç Hastalıkları (Dahiliye)", 
+                    "Kulak Burun Boğaz (KBB)", 
+                    "Göz Hastalıkları", 
+                    "Genel Cerrahi", 
+                    "Kardiyoloji", 
+                    "Nöroloji", 
+                    "Ortopedi ve Travmatoloji",
+                    "Çocuk Sağlığı ve Hastalıkları"
+                };
 
-            // 3. Varsayılan Doktorların Eklenmesi
-            System.out.println("⏳ Örnek Doktorlar kontrol ediliyor...");
-            String[] maleNames = {"Ahmet", "Mehmet", "Ali", "Can", "Burak", "Emre", "Hakan", "Volkan", "Mustafa", "Kemal"};
-            String[] femaleNames = {"Ayşe", "Fatma", "Zeynep", "Elif", "Merve", "Büşra", "Ceren", "Derya", "Esra", "Gamze"};
-            String[] surnames = {"Yılmaz", "Kaya", "Demir", "Çelik", "Şahin", "Yıldız", "Öztürk", "Aydın", "Özdemir", "Arslan"};
-            java.util.Random rand = new java.util.Random();
+                String[] maleNames = {"Ahmet", "Mehmet", "Ali", "Can", "Burak", "Emre", "Hakan", "Volkan", "Mustafa", "Kemal"};
+                String[] femaleNames = {"Ayşe", "Fatma", "Zeynep", "Elif", "Merve", "Büşra", "Ceren", "Derya", "Esra", "Gamze"};
+                String[] surnames = {"Yılmaz", "Kaya", "Demir", "Çelik", "Şahin", "Yıldız", "Öztürk", "Aydın", "Özdemir", "Arslan"};
+                java.util.Random rand = new java.util.Random();
 
-            departmentRepository.findAll().forEach(dept -> {
-                long doctorCountInDept = doctorRepository.findAll().stream()
-                    .filter(d -> d.getDepartment() != null && d.getDepartment().getId().equals(dept.getId()))
-                    .count();
-                
-                if (doctorCountInDept == 0) {
-                    java.util.List<com.hospital.appointmentsystem.polyclinic.impl.Polyclinic> polys = polyclinicRepository.findByDepartmentId(dept.getId());
-                    if (polys != null && !polys.isEmpty()) {
-                        for(int j=0; j<2; j++) { // Her bölüme 2 doktor
+                for (int i = 0; i < defaultDepartments.length; i++) {
+                    String deptName = defaultDepartments[i];
+                    
+                    // Bölüm Zaten Var mı (Admin önceden elle eklemiş olabilir)
+                    boolean exists = departmentRepository.findAll().stream()
+                        .anyMatch(d -> d.getName().equals(deptName));
+                        
+                    if (!exists) {
+                        // 1. Bölümü Kaydet
+                        com.hospital.appointmentsystem.department.impl.Department dept = 
+                            new com.hospital.appointmentsystem.department.impl.Department(deptName, deptName + " Ana Bilim Dalı");
+                        departmentRepository.save(dept);
+                        
+                        // 2. Poliklinikleri Kaydet (Odalar)
+                        com.hospital.appointmentsystem.polyclinic.impl.Polyclinic poly1 = 
+                            new com.hospital.appointmentsystem.polyclinic.impl.Polyclinic(deptName + " 1. Poliklinik", "Kat " + (i+1) + " - Oda 1", dept.getId());
+                        com.hospital.appointmentsystem.polyclinic.impl.Polyclinic poly2 = 
+                            new com.hospital.appointmentsystem.polyclinic.impl.Polyclinic(deptName + " 2. Poliklinik", "Kat " + (i+1) + " - Oda 2", dept.getId());
+                        
+                        poly1 = polyclinicRepository.save(poly1);
+                        poly2 = polyclinicRepository.save(poly2);
+                        
+                        // 3. Doktorları Kaydet
+                        for(int j=1; j<=2; j++) {
                             boolean isMale = rand.nextBoolean();
                             String firstName = isMale ? maleNames[rand.nextInt(maleNames.length)] : femaleNames[rand.nextInt(femaleNames.length)];
                             String lastName = surnames[rand.nextInt(surnames.length)];
@@ -136,16 +126,21 @@ public class HospitalAppointmentApplication {
                             doc.setPhoneNumber(phone);
                             doc.setEmail(firstName.toLowerCase() + "." + lastName.toLowerCase() + rand.nextInt(10000) + "@hospital.com");
                             doc.setDepartmentId(dept.getId());
-                            doc.setPolyclinicId(polys.get(j % polys.size()).getId()); 
+                            doc.setPolyclinicId(j == 1 ? poly1.getId() : poly2.getId()); 
                             doc.setActive(true);
                             
                             doctorService.createDoctor(doc);
                         }
-                        System.out.println("   + " + dept.getName() + " bölümüne 2 doktor atandı.");
+                        System.out.println("   + Kuruldu: " + deptName + " (Odalar ve Doktorlar dahil)");
                     }
                 }
-            });
-            System.out.println("✅ Sistem veritabanı kurulumu tamamlandı!");
+                
+                // Kurulumun bir daha çalışmaması için flag user oluşturuyoruz
+                userService.registerUser("system_seeded_flag", "seeded@system.local", "system_seeded_flag_pass", "ROLE_ADMIN", null);
+                System.out.println("✅ İlk Kurulum tamamlandı! Veriler bir daha üzerine yazılmayacak.");
+            } else {
+                System.out.println("ℹ️ Sistem veritabanı zaten daha önce kurulmuş. Seeder atlandı.");
+            }
         };
     }
 }

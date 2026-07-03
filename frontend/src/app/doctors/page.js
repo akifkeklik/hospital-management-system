@@ -130,28 +130,28 @@ export default function DoctorsPage() {
       <Modal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
-        title={editingId ? 'Doktor Düzenle' : 'Yeni Doktor Ekle'}
+        title={editingId ? t('edit_doctor') || 'Doktor Düzenle' : t('add_doctor')}
       >
         <form onSubmit={handleSubmit}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className={styles.formGroup}>
-              <label>Ad</label>
+              <label>{t('name') || 'Ad'}</label>
               <input required value={formData.firstName} onChange={(e) => setFormData({...formData, firstName: e.target.value})} />
             </div>
             <div className={styles.formGroup}>
-              <label>Soyad</label>
+              <label>{t('surname') || 'Soyad'}</label>
               <input required value={formData.lastName} onChange={(e) => setFormData({...formData, lastName: e.target.value})} />
             </div>
           </div>
           
           <div className={styles.formGroup}>
-            <label>Bölüm</label>
+            <label>{t('department') || 'Bölüm'}</label>
             <select 
               required 
               value={formData.departmentId} 
               onChange={(e) => setFormData({...formData, departmentId: e.target.value, polyclinicId: ''})}
             >
-              <option value="">-- Bölüm Seçin --</option>
+              <option value="">-- {t('select_department') || 'Bölüm Seçin'} --</option>
               {departments.map(dept => (
                 <option key={dept.id} value={dept.id}>{dept.name}</option>
               ))}
@@ -160,12 +160,12 @@ export default function DoctorsPage() {
 
           {formData.departmentId && (
             <div className={styles.formGroup}>
-              <label>Poliklinik (Oda)</label>
+              <label>{t('polyclinics') || 'Poliklinik'}</label>
               <select 
                 value={formData.polyclinicId} 
                 onChange={(e) => setFormData({...formData, polyclinicId: e.target.value})}
               >
-                <option value="">-- Poliklinik Seçin (Opsiyonel) --</option>
+                <option value="">-- {t('select_polyclinic') || 'Poliklinik Seçin'} --</option>
                 {polyclinics.filter(p => p.departmentId === parseInt(formData.departmentId)).map(poly => (
                   <option key={poly.id} value={poly.id}>{poly.name} ({poly.roomNumber})</option>
                 ))}
@@ -174,16 +174,16 @@ export default function DoctorsPage() {
           )}
           
           <div className={styles.formGroup}>
-            <label>Uzmanlık (Örn: Uzm. Dr., Prof. Dr.)</label>
+            <label>{t('specialization') || 'Uzmanlık'}</label>
             <input required value={formData.specialization} onChange={(e) => setFormData({...formData, specialization: e.target.value})} />
           </div>
           
           <div className={styles.formGroup}>
-            <label>Telefon Numarası</label>
+            <label>{t('phone') || 'Telefon Numarası'}</label>
             <input maxLength="15" value={formData.phoneNumber} onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})} />
           </div>
           <div className={styles.formGroup}>
-            <label>E-Posta</label>
+            <label>{t('email') || 'E-Posta'}</label>
             <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
           </div>
           <div className={styles.formActions}>
@@ -195,12 +195,12 @@ export default function DoctorsPage() {
 
       <ConfirmModal
         isOpen={confirmModal.isOpen}
-        title="Silme İşlemi Onayı"
-        message="Bu doktoru silmek istediğinize emin misiniz?"
+        title={t('delete_confirm_title') || 'Silme İşlemi Onayı'}
+        message={t('delete_confirm_message') || 'Bu doktoru silmek istediğinize emin misiniz?'}
         onConfirm={executeDelete}
         onCancel={() => setConfirmModal({ isOpen: false, id: null })}
-        confirmText="Evet, Sil"
-        type="danger"
+        confirmText={t('yes_delete') || 'Evet, Sil'}
+        cancelText={t('cancel') || 'İptal'}
       />
     </div>
   );
