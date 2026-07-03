@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { DoctorService, DepartmentService, PolyclinicService } from '../../services/api';
 import DataTable from '../../components/DataTable';
 import Modal from '../../components/Modal';
@@ -10,6 +11,9 @@ import styles from '../shared.module.css';
 
 export default function DoctorsPage() {
   const { t } = useSettings();
+  const searchParams = useSearchParams();
+  const initialSearch = searchParams.get('search') || '';
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [doctors, setDoctors] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [polyclinics, setPolyclinics] = useState([]);
@@ -95,16 +99,28 @@ export default function DoctorsPage() {
   };
 
   const columns = [
-    { header: t('title_desc'), render: (row) => `${row.specialization} ${row.firstName} ${row.lastName}` },
+    { header: t('title_desc') || 'Ünvan/Ad Soyad', render: (row) => `${row.specialization} ${row.firstName} ${row.lastName}` },
     { header: t('department'), render: (row) => t(row.departmentName) },
     { header: t('polyclinics') || 'Poliklinik', render: (row) => row.polyclinicName || '-' },
     { header: t('phone'), accessor: 'phoneNumber' }
   ];
 
+  const filteredDoctors = doctors.filter(doc => {
+    if (!searchTerm) return true;
+    const term = searchTerm.toLowerCase();
+    const fullName = `${doc.firstName || ''} ${doc.lastName || ''}`.toLowerCase();
+    const deptName = doc.departmentName?.toLowerCase() || '';
+    const polyName = doc.polyclinicName?.toLowerCase() || '';
+    return fullName.includes(term) || deptName.includes(term) || polyName.includes(term);
+  });
+
   return (
-    <div>
+    <div className={styles.pageContainer}>
       <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>{t('doctors')}</h1>
+        <div>
+          <h1 className={styles.pageTitle}>{t('doctors')}</h1>
+          <p className={styles.pageDesc}>{t('doctor_desc')}</p>
+        </div>
         <button 
           className={styles.primaryBtn} 
           onClick={() => {
@@ -117,11 +133,21 @@ export default function DoctorsPage() {
         </button>
       </div>
 
+      <div style={{ marginBottom: '1rem' }}>
+        <input 
+          type="text" 
+          placeholder={t('global_search_placeholder') || "Doktor, bölüm veya poliklinik ara..."}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ width: '100%', maxWidth: '400px', padding: '0.6rem 1rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)', fontSize: '0.9rem' }}
+        />
+      </div>
+
       <DataTable 
-        columns={columns} 
-        data={doctors} 
-        onEdit={handleEdit} 
-        onDelete={handleDelete} 
+        columns={columns}
+        data={filteredDoctors}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
         page={page}
         totalPages={totalPages}
         onPageChange={setPage}

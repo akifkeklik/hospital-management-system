@@ -13,6 +13,7 @@ export default function Header() {
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
   const dropdownRef = useRef(null);
   const notifRef = useRef(null);
   const { t } = useSettings();
@@ -59,6 +60,14 @@ export default function Header() {
     document.documentElement.setAttribute('data-theme', newTheme);
   };
 
+  const handleGlobalSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/doctors?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery('');
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/auth/logout`, { method: 'POST', credentials: 'include' });
@@ -78,9 +87,21 @@ export default function Header() {
 
   return (
     <header className={styles.header}>
-      <div className={styles.search}>
-        {/* İleride buraya arama çubuğu gelebilir */}
-      </div>
+      <form className={styles.search} onSubmit={handleGlobalSearch}>
+        <div className={styles.searchIcon}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
+        <input 
+          type="text" 
+          placeholder={t('global_search_placeholder') || "Ara... (Örn: Doktor, Bölüm)"}
+          className={styles.searchInput}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </form>
       <div className={styles.actions}>
         <button className={styles.themeToggle} onClick={toggleTheme} title="Gündüz/Gece Modu">
           {theme === 'light' ? (

@@ -12,6 +12,7 @@ export default function DoctorDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [timeFilter, setTimeFilter] = useState('all'); // all, today, week, month, 3months, 6months
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -79,22 +80,61 @@ export default function DoctorDashboard() {
         {/* Sol Kolon: Randevular */}
         <div className={styles.card}>
           <div className={styles.cardHeader}>
-            <h2 className={styles.cardTitle}>
-              <span className={styles.icon}>📅</span>
-              {t('my_appointments') || 'Randevularım'}
+            <h2 className={styles.cardTitle} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+              <span>
+                <span className={styles.icon}>📅</span>
+                {t('my_appointments') || 'Randevularım'}
+              </span>
+              <select 
+                value={timeFilter} 
+                onChange={(e) => setTimeFilter(e.target.value)}
+                style={{ padding: '0.4rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)', fontSize: '0.85rem' }}
+              >
+                <option value="all">{t('filter_all_time') || 'Tüm Zamanlar'}</option>
+                <option value="today">{t('filter_today') || 'Bugün'}</option>
+                <option value="week">{t('filter_this_week') || 'Bu Hafta (7 Gün)'}</option>
+                <option value="month">{t('filter_this_month') || 'Bu Ay (30 Gün)'}</option>
+                <option value="3months">{t('filter_three_months') || 'Son 3 Ay'}</option>
+                <option value="6months">{t('filter_six_months') || 'Son 6 Ay'}</option>
+              </select>
             </h2>
           </div>
           
           <div className={styles.cardBody}>
-            {appointments.length === 0 ? (
+            {appointments.filter(app => {
+              if (timeFilter === 'all') return true;
+              const appDate = new Date(app.appointmentDate);
+              const now = new Date();
+              const diffMs = appDate - now;
+              const diffDays = diffMs / (1000 * 60 * 60 * 24);
+              
+              if (timeFilter === 'today') return diffDays >= 0 && diffDays < 1;
+              if (timeFilter === 'week') return diffDays >= 0 && diffDays <= 7;
+              if (timeFilter === 'month') return diffDays >= 0 && diffDays <= 30;
+              if (timeFilter === '3months') return diffDays >= 0 && diffDays <= 90;
+              if (timeFilter === '6months') return diffDays >= 0 && diffDays <= 180;
+              return true;
+            }).length === 0 ? (
               <EmptyState 
-                icon="☕" 
-                title={t('no_appointments_doc') || 'Şu an için hiç randevunuz bulunmuyor.'} 
-                description={t('no_appointments_desc') || 'Hastalar randevu aldıkça burada listelenecektir.'} 
+                title={t('empty_state_title') || 'Veri Bulunamadı'} 
+                description={t('empty_state_desc') || 'Şu an için gösterilecek herhangi bir kayıt yok.'} 
               />
             ) : (
               <div className={styles.appointmentList}>
-                {appointments.map((app) => (
+                {appointments.filter(app => {
+                  if (timeFilter === 'all') return true;
+                  const appDate = new Date(app.appointmentDate);
+                  const now = new Date();
+                  const diffMs = appDate - now;
+                  const diffDays = diffMs / (1000 * 60 * 60 * 24);
+                  
+                  if (timeFilter === 'today') return diffDays >= 0 && diffDays < 1;
+                  if (timeFilter === 'week') return diffDays >= 0 && diffDays <= 7;
+                  if (timeFilter === 'month') return diffDays >= 0 && diffDays <= 30;
+                  if (timeFilter === '3months') return diffDays >= 0 && diffDays <= 90;
+                  if (timeFilter === '6months') return diffDays >= 0 && diffDays <= 180;
+                  return true;
+                }).map((app) => (
                   <div key={app.id} className={styles.appointmentItem}>
                     <div className={styles.appointmentTime}>
                       <div className={styles.timeValue}>{app.appointmentTime}</div>
