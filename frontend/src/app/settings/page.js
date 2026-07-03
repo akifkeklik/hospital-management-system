@@ -68,28 +68,28 @@ export default function SettingsPage() {
             <div className={styles.sectionHeader} style={{ marginBottom: '0.5rem' }}>
               <div className={styles.sectionIcon}>⚙️</div>
               <div>
-                <h2 className={styles.sectionTitle} style={{ fontSize: '1.1rem' }}>Hastane Sistem Ayarları</h2>
-                <p className={styles.sectionDesc} style={{ fontSize: '0.8rem' }}>Sistemin genel işleyiş kurallarını yönetin.</p>
+                <h2 className={styles.sectionTitle} style={{ fontSize: '1.1rem' }}>{t('Hastane Sistem Ayarları')}</h2>
+                <p className={styles.sectionDesc} style={{ fontSize: '0.8rem' }}>{t('Sistemin genel işleyiş kurallarını yönetin.')}</p>
               </div>
             </div>
             
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', marginTop: '0.5rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-main)' }}>Standart Randevu Süresi</label>
+                <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-main)' }}>{t('Standart Randevu Süresi')}</label>
                 <select 
                   value={apptDuration} 
                   onChange={(e) => setApptDuration(e.target.value)}
                   style={{ padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)', fontSize: '0.85rem' }}
                 >
-                  <option value="10">10 Dakika</option>
-                  <option value="15">15 Dakika</option>
-                  <option value="20">20 Dakika</option>
-                  <option value="30">30 Dakika</option>
+                  <option value="10">10 {t('Dakika')}</option>
+                  <option value="15">15 {t('Dakika')}</option>
+                  <option value="20">20 {t('Dakika')}</option>
+                  <option value="30">30 {t('Dakika')}</option>
                 </select>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-main)' }}>Mesai Başlangıç</label>
+                <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-main)' }}>{t('Mesai Başlangıç')}</label>
                 <input 
                   type="time" 
                   value={startTime}
@@ -99,7 +99,7 @@ export default function SettingsPage() {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-main)' }}>Mesai Bitiş</label>
+                <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-main)' }}>{t('Mesai Bitiş')}</label>
                 <input 
                   type="time" 
                   value={endTime}
@@ -109,7 +109,7 @@ export default function SettingsPage() {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-main)' }}>Öğle Arası Başlangıç</label>
+                <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-main)' }}>{t('Öğle Arası Başlangıç')}</label>
                 <input 
                   type="time" 
                   value={lunchBreakStart}
@@ -119,7 +119,7 @@ export default function SettingsPage() {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-main)' }}>Öğle Arası Bitiş</label>
+                <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-main)' }}>{t('Öğle Arası Bitiş')}</label>
                 <input 
                   type="time" 
                   value={lunchBreakEnd}
@@ -130,14 +130,14 @@ export default function SettingsPage() {
 
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', backgroundColor: 'var(--background)', borderRadius: '6px', border: '1px solid var(--border)', gridColumn: '1 / -1' }}>
                 <div>
-                  <div style={{ fontWeight: '600', color: 'var(--text-main)', fontSize: '0.85rem' }}>Bakım Modu</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Sistemi geçici olarak hasta erişimine kapatın.</div>
+                  <div style={{ fontWeight: '600', color: 'var(--text-main)', fontSize: '0.85rem' }}>{t('Bakım Modu')}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('Sistemi geçici olarak hasta erişimine kapatın.')}</div>
                 </div>
                 <button 
                   onClick={() => setMaintenanceMode(!maintenanceMode)}
                   style={{ padding: '0.4rem 0.8rem', borderRadius: '15px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.8rem', backgroundColor: maintenanceMode ? '#ef4444' : '#e2e8f0', color: maintenanceMode ? '#fff' : '#64748b' }}
                 >
-                  {maintenanceMode ? 'AÇIK' : 'KAPALI'}
+                  {maintenanceMode ? t('AÇIK') : t('KAPALI')}
                 </button>
               </div>
 
@@ -146,7 +146,7 @@ export default function SettingsPage() {
                   onClick={handleSaveSystemSettings}
                   style={{ padding: '0.6rem 1.5rem', backgroundColor: 'var(--primary)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '0.9rem' }}
                 >
-                  Sistem Ayarlarını Kaydet
+                  {t('Sistem Ayarlarını Kaydet')}
                 </button>
               </div>
             </div>

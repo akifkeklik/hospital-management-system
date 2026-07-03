@@ -147,7 +147,7 @@ export default function Header() {
               </div>
               <div style={{ maxHeight: '300px', overflowY: 'auto', padding: '0' }}>
                 {notifications.length === 0 ? (
-                  <div style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Hiç bildiriminiz yok.</div>
+                  <div style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>{t('Hiç bildiriminiz yok.')}</div>
                 ) : (
                   notifications.map(notif => (
                     <div 
@@ -183,7 +183,7 @@ export default function Header() {
                   onMouseOver={(e) => { e.currentTarget.style.textDecoration = 'underline'; }}
                   onMouseOut={(e) => { e.currentTarget.style.textDecoration = 'none'; }}
                 >
-                  Tüm Bildirimleri Gör
+                  {t('Tüm Bildirimleri Gör')}
                 </button>
               </div>
             </div>

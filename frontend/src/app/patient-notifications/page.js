@@ -56,10 +56,10 @@ export default function PatientNotificationsPage() {
     try {
       await NotificationService.broadcastToDoctors(broadcastMessage);
       setBroadcastMessage('');
-      toast.success('Duyuru tüm hekimlere başarıyla gönderildi!');
+      toast.success(t('Duyuru tüm hekimlere başarıyla gönderildi!'));
     } catch (err) {
       console.error(err);
-      toast.error('Duyuru gönderilemedi.');
+      toast.error(t('Duyuru gönderilemedi.'));
     } finally {
       setBroadcasting(false);
     }
@@ -112,12 +112,12 @@ export default function PatientNotificationsPage() {
         ) : loading ? (
           <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
             <div className={styles.spinner} style={{ margin: '0 auto 1rem' }}></div>
-            Bildirimler yükleniyor...
+            {t('Bildirimler yükleniyor...')}
           </div>
         ) : notifications.length === 0 ? (
           <div style={{ padding: '4rem 2rem', textAlign: 'center', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            <span>Şu an için yeni bir bildiriminiz bulunmuyor.</span>
+            <span>{t('Şu an için yeni bir bildiriminiz bulunmuyor.')}</span>
           </div>
         ) : (
           notifications.map(notif => (
@@ -137,7 +137,7 @@ export default function PatientNotificationsPage() {
             >
               <div style={{ flex: 1, paddingRight: '1rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.4rem' }}>
-                  {!notif.read && <span style={{ padding: '2px 8px', fontSize: '0.7rem', fontWeight: 'bold', backgroundColor: 'var(--primary)', color: 'white', borderRadius: '12px', letterSpacing: '0.5px' }}>YENİ</span>}
+                  {!notif.read && <span style={{ padding: '2px 8px', fontSize: '0.7rem', fontWeight: 'bold', backgroundColor: 'var(--primary)', color: 'white', borderRadius: '12px', letterSpacing: '0.5px' }}>{t('YENİ')}</span>}
                   <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                     {new Date(notif.createdAt).toLocaleString('tr-TR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
@@ -165,7 +165,7 @@ export default function PatientNotificationsPage() {
                   onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'var(--primary)'; e.currentTarget.style.color = 'white'; }}
                   onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--primary)'; }}
                 >
-                  Okundu
+                  {t('Okundu')}
                 </button>
               )}
             </div>
