@@ -64,24 +64,28 @@ public class HospitalAppointmentApplication {
                 System.out.println("✅ Varsayılan Sistem Yöneticisi (Admin) oluşturuldu. Kullanıcı: admin | Şifre: admin123");
             }
 
-            // 2. Varsayılan Bölüm ve Polikliniklerin Eklenmesi (Eğer boşsa)
-            if (departmentRepository.count() == 0) {
-                System.out.println("⏳ Veritabanı boş! Varsayılan Ana Bilim Dalları ve Poliklinikler oluşturuluyor...");
-                
-                String[] defaultDepartments = {
-                    "İç Hastalıkları (Dahiliye)", 
-                    "Kulak Burun Boğaz (KBB)", 
-                    "Göz Hastalıkları", 
-                    "Genel Cerrahi", 
-                    "Kardiyoloji", 
-                    "Nöroloji", 
-                    "Ortopedi ve Travmatoloji",
-                    "Çocuk Sağlığı ve Hastalıkları"
-                };
+            // 2. Varsayılan Bölüm ve Polikliniklerin Eklenmesi
+            System.out.println("⏳ Varsayılan Ana Bilim Dalları kontrol ediliyor...");
+            
+            String[] defaultDepartments = {
+                "İç Hastalıkları (Dahiliye)", 
+                "Kulak Burun Boğaz (KBB)", 
+                "Göz Hastalıkları", 
+                "Genel Cerrahi", 
+                "Kardiyoloji", 
+                "Nöroloji", 
+                "Ortopedi ve Travmatoloji",
+                "Çocuk Sağlığı ve Hastalıkları"
+            };
 
-                for (int i = 0; i < defaultDepartments.length; i++) {
-                    String deptName = defaultDepartments[i];
+            for (int i = 0; i < defaultDepartments.length; i++) {
+                String deptName = defaultDepartments[i];
+                
+                // Bölüm zaten var mı kontrol et
+                boolean exists = departmentRepository.findAll().stream()
+                    .anyMatch(d -> d.getName().equals(deptName));
                     
+                if (!exists) {
                     // Bölümü kaydet
                     com.hospital.appointmentsystem.department.impl.Department dept = 
                         new com.hospital.appointmentsystem.department.impl.Department(deptName, deptName + " Ana Bilim Dalı");
@@ -95,10 +99,10 @@ public class HospitalAppointmentApplication {
                     
                     polyclinicRepository.save(poly1);
                     polyclinicRepository.save(poly2);
+                    System.out.println("   + Eklendi: " + deptName);
                 }
-                
-                System.out.println("✅ Varsayılan Bölümler ve Poliklinikler başarıyla sisteme yüklendi!");
             }
+            System.out.println("✅ Eksik olan Varsayılan Bölümler ve Poliklinikler sisteme yüklendi!");
         };
     }
 }
