@@ -169,11 +169,11 @@ export const NotificationService = {
   getUnreadCountByDoctor: (doctorId) => fetchAPI(`/notifications/doctor/${doctorId}/unread-count`),
   broadcastToDoctors: (message) => fetchAPI('/notifications/broadcast', {
     method: 'POST',
-    body: message
+    body: JSON.stringify(message)
   }),
   broadcastToAll: (message) => fetchAPI('/notifications/broadcast-all', {
     method: 'POST',
-    body: message
+    body: JSON.stringify(message)
   }),
   markAsRead: (id) => fetchAPI(`/notifications/${id}/read`, { method: 'PATCH' })
 };
