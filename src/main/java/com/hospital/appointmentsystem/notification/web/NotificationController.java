@@ -43,6 +43,12 @@ public class NotificationController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/broadcast-all")
+    public ResponseEntity<Void> broadcastToAll(@RequestBody String message) {
+        notificationService.broadcastToAll(message);
+        return ResponseEntity.ok().build();
+    }
+
     @PatchMapping("/{id}/read")
     public ResponseEntity<Void> markAsRead(@PathVariable Long id) {
         notificationService.markAsRead(id);

@@ -9,16 +9,20 @@ import java.util.stream.Collectors;
 
 import com.hospital.appointmentsystem.doctor.impl.DoctorRepository;
 import com.hospital.appointmentsystem.doctor.impl.Doctor;
+import com.hospital.appointmentsystem.patient.impl.PatientRepository;
+import com.hospital.appointmentsystem.patient.impl.Patient;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final DoctorRepository doctorRepository;
+    private final PatientRepository patientRepository;
 
-    public NotificationServiceImpl(NotificationRepository notificationRepository, DoctorRepository doctorRepository) {
+    public NotificationServiceImpl(NotificationRepository notificationRepository, DoctorRepository doctorRepository, PatientRepository patientRepository) {
         this.notificationRepository = notificationRepository;
         this.doctorRepository = doctorRepository;
+        this.patientRepository = patientRepository;
     }
 
     @Override
@@ -46,6 +50,21 @@ public class NotificationServiceImpl implements NotificationService {
         List<Doctor> doctors = doctorRepository.findAll();
         for (Doctor doc : doctors) {
             Notification notification = new Notification(null, doc.getId(), message);
+            notificationRepository.save(notification);
+        }
+    }
+
+    @Override
+    public void broadcastToAll(String message) {
+        List<Doctor> doctors = doctorRepository.findAll();
+        for (Doctor doc : doctors) {
+            Notification notification = new Notification(null, doc.getId(), message);
+            notificationRepository.save(notification);
+        }
+        
+        List<Patient> patients = patientRepository.findAll();
+        for (Patient patient : patients) {
+            Notification notification = new Notification(patient.getId(), null, message);
             notificationRepository.save(notification);
         }
     }

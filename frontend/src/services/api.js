@@ -171,6 +171,10 @@ export const NotificationService = {
     method: 'POST',
     body: message
   }),
+  broadcastToAll: (message) => fetchAPI('/notifications/broadcast-all', {
+    method: 'POST',
+    body: message
+  }),
   markAsRead: (id) => fetchAPI(`/notifications/${id}/read`, { method: 'PATCH' })
 };
 

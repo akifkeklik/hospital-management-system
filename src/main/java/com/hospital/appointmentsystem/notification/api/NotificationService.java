@@ -7,6 +7,7 @@ public interface NotificationService {
     List<NotificationDto> getNotificationsByPatient(Long patientId);
     List<NotificationDto> getNotificationsByDoctor(Long doctorId);
     void broadcastToDoctors(String message);
+    void broadcastToAll(String message);
     void markAsRead(Long notificationId);
     long getUnreadCountForPatient(Long patientId);
     long getUnreadCountForDoctor(Long doctorId);
