@@ -98,11 +98,34 @@ export default function Header() {
     document.documentElement.setAttribute('data-theme', newTheme);
   };
 
+  const filteredSuggestions = searchQuery.trim().length >= 2 ? (() => {
+    const term = searchQuery.toLowerCase().trim();
+    const docSuggestions = allDoctors.filter(d => 
+      `${d.firstName} ${d.lastName}`.toLowerCase().includes(term) || 
+      (d.specialization && d.specialization.toLowerCase().includes(term))
+    ).slice(0, 5).map(d => ({ type: 'doctor', text: `${d.firstName} ${d.lastName} (Hekim) - ${d.specialization || 'Bölüm Yok'}`, url: `/doctors?search=${encodeURIComponent(d.firstName)}` }));
+
+    const deptSuggestions = allDepartments.filter(d => 
+      d.name.toLowerCase().includes(term)
+    ).slice(0, 3).map(d => ({ type: 'department', text: `${d.name} (Bölüm)`, url: `/doctors?search=${encodeURIComponent(d.name)}` }));
+
+    const patSuggestions = allPatients.filter(p => 
+      `${p.firstName} ${p.lastName}`.toLowerCase().includes(term) || 
+      (p.tcIdentityNumber && p.tcIdentityNumber.includes(term))
+    ).slice(0, 3).map(p => ({ type: 'patient', text: `${p.firstName} ${p.lastName} (Hasta) - ${p.tcIdentityNumber}`, url: `/patients?search=${encodeURIComponent(p.tcIdentityNumber)}` }));
+
+    return [...docSuggestions, ...deptSuggestions, ...patSuggestions];
+  })() : [];
+
   const handleGlobalSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/doctors?search=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchQuery('');
+      if (filteredSuggestions && filteredSuggestions.length > 0) {
+        router.push(filteredSuggestions[0].url);
+      } else {
+        router.push(`/doctors?search=${encodeURIComponent(searchQuery.trim())}`);
+      }
+      setShowSuggestions(false);
     }
   };
 
@@ -115,25 +138,6 @@ export default function Header() {
     localStorage.removeItem('token');
     router.push('/login');
   };
-
-  const filteredSuggestions = searchQuery.trim().length >= 2 ? (() => {
-    const term = searchQuery.toLowerCase().trim();
-    const docSuggestions = allDoctors.filter(d => 
-      `${d.firstName} ${d.lastName}`.toLowerCase().includes(term) || 
-      (d.specialization && d.specialization.toLowerCase().includes(term))
-    ).slice(0, 5).map(d => ({ type: 'doctor', text: `${d.firstName} ${d.lastName} - ${d.specialization || 'Doktor'}`, url: `/doctors?search=${encodeURIComponent(d.firstName)}` }));
-
-    const deptSuggestions = allDepartments.filter(d => 
-      d.name.toLowerCase().includes(term)
-    ).slice(0, 3).map(d => ({ type: 'department', text: d.name, url: `/doctors?search=${encodeURIComponent(d.name)}` }));
-
-    const patSuggestions = allPatients.filter(p => 
-      `${p.firstName} ${p.lastName}`.toLowerCase().includes(term) || 
-      (p.tcIdentityNumber && p.tcIdentityNumber.includes(term))
-    ).slice(0, 3).map(p => ({ type: 'patient', text: `${p.tcIdentityNumber} - ${p.firstName} ${p.lastName}`, url: `/patients?search=${encodeURIComponent(p.tcIdentityNumber)}` }));
-
-    return [...docSuggestions, ...deptSuggestions, ...patSuggestions];
-  })() : [];
 
   const roleText = (userProfile?.role === 'ROLE_PATIENT' || userProfile?.role === 'PATIENT' || userProfile?.role === 'HASTA') ? t('patient') : 
                    (userProfile?.role === 'ROLE_DOCTOR' || userProfile?.role === 'DOCTOR' || userProfile?.role === 'HEKIM' || userProfile?.role === 'HEKİM') ? t('doctor') : t('admin_role');
