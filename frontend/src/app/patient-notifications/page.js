@@ -2,9 +2,11 @@
 import { useEffect, useState } from 'react';
 import { NotificationService, AuthService } from '../../services/api';
 import { toast } from '../../components/Toast';
+import { useSettings } from '../../context/SettingsContext';
 import styles from '../shared.module.css';
 
 export default function PatientNotificationsPage() {
+  const { t } = useSettings();
   const [notifications, setNotifications] = useState([]);
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -66,15 +68,15 @@ export default function PatientNotificationsPage() {
   if (!mounted) return null;
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
+    <div style={{ padding: '2rem 3rem', maxWidth: '1200px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
         <div style={{ padding: '0.75rem', backgroundColor: 'var(--primary)', borderRadius: '12px', color: 'white', display: 'flex' }}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         </div>
         <div>
-          <h1 style={{ fontSize: '1.8rem', color: 'var(--text-main)', margin: 0 }}>Bildirim Merkezi</h1>
+          <h1 style={{ fontSize: '1.8rem', color: 'var(--text-main)', margin: 0 }}>{t('notification_center') || 'Bildirim Merkezi'}</h1>
           <p style={{ color: 'var(--text-muted)', margin: '0.2rem 0 0 0', fontSize: '0.95rem' }}>
-            Güncel durumları ve bilgilendirmeleri takip edin.
+            {t('notification_center_desc') || 'Güncel durumları ve bilgilendirmeleri takip edin.'}
           </p>
         </div>
       </div>
@@ -82,12 +84,12 @@ export default function PatientNotificationsPage() {
       <div className={styles.card} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         {userRole === 'ADMIN' ? (
           <div style={{ padding: '1rem' }}>
-            <h2 style={{ fontSize: '1.4rem', color: 'var(--text-main)', marginBottom: '1rem' }}>Genel Duyuru (Tüm Hekimlere)</h2>
+            <h2 style={{ fontSize: '1.4rem', color: 'var(--text-main)', marginBottom: '1rem' }}>{t('general_announcement') || 'Genel Duyuru (Tüm Hekimlere)'}</h2>
             <form onSubmit={handleBroadcast}>
               <textarea 
                 rows="4" 
                 style={{ width: '100%', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--background)', color: 'var(--text-main)', marginBottom: '1rem', resize: 'vertical' }}
-                placeholder="Tüm hekimlere iletilecek mesajı buraya yazın..."
+                placeholder={t('announcement_placeholder') || 'Tüm hekimlere iletilecek mesajı buraya yazın...'}
                 value={broadcastMessage}
                 onChange={(e) => setBroadcastMessage(e.target.value)}
                 required
@@ -98,7 +100,7 @@ export default function PatientNotificationsPage() {
                 className={styles.primaryBtn}
                 style={{ width: '100%' }}
               >
-                {broadcasting ? 'Gönderiliyor...' : 'Tüm Hekimlere Gönder'}
+                {broadcasting ? (t('sending') || 'Gönderiliyor...') : (t('send_to_all_doctors') || 'Tüm Hekimlere Gönder')}
               </button>
             </form>
           </div>
