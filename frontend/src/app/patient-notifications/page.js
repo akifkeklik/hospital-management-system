@@ -82,34 +82,7 @@ export default function PatientNotificationsPage() {
       </div>
 
       <div className={styles.card} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        {userRole === 'ADMIN' || userRole === 'ROLE_ADMIN' || userRole === 'SISTEM_YONETICISI' ? (
-          <div style={{ maxWidth: '600px', margin: '0 auto', padding: '1.5rem', backgroundColor: 'var(--background)', borderRadius: '16px', border: '1px solid var(--border)', textAlign: 'center', boxShadow: 'var(--shadow-sm)' }}>
-            <div style={{ marginBottom: '1rem' }}>
-              <div style={{ display: 'inline-flex', padding: '1rem', backgroundColor: 'rgba(37, 99, 235, 0.1)', borderRadius: '50%', color: 'var(--primary)', marginBottom: '0.5rem' }}>
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-              </div>
-              <h2 style={{ fontSize: '1.5rem', color: 'var(--text-main)', margin: 0 }}>{t('Genel Duyuru (Tüm Hekimlere)')}</h2>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.5rem' }}>{t('Tüm hekimlere anlık olarak iletilecek sistem duyurusunu aşağıya yazabilirsiniz.')}</p>
-            </div>
-            <form onSubmit={handleBroadcast} style={{ textAlign: 'left' }}>
-              <textarea 
-                rows="4" 
-                style={{ width: '100%', padding: '1.2rem', borderRadius: '12px', border: '1px solid var(--border)', backgroundColor: 'var(--surface)', color: 'var(--text-main)', marginBottom: '1rem', resize: 'vertical', fontSize: '0.95rem', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)' }}
-                placeholder={t('Tüm hekimlere iletilecek mesajı buraya yazın...')}
-                value={broadcastMessage}
-                onChange={(e) => setBroadcastMessage(e.target.value)}
-                required
-              />
-              <button 
-                type="submit" 
-                disabled={broadcasting}
-                style={{ width: '100%', padding: '1rem', borderRadius: '10px', border: 'none', backgroundColor: 'var(--primary)', color: 'white', fontWeight: 'bold', fontSize: '1rem', cursor: broadcasting ? 'not-allowed' : 'pointer', transition: 'all 0.2s', opacity: broadcasting ? 0.7 : 1, boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)' }}
-              >
-                {broadcasting ? t('Gönderiliyor...') : t('Tüm Hekimlere Gönder')}
-              </button>
-            </form>
-          </div>
-        ) : loading ? (
+        {loading ? (
           <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
             <div className={styles.spinner} style={{ margin: '0 auto 1rem' }}></div>
             {t('Bildirimler yükleniyor...')}
@@ -123,6 +96,9 @@ export default function PatientNotificationsPage() {
           notifications.map(notif => (
             <div 
               key={notif.id} 
+              onClick={() => {
+                if (!notif.read) handleMarkAsRead(notif.id);
+              }}
               style={{ 
                 padding: '1.25rem', 
                 borderRadius: '12px',
@@ -132,7 +108,8 @@ export default function PatientNotificationsPage() {
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 transition: 'all 0.2s ease',
-                boxShadow: notif.read ? 'none' : '0 2px 8px rgba(0,0,0,0.05)'
+                boxShadow: notif.read ? 'none' : '0 2px 8px rgba(0,0,0,0.05)',
+                cursor: notif.read ? 'default' : 'pointer'
               }}
             >
               <div style={{ flex: 1, paddingRight: '1rem' }}>
@@ -147,27 +124,6 @@ export default function PatientNotificationsPage() {
                   {notif.message}
                 </p>
               </div>
-              {!notif.read && (
-                <button 
-                  onClick={() => handleMarkAsRead(notif.id)}
-                  style={{ 
-                    padding: '0.5rem 1rem', 
-                    fontSize: '0.85rem',
-                    fontWeight: '600',
-                    backgroundColor: 'transparent',
-                    color: 'var(--primary)',
-                    border: '1px solid var(--primary)',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap',
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'var(--primary)'; e.currentTarget.style.color = 'white'; }}
-                  onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--primary)'; }}
-                >
-                  {t('Okundu')}
-                </button>
-              )}
             </div>
           ))
         )}
