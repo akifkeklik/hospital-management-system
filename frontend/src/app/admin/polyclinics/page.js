@@ -28,7 +28,7 @@ function PolyclinicsContent() {
   const [departmentId, setDepartmentId] = useState('');
   
   const [page, setPage] = useState(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 5;
   
 
 
@@ -291,7 +291,7 @@ function PolyclinicsContent() {
                   cursor: page === 1 ? 'not-allowed' : 'pointer' 
                 }}
               >
-                Önceki
+                Geri
               </button>
               <span style={{ fontSize: '0.9rem', color: 'var(--text-main)', fontWeight: '500' }}>
                 Sayfa {page} / {totalPages}
@@ -301,14 +301,14 @@ function PolyclinicsContent() {
                 disabled={page === totalPages}
                 style={{ 
                   padding: '0.5rem 1rem', 
-                  backgroundColor: page === totalPages ? 'var(--surface-hover)' : 'var(--primary)', 
-                  color: page === totalPages ? 'var(--text-muted)' : 'white', 
-                  border: page === totalPages ? '1px solid var(--border)' : 'none', 
+                  backgroundColor: page === totalPages ? 'var(--surface-hover)' : 'var(--surface)', 
+                  color: page === totalPages ? 'var(--text-muted)' : 'var(--text-main)', 
+                  border: '1px solid var(--border)', 
                   borderRadius: '8px', 
                   cursor: page === totalPages ? 'not-allowed' : 'pointer' 
                 }}
               >
-                Sonraki
+                İleri
               </button>
             </div>
           )}
