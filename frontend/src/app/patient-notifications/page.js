@@ -25,10 +25,10 @@ export default function PatientNotificationsPage() {
       const me = await AuthService.getMe();
       if (me) {
         setUserRole(me.role);
-        if (me.role === 'PATIENT') {
+        if (me.role === 'PATIENT' || me.role === 'ROLE_PATIENT' || me.role === 'HASTA' || me.role === 'ROLE_HASTA') {
           const myNotifications = await NotificationService.getByPatient(me.id);
           setNotifications(myNotifications);
-        } else if (me.role === 'DOCTOR') {
+        } else if (me.role === 'DOCTOR' || me.role === 'ROLE_DOCTOR' || me.role === 'HEKIM' || me.role === 'ROLE_HEKIM') {
           const myNotifications = await NotificationService.getByDoctor(me.id);
           setNotifications(myNotifications);
         }
@@ -74,22 +74,22 @@ export default function PatientNotificationsPage() {
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         </div>
         <div>
-          <h1 style={{ fontSize: '1.8rem', color: 'var(--text-main)', margin: 0 }}>{t('notification_center') || 'Bildirim Merkezi'}</h1>
+          <h1 style={{ fontSize: '1.8rem', color: 'var(--text-main)', margin: 0 }}>{t('Bildirim Merkezi')}</h1>
           <p style={{ color: 'var(--text-muted)', margin: '0.2rem 0 0 0', fontSize: '0.95rem' }}>
-            {t('notification_center_desc') || 'Güncel durumları ve bilgilendirmeleri takip edin.'}
+            {t('Güncel durumları ve bilgilendirmeleri takip edin.')}
           </p>
         </div>
       </div>
 
       <div className={styles.card} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        {userRole === 'ADMIN' ? (
+        {userRole === 'ADMIN' || userRole === 'ROLE_ADMIN' || userRole === 'SISTEM_YONETICISI' ? (
           <div style={{ padding: '1rem' }}>
-            <h2 style={{ fontSize: '1.4rem', color: 'var(--text-main)', marginBottom: '1rem' }}>{t('general_announcement') || 'Genel Duyuru (Tüm Hekimlere)'}</h2>
+            <h2 style={{ fontSize: '1.4rem', color: 'var(--text-main)', marginBottom: '1rem' }}>{t('Genel Duyuru (Tüm Hekimlere)')}</h2>
             <form onSubmit={handleBroadcast}>
               <textarea 
                 rows="4" 
                 style={{ width: '100%', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--background)', color: 'var(--text-main)', marginBottom: '1rem', resize: 'vertical' }}
-                placeholder={t('announcement_placeholder') || 'Tüm hekimlere iletilecek mesajı buraya yazın...'}
+                placeholder={t('Tüm hekimlere iletilecek mesajı buraya yazın...')}
                 value={broadcastMessage}
                 onChange={(e) => setBroadcastMessage(e.target.value)}
                 required
