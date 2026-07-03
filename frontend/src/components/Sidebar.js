@@ -12,7 +12,9 @@ export default function Sidebar() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [userRole, setUserRole] = useState(null);
   const [departments, setDepartments] = useState([]);
+  const [polyclinics, setPolyclinics] = useState([]);
   const [hoveredMenu, setHoveredMenu] = useState(null);
+  const [hoveredDepartment, setHoveredDepartment] = useState(null);
   const collapseTimer = useRef(null);
 
   useEffect(() => {
@@ -24,6 +26,16 @@ export default function Sidebar() {
           if (roleStr === 'HEKIM' || roleStr === 'HEKİM') roleStr = 'DOCTOR';
           if (roleStr === 'HASTA') roleStr = 'PATIENT';
           setUserRole(roleStr);
+
+          // Sadece ADMIN ise Poliklinikleri de çek
+          if (roleStr === 'ADMIN') {
+             try {
+                const polyData = await import('../services/api').then(m => m.PolyclinicService.getAll());
+                setPolyclinics(polyData || []);
+             } catch (err) {
+                console.error("Could not fetch polyclinics for sidebar", err);
+             }
+          }
         }
       } catch (err) {
         console.error("Could not fetch user role for sidebar", err);
@@ -155,14 +167,9 @@ export default function Sidebar() {
                   {item.icon}
                 </span>
                 <span className={styles.navName}>{item.name}</span>
-                {item.name === (t('polyclinics') || 'Poliklinikler') && (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 'auto', opacity: 0.5 }}>
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                  </svg>
-                )}
               </Link>
               
-              {/* Flyout Menu for Polyclinics */}
+              {/* Flyout Menu for Polyclinics - LEVEL 1 (Departments) */}
               {item.name === (t('polyclinics') || 'Poliklinikler') && hoveredMenu === item.name && departments.length > 0 && (
                 <div 
                   className={styles.flyoutMenu} 
@@ -175,32 +182,86 @@ export default function Sidebar() {
                     border: '1px solid var(--border)',
                     borderRadius: '12px',
                     boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-                    width: '280px',
+                    width: '240px',
                     zIndex: 1000,
-                    overflow: 'hidden'
+                    padding: '0.5rem 0'
                   }}
+                  onMouseLeave={() => setHoveredDepartment(null)}
                 >
-                  <div style={{ padding: '1rem', borderBottom: '1px solid var(--border)', backgroundColor: 'rgba(var(--primary-rgb), 0.05)' }}>
-                    <strong style={{ color: 'var(--primary)' }}>Fakülteler ve Bölümler</strong>
+                  <div style={{ padding: '0.5rem 1rem', borderBottom: '1px solid var(--border)', marginBottom: '0.5rem' }}>
+                    <strong style={{ color: 'var(--primary)', fontSize: '0.85rem', textTransform: 'uppercase' }}>Bölümler</strong>
                   </div>
-                  <div style={{ maxHeight: '300px', overflowY: 'auto', padding: '0.5rem' }}>
-                    {[{id: 'dahili', name: 'Dahili Bilimler'}, {id: 'cerrahi', name: 'Cerrahi Bilimler'}, {id: 'temel', name: 'Temel Bilimler'}].map(fac => {
-                      const facDepts = fac.id === 'dahili' ? departments.filter((d, i) => i % 3 === 0) :
-                                       fac.id === 'cerrahi' ? departments.filter((d, i) => i % 3 === 1) :
-                                       departments.filter((d, i) => i % 3 === 2);
-                      if (facDepts.length === 0) return null;
+                  <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                    {departments.map(dept => {
+                      const deptPolyclinics = polyclinics.filter(p => p.departmentId === dept.id);
                       return (
-                        <div key={fac.id} style={{ marginBottom: '1rem' }}>
-                          <div style={{ fontSize: '0.75rem', fontWeight: 'bold', textTransform: 'uppercase', color: 'var(--text-muted)', padding: '0.5rem 1rem' }}>
-                            {fac.name}
-                          </div>
-                          {facDepts.map(dept => (
-                            <Link key={dept.id} href="/departments" style={{ display: 'block', padding: '0.5rem 1rem', color: 'var(--text-main)', textDecoration: 'none', fontSize: '0.9rem', borderRadius: '8px' }}
+                        <div 
+                          key={dept.id} 
+                          style={{ position: 'relative' }}
+                          onMouseEnter={() => setHoveredDepartment(dept.id)}
+                        >
+                          <Link 
+                            href={`/admin/polyclinics?departmentId=${dept.id}`} 
+                            style={{ 
+                              display: 'flex', 
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              padding: '0.5rem 1rem', 
+                              color: hoveredDepartment === dept.id ? 'var(--primary)' : 'var(--text-main)', 
+                              textDecoration: 'none', 
+                              fontSize: '0.9rem',
+                              backgroundColor: hoveredDepartment === dept.id ? 'var(--background)' : 'transparent',
+                              transition: 'all 0.2s'
+                            }}
+                          >
+                            <span>{dept.name}</span>
+                            {deptPolyclinics.length > 0 && (
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.5 }}>
+                                <polyline points="9 18 15 12 9 6"></polyline>
+                              </svg>
+                            )}
+                          </Link>
+
+                          {/* Flyout Menu for Polyclinics - LEVEL 2 (Actual Polyclinics/Rooms) */}
+                          {hoveredDepartment === dept.id && deptPolyclinics.length > 0 && (
+                            <div 
+                              style={{
+                                position: 'absolute',
+                                left: '100%',
+                                top: '0',
+                                backgroundColor: 'var(--surface)',
+                                border: '1px solid var(--border)',
+                                borderRadius: '12px',
+                                boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                                width: '220px',
+                                zIndex: 1001,
+                                padding: '0.5rem 0',
+                                maxHeight: '300px',
+                                overflowY: 'auto'
+                              }}
+                            >
+                              <div style={{ padding: '0.5rem 1rem', borderBottom: '1px solid var(--border)', marginBottom: '0.5rem' }}>
+                                <strong style={{ color: 'var(--primary)', fontSize: '0.8rem', opacity: 0.8 }}>{dept.name} Poliklinikleri</strong>
+                              </div>
+                              {deptPolyclinics.map(poly => (
+                                <Link 
+                                  key={poly.id} 
+                                  href={`/admin/polyclinics?departmentId=${dept.id}&highlight=${poly.id}`} 
+                                  style={{ 
+                                    display: 'block', 
+                                    padding: '0.5rem 1rem', 
+                                    color: 'var(--text-main)', 
+                                    textDecoration: 'none', 
+                                    fontSize: '0.85rem' 
+                                  }}
                                   onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--background)'}
-                                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-                              • {dept.name}
-                            </Link>
-                          ))}
+                                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                >
+                                  • {poly.name}
+                                </Link>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       );
                     })}

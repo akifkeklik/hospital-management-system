@@ -1,10 +1,23 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { PolyclinicService, DepartmentService } from '../../../services/api';
 import { toast } from '../../../components/Toast';
 import styles from '../../shared.module.css';
 
 export default function PolyclinicsPage() {
+  return (
+    <Suspense fallback={<div>Yükleniyor...</div>}>
+      <PolyclinicsContent />
+    </Suspense>
+  );
+}
+
+function PolyclinicsContent() {
+  const searchParams = useSearchParams();
+  const filterDeptId = searchParams.get('departmentId');
+  const highlightId = searchParams.get('highlight');
+
   const [polyclinics, setPolyclinics] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [mounted, setMounted] = useState(false);
@@ -14,12 +27,7 @@ export default function PolyclinicsPage() {
   const [roomNumber, setRoomNumber] = useState('');
   const [departmentId, setDepartmentId] = useState('');
   
-  // Fakülte gruplaması (Simüle edilmiş statik gruplama)
-  const faculties = [
-    { id: 'dahili', name: 'Dahili Bilimler' },
-    { id: 'cerrahi', name: 'Cerrahi Bilimler' },
-    { id: 'temel', name: 'Temel Bilimler' }
-  ];
+
 
   useEffect(() => {
     setMounted(true);
@@ -78,12 +86,9 @@ export default function PolyclinicsPage() {
     return dept ? dept.name : 'Bilinmeyen Bölüm';
   };
 
-  // Bölümleri statik olarak fakültelere dağıtıyoruz (Görsel amaçlı simülasyon)
-  const groupedDepartments = {
-    dahili: departments.filter((d, i) => i % 3 === 0),
-    cerrahi: departments.filter((d, i) => i % 3 === 1),
-    temel: departments.filter((d, i) => i % 3 === 2),
-  };
+  const filteredPolyclinics = filterDeptId 
+    ? polyclinics.filter(p => p.departmentId === parseInt(filterDeptId))
+    : polyclinics;
 
   return (
     <div className={styles.container}>
@@ -122,12 +127,8 @@ export default function PolyclinicsPage() {
                 style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)', outline: 'none' }}
               >
                 <option value="" disabled>-- Bölüm Seçiniz --</option>
-                {faculties.map(fac => (
-                  <optgroup key={fac.id} label={fac.name}>
-                    {groupedDepartments[fac.id]?.map(dept => (
-                      <option key={dept.id} value={dept.id}>{dept.name}</option>
-                    ))}
-                  </optgroup>
+                {departments.map(dept => (
+                  <option key={dept.id} value={dept.id}>{dept.name}</option>
                 ))}
               </select>
             </div>
@@ -183,9 +184,11 @@ export default function PolyclinicsPage() {
           overflow: 'hidden'
         }}>
           <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(var(--background-rgb), 0.5)' }}>
-            <h2 style={{ fontSize: '1.1rem', fontWeight: '600', color: 'var(--text-main)', margin: 0 }}>Mevcut Poliklinikler</h2>
+            <h2 style={{ fontSize: '1.1rem', fontWeight: '600', color: 'var(--text-main)', margin: 0 }}>
+              {filterDeptId ? `${getDeptName(filterDeptId)} Poliklinikleri` : 'Tüm Mevcut Poliklinikler'}
+            </h2>
             <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', backgroundColor: 'var(--background)', padding: '4px 12px', borderRadius: '20px', border: '1px solid var(--border)' }}>
-              Toplam: {polyclinics.length}
+              Toplam: {filteredPolyclinics.length}
             </span>
           </div>
 
@@ -194,10 +197,10 @@ export default function PolyclinicsPage() {
               <div style={{ width: '40px', height: '40px', border: '3px solid rgba(var(--primary-rgb), 0.2)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 1rem' }}></div>
               Veriler yükleniyor...
             </div>
-          ) : polyclinics.length === 0 ? (
+          ) : filteredPolyclinics.length === 0 ? (
             <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '1rem', opacity: 0.5 }}><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-              <p>Sistemde henüz kayıtlı poliklinik bulunmamaktadır.</p>
+              <p>{filterDeptId ? 'Bu bölüme ait kayıtlı poliklinik bulunmamaktadır.' : 'Sistemde henüz kayıtlı poliklinik bulunmamaktadır.'}</p>
             </div>
           ) : (
             <div style={{ overflowX: 'auto' }}>
@@ -211,8 +214,15 @@ export default function PolyclinicsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {polyclinics.map((poly, idx) => (
-                    <tr key={poly.id} style={{ borderBottom: idx === polyclinics.length - 1 ? 'none' : '1px solid var(--border)', transition: 'background-color 0.15s' }}>
+                  {filteredPolyclinics.map((poly, idx) => (
+                    <tr 
+                      key={poly.id} 
+                      style={{ 
+                        borderBottom: idx === filteredPolyclinics.length - 1 ? 'none' : '1px solid var(--border)', 
+                        transition: 'all 0.3s',
+                        backgroundColor: highlightId && parseInt(highlightId) === poly.id ? 'rgba(var(--primary-rgb), 0.1)' : 'transparent'
+                      }}
+                    >
                       <td style={{ padding: '1rem 1.5rem', fontWeight: '500', color: 'var(--text-main)' }}>
                         <div style={{ display: 'inline-block', padding: '4px 8px', backgroundColor: 'var(--background)', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '0.85rem' }}>
                           {poly.roomNumber}
