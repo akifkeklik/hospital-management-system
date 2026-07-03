@@ -71,11 +71,10 @@ public class AuthController {
         final String jwt = jwtUtil.generateToken(userDetails, user.getRole(), user.getReferenceId());
 
         org.springframework.http.ResponseCookie jwtCookie = org.springframework.http.ResponseCookie.from("jwt", jwt)
-                .httpOnly(true)
-                .secure(false) // TODO: Production'da true yapılmalı (HTTPS)
+                .secure(true) // Production'da (HTTPS ve Cross-Origin) true ZORUNLUDUR
                 .path("/")
                 .maxAge(10 * 60 * 60) // 10 saat
-                .sameSite("Lax") // Geliştirme için Lax
+                .sameSite("None") // Cross-Domain (Vercel -> Render) için None ZORUNLUDUR
                 .build();
 
         return ResponseEntity.ok()
@@ -87,10 +86,10 @@ public class AuthController {
     public ResponseEntity<?> logout() {
         org.springframework.http.ResponseCookie deleteCookie = org.springframework.http.ResponseCookie.from("jwt", "")
                 .httpOnly(true)
-                .secure(false) // TODO: Production'da true yapılmalı
+                .secure(true) // Production'da true
                 .path("/")
                 .maxAge(0) // Silinmesi için 0 verilir
-                .sameSite("Lax")
+                .sameSite("None")
                 .build();
 
         return ResponseEntity.ok()
