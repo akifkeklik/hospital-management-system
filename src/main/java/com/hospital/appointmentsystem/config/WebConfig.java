@@ -31,7 +31,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**") // Sadece /api/ ile başlayan isteklere izin ver
-                .allowedOrigins("http://localhost:3000") // Frontend'in adresi (Next.js)
+                .allowedOriginPatterns("*") // Tüm adreslere izin ver (Vercel dahil)
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS") // İzin verilen HTTP metotları
                 .allowedHeaders("*") // Tüm başlıklara (header) izin ver
                 .allowCredentials(true); // Gerekirse çerez (cookie) vb. geçişine izin ver
