@@ -59,7 +59,7 @@ public class DoctorLeaveServiceImpl implements DoctorLeaveService {
                     LocalDateTime appDate = app.getAppointmentDate();
                     if (!appDate.toLocalDate().isBefore(leave.getStartDate()) && !appDate.toLocalDate().isAfter(leave.getEndDate())) {
                         appointmentService.cancelAppointment(app.getId());
-                        notificationService.createNotification(app.getPatientId(), 
+                        notificationService.createNotification(app.getPatientId(), leave.getDoctorId(),
                             "Hastane Başhekimliği: Sayın Hastamız, doktorumuzun izni sebebiyle " + appDate.toLocalDate() + " tarihindeki randevunuz iptal edilmiştir.");
                     }
                 }
