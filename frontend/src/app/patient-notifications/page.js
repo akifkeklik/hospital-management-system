@@ -68,8 +68,8 @@ export default function PatientNotificationsPage() {
   if (!mounted) return null;
 
   return (
-    <div style={{ padding: '2rem 3rem', maxWidth: '1200px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
+    <div style={{ padding: '1.5rem 3rem', maxWidth: '1200px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
         <div style={{ padding: '0.75rem', backgroundColor: 'var(--primary)', borderRadius: '12px', color: 'white', display: 'flex' }}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         </div>
@@ -83,9 +83,9 @@ export default function PatientNotificationsPage() {
 
       <div className={styles.card} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         {userRole === 'ADMIN' || userRole === 'ROLE_ADMIN' || userRole === 'SISTEM_YONETICISI' ? (
-          <div style={{ maxWidth: '600px', margin: '2rem auto', padding: '2rem', backgroundColor: 'var(--background)', borderRadius: '16px', border: '1px solid var(--border)', textAlign: 'center', boxShadow: 'var(--shadow-sm)' }}>
-            <div style={{ marginBottom: '1.5rem' }}>
-              <div style={{ display: 'inline-flex', padding: '1rem', backgroundColor: 'rgba(37, 99, 235, 0.1)', borderRadius: '50%', color: 'var(--primary)', marginBottom: '1rem' }}>
+          <div style={{ maxWidth: '600px', margin: '0 auto', padding: '1.5rem', backgroundColor: 'var(--background)', borderRadius: '16px', border: '1px solid var(--border)', textAlign: 'center', boxShadow: 'var(--shadow-sm)' }}>
+            <div style={{ marginBottom: '1rem' }}>
+              <div style={{ display: 'inline-flex', padding: '1rem', backgroundColor: 'rgba(37, 99, 235, 0.1)', borderRadius: '50%', color: 'var(--primary)', marginBottom: '0.5rem' }}>
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
               </div>
               <h2 style={{ fontSize: '1.5rem', color: 'var(--text-main)', margin: 0 }}>{t('Genel Duyuru (Tüm Hekimlere)')}</h2>
@@ -93,8 +93,8 @@ export default function PatientNotificationsPage() {
             </div>
             <form onSubmit={handleBroadcast} style={{ textAlign: 'left' }}>
               <textarea 
-                rows="5" 
-                style={{ width: '100%', padding: '1.2rem', borderRadius: '12px', border: '1px solid var(--border)', backgroundColor: 'var(--surface)', color: 'var(--text-main)', marginBottom: '1.5rem', resize: 'vertical', fontSize: '0.95rem', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)' }}
+                rows="4" 
+                style={{ width: '100%', padding: '1.2rem', borderRadius: '12px', border: '1px solid var(--border)', backgroundColor: 'var(--surface)', color: 'var(--text-main)', marginBottom: '1rem', resize: 'vertical', fontSize: '0.95rem', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)' }}
                 placeholder={t('Tüm hekimlere iletilecek mesajı buraya yazın...')}
                 value={broadcastMessage}
                 onChange={(e) => setBroadcastMessage(e.target.value)}
