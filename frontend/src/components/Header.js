@@ -14,8 +14,12 @@ export default function Header() {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [allDoctors, setAllDoctors] = useState([]);
+  const [allDepartments, setAllDepartments] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const dropdownRef = useRef(null);
   const notifRef = useRef(null);
+  const searchRef = useRef(null);
   const { t } = useSettings();
 
   useEffect(() => {
@@ -45,6 +49,22 @@ export default function Header() {
     };
     fetchProfile();
 
+    // Arama verilerini (doktorlar, bölümler) çek
+    const fetchSearchData = async () => {
+      try {
+        const { DoctorService, DepartmentService } = await import('../services/api');
+        const [docs, depts] = await Promise.all([
+          DoctorService.getAll(0, 500),
+          DepartmentService.getAll(0, 100)
+        ]);
+        setAllDoctors(docs.content || []);
+        setAllDepartments(depts.content || []);
+      } catch (error) {
+        console.error("Arama verisi alınamadı:", error);
+      }
+    };
+    fetchSearchData();
+
     // Dışarı tıklayınca dropdown kapansın
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -52,6 +72,9 @@ export default function Header() {
       }
       if (notifRef.current && !notifRef.current.contains(event.target)) {
         setIsNotifOpen(false);
+      }
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowSuggestions(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -83,6 +106,20 @@ export default function Header() {
     router.push('/login');
   };
 
+  const filteredSuggestions = searchQuery.trim().length >= 2 ? (() => {
+    const term = searchQuery.toLowerCase().trim();
+    const docSuggestions = allDoctors.filter(d => 
+      `${d.firstName} ${d.lastName}`.toLowerCase().includes(term) || 
+      (d.specialization && d.specialization.toLowerCase().includes(term))
+    ).slice(0, 5).map(d => ({ type: 'doctor', text: `${d.firstName} ${d.lastName} - ${d.specialization || 'Doktor'}`, url: `/doctors?search=${encodeURIComponent(d.firstName)}` }));
+
+    const deptSuggestions = allDepartments.filter(d => 
+      d.name.toLowerCase().includes(term)
+    ).slice(0, 3).map(d => ({ type: 'department', text: d.name, url: `/doctors?search=${encodeURIComponent(d.name)}` }));
+
+    return [...docSuggestions, ...deptSuggestions];
+  })() : [];
+
   const roleText = (userProfile?.role === 'ROLE_PATIENT' || userProfile?.role === 'PATIENT' || userProfile?.role === 'HASTA') ? t('patient') : 
                    (userProfile?.role === 'ROLE_DOCTOR' || userProfile?.role === 'DOCTOR' || userProfile?.role === 'HEKIM' || userProfile?.role === 'HEKİM') ? t('doctor') : t('admin_role');
 
@@ -92,26 +129,90 @@ export default function Header() {
 
   return (
     <header className={styles.header}>
-      <form className={styles.search} onSubmit={handleGlobalSearch}>
-        <div 
-          className={styles.searchIcon} 
-          onClick={handleGlobalSearch}
-          style={{ cursor: 'pointer' }}
-          title="Ara"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-        </div>
-        <input 
-          type="text" 
-          placeholder={t('global_search_placeholder') || "Ara... (Örn: Doktor, Bölüm)"}
-          className={styles.searchInput}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </form>
+      <div style={{ position: 'relative', width: '100%', maxWidth: '400px' }} ref={searchRef}>
+        <form className={styles.search} onSubmit={handleGlobalSearch} style={{ width: '100%' }}>
+          <div 
+            className={styles.searchIcon} 
+            onClick={handleGlobalSearch}
+            style={{ cursor: 'pointer' }}
+            title="Ara"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+          <input 
+            type="text" 
+            placeholder={t('global_search_placeholder') || "Ara... (Örn: Doktor, Bölüm)"}
+            className={styles.searchInput}
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setShowSuggestions(true);
+            }}
+            onFocus={() => setShowSuggestions(true)}
+            style={{ width: '100%' }}
+          />
+        </form>
+
+        {/* Live Search Suggestions Dropdown */}
+        {showSuggestions && searchQuery.trim().length >= 2 && (
+          <div style={{
+            position: 'absolute',
+            top: 'calc(100% + 8px)',
+            left: 0,
+            right: 0,
+            backgroundColor: 'var(--surface)',
+            border: '1px solid var(--border)',
+            borderRadius: '12px',
+            boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+            zIndex: 1000,
+            overflow: 'hidden'
+          }}>
+            {filteredSuggestions.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                {filteredSuggestions.map((sug, idx) => (
+                  <div 
+                    key={idx}
+                    onClick={() => {
+                      setSearchQuery(sug.type === 'department' ? sug.text : sug.text.split(' - ')[0]);
+                      setShowSuggestions(false);
+                      router.push(sug.url);
+                    }}
+                    style={{
+                      padding: '0.8rem 1rem',
+                      borderBottom: idx < filteredSuggestions.length - 1 ? '1px solid var(--border)' : 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.75rem',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--surface-hover)'}
+                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                  >
+                    <div style={{ color: 'var(--primary)', opacity: 0.8 }}>
+                      {sug.type === 'doctor' ? (
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                      ) : (
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                      )}
+                    </div>
+                    <div style={{ color: 'var(--text-main)', fontSize: '0.9rem', fontWeight: '500' }}>
+                      {sug.text}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ padding: '1rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                Sonuç bulunamadı. Tüm sonuçları görmek için "Enter"a basın.
+              </div>
+            )}
+          </div>
+        )}
+      </div>
       <div className={styles.actions}>
         <button className={styles.themeToggle} onClick={toggleTheme} title="Gündüz/Gece Modu">
           {theme === 'light' ? (

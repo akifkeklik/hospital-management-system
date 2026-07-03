@@ -70,16 +70,37 @@ export default function PatientNotificationsPage() {
 
   return (
     <div style={{ padding: '1.5rem 3rem', maxWidth: '1200px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-        <div style={{ padding: '0.75rem', backgroundColor: 'var(--primary)', borderRadius: '12px', color: 'white', display: 'flex' }}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ padding: '0.75rem', backgroundColor: 'var(--primary)', borderRadius: '12px', color: 'white', display: 'flex' }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </div>
+          <div>
+            <h1 style={{ fontSize: '1.8rem', color: 'var(--text-main)', margin: 0 }}>{t('Bildirim Merkezi')}</h1>
+            <p style={{ color: 'var(--text-muted)', margin: '0.2rem 0 0 0', fontSize: '0.95rem' }}>
+              {t('Güncel durumları ve bilgilendirmeleri takip edin.')}
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 style={{ fontSize: '1.8rem', color: 'var(--text-main)', margin: 0 }}>{t('Bildirim Merkezi')}</h1>
-          <p style={{ color: 'var(--text-muted)', margin: '0.2rem 0 0 0', fontSize: '0.95rem' }}>
-            {t('Güncel durumları ve bilgilendirmeleri takip edin.')}
-          </p>
-        </div>
+        {notifications.length > 0 && (
+          <button 
+            onClick={() => setNotifications([])} 
+            style={{ 
+              padding: '0.6rem 1.2rem', 
+              backgroundColor: 'rgba(239, 68, 68, 0.1)', 
+              color: '#ef4444', 
+              border: '1px solid rgba(239, 68, 68, 0.2)', 
+              borderRadius: '8px', 
+              cursor: 'pointer', 
+              fontWeight: '600',
+              transition: 'all 0.2s'
+            }}
+            onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#ef4444'; e.currentTarget.style.color = 'white'; }}
+            onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)'; e.currentTarget.style.color = '#ef4444'; }}
+          >
+            {t('Tümünü Temizle')}
+          </button>
+        )}
       </div>
 
       <div className={styles.card} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
