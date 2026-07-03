@@ -28,7 +28,7 @@ function PolyclinicsContent() {
   const [departmentId, setDepartmentId] = useState('');
   
   const [page, setPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 4;
   
 
 
@@ -97,30 +97,30 @@ function PolyclinicsContent() {
   const paginatedPolyclinics = filteredPolyclinics.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header} style={{ marginBottom: '2rem' }}>
+    <div className={styles.container} style={{ padding: '1rem 2rem' }}>
+      <div className={styles.header} style={{ marginBottom: '1rem' }}>
         <div>
-          <h1 className={styles.title} style={{ fontSize: '1.8rem', fontWeight: '700', color: 'var(--text-main)' }}>Poliklinik Yönetimi</h1>
-          <p style={{ color: 'var(--text-muted)', marginTop: '0.5rem' }}>Hastanede bulunan oda ve poliklinik tanımlamalarını yönetin.</p>
+          <h1 className={styles.title} style={{ fontSize: '1.6rem', fontWeight: '700', color: 'var(--text-main)' }}>Poliklinik Yönetimi</h1>
+          <p style={{ color: 'var(--text-muted)', marginTop: '0.2rem', fontSize: '0.9rem' }}>Hastanede bulunan oda ve poliklinik tanımlamalarını yönetin.</p>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2.5fr', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2.5fr', gap: '1.5rem' }}>
         
         {/* Ekleme Formu */}
         <div style={{ 
           backgroundColor: 'var(--surface)', 
-          padding: '1.5rem', 
-          borderRadius: '16px', 
+          padding: '1.2rem', 
+          borderRadius: '12px', 
           boxShadow: '0 4px 20px rgba(0,0,0,0.05)', 
           border: '1px solid rgba(var(--primary-rgb), 0.1)',
           height: 'fit-content'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
-            <div style={{ padding: '8px', backgroundColor: 'rgba(var(--primary-rgb), 0.1)', borderRadius: '8px', color: 'var(--primary)' }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+            <div style={{ padding: '6px', backgroundColor: 'rgba(var(--primary-rgb), 0.1)', borderRadius: '8px', color: 'var(--primary)' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
             </div>
-            <h2 style={{ fontSize: '1.1rem', fontWeight: '600', color: 'var(--text-main)', margin: 0 }}>Yeni Poliklinik Tanımla</h2>
+            <h2 style={{ fontSize: '1.05rem', fontWeight: '600', color: 'var(--text-main)', margin: 0 }}>Yeni Poliklinik Tanımla</h2>
           </div>
 
           <form onSubmit={handleAddPolyclinic} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>

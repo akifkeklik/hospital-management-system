@@ -1,16 +1,28 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { PatientService } from '../../services/api';
 import DataTable from '../../components/DataTable';
 import Modal from '../../components/Modal';
 import ConfirmModal from '../../components/ConfirmModal';
+import Scanner from '../../components/Scanner';
 import { toast } from '../../components/Toast';
 import { useSettings } from '../../context/SettingsContext';
 import styles from '../shared.module.css';
 
 export default function PatientsPage() {
+  return (
+    <Suspense fallback={<div>Yükleniyor...</div>}>
+      <PatientsContent />
+    </Suspense>
+  );
+}
+
+function PatientsContent() {
   const { t } = useSettings();
+  const searchParams = useSearchParams();
   const [patients, setPatients] = useState([]);
+  const [allPatients, setAllPatients] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,11 +32,24 @@ export default function PatientsPage() {
   });
   const [editingId, setEditingId] = useState(null);
 
+  const initialSearch = searchParams.get('search') || '';
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
+
+  useEffect(() => {
+    const currentSearch = searchParams.get('search') || '';
+    if (currentSearch !== searchTerm) {
+      setSearchTerm(currentSearch);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    setPage(0);
+  }, [searchTerm]);
+
   const fetchPatients = async () => {
     try {
-      const data = await PatientService.getAll(page);
-      setPatients(data.content || []);
-      setTotalPages(data.totalPages || 0);
+      const data = await PatientService.getAll(0, 1000);
+      setAllPatients(data.content || data);
     } catch (error) {
       toast.error('Hastalar yüklenemedi.');
     }
@@ -32,7 +57,7 @@ export default function PatientsPage() {
 
   useEffect(() => {
     fetchPatients();
-  }, [page]);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -87,6 +112,18 @@ export default function PatientsPage() {
     { header: t('email'), accessor: 'email' }
   ];
 
+  const filteredPatients = allPatients.filter(p => {
+    if (!searchTerm) return true;
+    const term = searchTerm.toLowerCase();
+    const fullName = `${p.firstName || ''} ${p.lastName || ''}`.toLowerCase();
+    const tc = p.tcIdentityNumber || '';
+    return fullName.includes(term) || tc.includes(term);
+  });
+
+  const PAGE_SIZE = 8;
+  const calculatedTotalPages = Math.ceil(filteredPatients.length / PAGE_SIZE);
+  const displayedPatients = filteredPatients.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+
   return (
     <div>
       <div className={styles.pageHeader}>
@@ -103,13 +140,25 @@ export default function PatientsPage() {
         </button>
       </div>
 
+      <Scanner onScan={(tc) => setSearchTerm(tc)} />
+
+      <div style={{ marginBottom: '1rem', marginTop: '1rem' }}>
+        <input 
+          type="text" 
+          placeholder="TC Kimlik No veya İsim ile ara..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ width: '100%', maxWidth: '400px', padding: '0.6rem 1rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)', fontSize: '0.9rem' }}
+        />
+      </div>
+
       <DataTable 
         columns={columns} 
-        data={patients} 
+        data={displayedPatients} 
         onEdit={handleEdit} 
         onDelete={handleDelete} 
         page={page}
-        totalPages={totalPages}
+        totalPages={calculatedTotalPages}
         onPageChange={setPage}
       />
 

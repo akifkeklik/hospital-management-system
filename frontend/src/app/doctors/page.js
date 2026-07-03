@@ -45,6 +45,13 @@ export default function DoctorsPage() {
   }, []); // Run only once, pagination is local now
 
   useEffect(() => {
+    const currentSearch = searchParams.get('search') || '';
+    if (currentSearch !== searchTerm) {
+      setSearchTerm(currentSearch);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
     setPage(0); // Reset page when search term changes
   }, [searchTerm]);
 
@@ -137,16 +144,6 @@ export default function DoctorsPage() {
         >
           + {t('add_doctor')}
         </button>
-      </div>
-
-      <div style={{ marginBottom: '1rem' }}>
-        <input 
-          type="text" 
-          placeholder={t('global_search_placeholder') || "Doktor, bölüm veya poliklinik ara..."}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ width: '100%', maxWidth: '400px', padding: '0.6rem 1rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)', fontSize: '0.9rem' }}
-        />
       </div>
 
       <DataTable 

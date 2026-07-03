@@ -16,6 +16,7 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState('');
   const [allDoctors, setAllDoctors] = useState([]);
   const [allDepartments, setAllDepartments] = useState([]);
+  const [allPatients, setAllPatients] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const dropdownRef = useRef(null);
   const notifRef = useRef(null);
@@ -51,16 +52,18 @@ export default function Header() {
     };
     fetchProfile();
 
-    // Arama verilerini (doktorlar, bölümler) çek
+    // Arama verilerini (doktorlar, bölümler, hastalar) çek
     const fetchSearchData = async () => {
       try {
-        const { DoctorService, DepartmentService } = await import('../services/api');
-        const [docs, depts] = await Promise.all([
+        const { DoctorService, DepartmentService, PatientService } = await import('../services/api');
+        const [docs, depts, patients] = await Promise.all([
           DoctorService.getAll(0, 500),
-          DepartmentService.getAll(0, 100)
+          DepartmentService.getAll(0, 100),
+          PatientService.getAll(0, 500)
         ]);
         setAllDoctors(docs.content || []);
         setAllDepartments(depts.content || []);
+        setAllPatients(patients.content || []);
       } catch (error) {
         console.error("Arama verisi alınamadı:", error);
       }
@@ -119,7 +122,12 @@ export default function Header() {
       d.name.toLowerCase().includes(term)
     ).slice(0, 3).map(d => ({ type: 'department', text: d.name, url: `/doctors?search=${encodeURIComponent(d.name)}` }));
 
-    return [...docSuggestions, ...deptSuggestions];
+    const patSuggestions = allPatients.filter(p => 
+      `${p.firstName} ${p.lastName}`.toLowerCase().includes(term) || 
+      (p.tcIdentityNumber && p.tcIdentityNumber.includes(term))
+    ).slice(0, 3).map(p => ({ type: 'patient', text: `${p.tcIdentityNumber} - ${p.firstName} ${p.lastName}`, url: `/patients?search=${encodeURIComponent(p.tcIdentityNumber)}` }));
+
+    return [...docSuggestions, ...deptSuggestions, ...patSuggestions];
   })() : [];
 
   const roleText = (userProfile?.role === 'ROLE_PATIENT' || userProfile?.role === 'PATIENT' || userProfile?.role === 'HASTA') ? t('patient') : 
@@ -197,6 +205,8 @@ export default function Header() {
                     <div style={{ color: 'var(--primary)', opacity: 0.8 }}>
                       {sug.type === 'doctor' ? (
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                      ) : sug.type === 'patient' ? (
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                       ) : (
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
                       )}
