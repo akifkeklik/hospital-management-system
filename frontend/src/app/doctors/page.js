@@ -14,11 +14,10 @@ export default function DoctorsPage() {
   const searchParams = useSearchParams();
   const initialSearch = searchParams.get('search') || '';
   const [searchTerm, setSearchTerm] = useState(initialSearch);
-  const [doctors, setDoctors] = useState([]);
+  const [allDoctors, setAllDoctors] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [polyclinics, setPolyclinics] = useState([]);
   const [page, setPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
   const [formData, setFormData] = useState({ 
@@ -29,12 +28,11 @@ export default function DoctorsPage() {
   const fetchData = async () => {
     try {
       const [docs, depts, polys] = await Promise.all([
-        DoctorService.getAll(page),
+        DoctorService.getAll(0, 1000), // Fetch all doctors for local search/pagination
         DepartmentService.getAll(0, 1000),
         PolyclinicService.getAll()
       ]);
-      setDoctors(docs.content || []);
-      setTotalPages(docs.totalPages || 0);
+      setAllDoctors(docs.content || []);
       setDepartments(depts.content || []);
       setPolyclinics(polys || []);
     } catch (error) {
@@ -44,7 +42,11 @@ export default function DoctorsPage() {
 
   useEffect(() => {
     fetchData();
-  }, [page]);
+  }, []); // Run only once, pagination is local now
+
+  useEffect(() => {
+    setPage(0); // Reset page when search term changes
+  }, [searchTerm]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -105,7 +107,7 @@ export default function DoctorsPage() {
     { header: t('phone'), accessor: 'phoneNumber' }
   ];
 
-  const filteredDoctors = doctors.filter(doc => {
+  const filteredDoctors = allDoctors.filter(doc => {
     if (!searchTerm) return true;
     const term = searchTerm.toLowerCase();
     const fullName = `${doc.firstName || ''} ${doc.lastName || ''}`.toLowerCase();
@@ -113,6 +115,10 @@ export default function DoctorsPage() {
     const polyName = doc.polyclinicName?.toLowerCase() || '';
     return fullName.includes(term) || deptName.includes(term) || polyName.includes(term);
   });
+
+  const PAGE_SIZE = 8;
+  const calculatedTotalPages = Math.ceil(filteredDoctors.length / PAGE_SIZE);
+  const displayedDoctors = filteredDoctors.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
   return (
     <div className={styles.pageContainer}>
@@ -145,11 +151,11 @@ export default function DoctorsPage() {
 
       <DataTable 
         columns={columns}
-        data={filteredDoctors}
+        data={displayedDoctors}
         onEdit={handleEdit}
         onDelete={handleDelete}
         page={page}
-        totalPages={totalPages}
+        totalPages={calculatedTotalPages}
         onPageChange={setPage}
       />
 
