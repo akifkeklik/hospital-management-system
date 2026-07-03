@@ -106,6 +106,13 @@
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
         </dependency>
+        
+        <!-- 🐘 POSTGRESQL DRIVER (Render Deploy İçin) -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
 
         <!-- 🔐 SPRING SECURITY -->
         <dependency>
