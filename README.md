@@ -1,51 +1,67 @@
-# Hastane Randevu ve Yönetim Sistemi (HBYS) 🏥
+# Hospital Appointment & Management System 🏥
 
-Modern, modüler ve güvenli bir hastane bilgi yönetim sistemi. Clean Architecture prensiplerine ve mikroservis standartlarına uygun olarak, doktor, hasta ve yönetim süreçlerini tek bir merkezde otomatize etmek için geliştirilmiştir.
+A modern, robust, and secure Hospital Information Management System (HIMS) built with Java Spring Boot and Next.js. Designed following Clean Architecture principles, it provides a seamless experience for patients, doctors, and administrators.
 
-## 🌟 Temel Özellikler
+## 🌟 Key Features
 
-- **Poliklinik ve Randevu Yönetimi:** Takvim bazlı gelişmiş randevu alma, iptal etme ve poliklinik yönetimi.
-- **Akıllı Doktor İzin Otomasyonu:** Doktor izin talepleri onaylandığında, o tarihteki randevular otomatik iptal edilir ve hastalara anında bildirim gider.
-- **Muayene ve Tıbbi Kayıtlar:** Doktorlar için hasta sırası ekranı; ICD-10 teşhis ve e-reçete modülü. Hastalar (E-Nabız tarzı) geçmiş kayıtlarına erişebilir.
-- **Dinamik Bildirim Sistemi:** Kurumsal bildirim ekranı ile hastalar anlık duyuru ve randevu bildirimlerini takip eder.
+- **Smart Appointment Management:** Calendar-based appointment scheduling, cancellation, and polyclinic management.
+- **Automated Leave System:** When a doctor's leave request is approved, all their conflicting appointments are automatically cancelled, and patients are notified instantly.
+- **Medical Records & Examination:** Dedicated queue screen for doctors, including ICD-10 diagnosis and e-prescription modules. Patients can view their complete medical history.
+- **Real-time Notifications:** Dynamic in-app notification system to keep patients and doctors updated regarding their appointments and hospital announcements.
+- **Role-Based Access Control:** Secure JWT authentication with distinct portals for Patients, Doctors, and Administrators.
 
-## 🛠️ Teknoloji Yığını
+## 🛠️ Technology Stack
 
-### Backend
-- **Java 17 & Spring Boot 3.x**
-- **Spring Data JPA & Hibernate:** `FetchType.LAZY` optimizasyonlu, ilişkisel veritabanı modeli.
-- **Spring Security & JWT:** Rol bazlı yetkilendirme (Admin, Doktor, Hasta).
-- **H2 Database (In-Memory):** Test ve geliştirme için anında hazır veritabanı.
+**Backend**
+- Java 17
+- Spring Boot 3
+- Spring Security (JWT)
+- Spring Data JPA
+- PostgreSQL / MySQL
+- Maven & Docker
 
-### Frontend
-- **Next.js & React:** Hızlı ve SEO dostu modern kullanıcı arayüzü.
-- **Vanilla CSS:** Bağımlılık olmadan, hafif ve tam özelleştirilmiş şık arayüz (Gece/Gündüz modu).
-- **Context API:** Global state yönetimi (Tema, Dil, Kimlik Doğrulama).
+**Frontend**
+- Next.js (React)
+- Vanilla CSS Modules (Custom Design System)
+- React Hot Toast
+- Fetch API
 
-## 🚀 Hızlı Başlangıç
+## 🚀 Getting Started
 
-### 1. Backend'i Başlatın
+### Prerequisites
+- Java 17
+- Node.js 18+
+- Maven
+- PostgreSQL or MySQL
+
+### Backend Setup
+1. Navigate to the root directory.
+2. Update the database credentials in `src/main/resources/application.properties`.
+3. Run the application:
 ```bash
-# Projeyi derleyin
-mvn clean package -DskipTests
-
-# Sunucuyu başlatın (Varsayılan port: 8080)
-java -jar target/appointment-system-0.0.1-SNAPSHOT.jar
+mvn spring-boot:run
 ```
+The backend API will be available at `http://localhost:8080`.
 
-### 2. Frontend'i Başlatın
+### Frontend Setup
+1. Navigate to the frontend directory:
 ```bash
 cd frontend
-
-# Bağımlılıkları yükleyin
+```
+2. Install dependencies:
+```bash
 npm install
-
-# İstemciyi başlatın (Varsayılan port: 3000)
+```
+3. Run the development server:
+```bash
 npm run dev
 ```
+The frontend will be available at `http://localhost:3000`.
 
-## 🔒 Güvenlik Notları
-Kimlik doğrulama süreçlerinde JWT token tabanlı `AuthService` kullanılmış olup, kullanıcı id verileri frontend tarafında açıkta bırakılmamıştır. Tüm endpointler `PreAuthorize` rolleriyle korunmaktadır.
+## 📦 Deployment
+This application is fully Dockerized and cloud-ready. 
+- The backend is configured for deployment on Render using Docker and PostgreSQL.
+- The frontend is optimized for deployment on Vercel.
 
----
-*Clean Code, YAGNI ve Senior Software Engineering pratikleri gözetilerek kodlanmıştır.*
+## 📄 License
+This project is proprietary and intended for enterprise use.
