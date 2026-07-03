@@ -25,14 +25,15 @@ export default function PatientNotificationsPage() {
       const me = await AuthService.getMe();
       if (me) {
         setUserRole(me.role);
-        if (me.role === 'DOCTOR' || me.role === 'ROLE_DOCTOR' || me.role === 'HEKIM' || me.role === 'ROLE_HEKIM') {
-          const myNotifications = await NotificationService.getByDoctor(me.id);
+          let myNotifications = [];
+          if (me.role === 'DOCTOR' || me.role === 'ROLE_DOCTOR' || me.role === 'HEKIM' || me.role === 'ROLE_HEKIM') {
+            myNotifications = await NotificationService.getByDoctor(me.id);
+          } else {
+            myNotifications = await NotificationService.getByPatient(me.id);
+          }
+          const hiddenNotifs = JSON.parse(localStorage.getItem('hiddenNotifs') || '[]');
+          myNotifications = myNotifications.filter(n => !hiddenNotifs.includes(n.id));
           setNotifications(myNotifications);
-        } else {
-          // Patient and Admin
-          const myNotifications = await NotificationService.getByPatient(me.id);
-          setNotifications(myNotifications);
-        }
       }
     } catch (err) {
       console.error(err);
@@ -84,7 +85,12 @@ export default function PatientNotificationsPage() {
         </div>
         {notifications.length > 0 && (
           <button 
-            onClick={() => setNotifications([])} 
+            onClick={() => {
+              const hiddenNotifs = JSON.parse(localStorage.getItem('hiddenNotifs') || '[]');
+              notifications.forEach(n => { if (!hiddenNotifs.includes(n.id)) hiddenNotifs.push(n.id); });
+              localStorage.setItem('hiddenNotifs', JSON.stringify(hiddenNotifs));
+              setNotifications([]);
+            }} 
             style={{ 
               padding: '0.6rem 1.2rem', 
               backgroundColor: 'rgba(239, 68, 68, 0.1)', 
@@ -135,12 +141,31 @@ export default function PatientNotificationsPage() {
               }}
             >
               <div style={{ flex: 1, paddingRight: '1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.4rem' }}>
-                  {!notif.read && <span style={{ padding: '2px 8px', fontSize: '0.7rem', fontWeight: 'bold', backgroundColor: 'var(--primary)', color: 'white', borderRadius: '12px', letterSpacing: '0.5px' }}>{t('YENİ')}</span>}
-                  <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    {new Date(notif.createdAt).toLocaleString('tr-TR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
-                  </span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    {!notif.read && <span style={{ padding: '2px 8px', fontSize: '0.7rem', fontWeight: 'bold', backgroundColor: 'var(--primary)', color: 'white', borderRadius: '12px', letterSpacing: '0.5px' }}>{t('YENİ')}</span>}
+                    <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                      {new Date(notif.createdAt).toLocaleString('tr-TR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const hiddenNotifs = JSON.parse(localStorage.getItem('hiddenNotifs') || '[]');
+                      if (!hiddenNotifs.includes(notif.id)) hiddenNotifs.push(notif.id);
+                      localStorage.setItem('hiddenNotifs', JSON.stringify(hiddenNotifs));
+                      setNotifications(notifications.filter(n => n.id !== notif.id));
+                    }}
+                    style={{
+                      background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%'
+                    }}
+                    onMouseOver={(e) => { e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)'; }}
+                    onMouseOut={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.backgroundColor = 'transparent'; }}
+                    title="Sil"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                  </button>
                 </div>
                 <p style={{ color: notif.read ? 'var(--text-muted)' : 'var(--text-main)', margin: 0, fontSize: '0.95rem', lineHeight: '1.5' }}>
                   {notif.message}

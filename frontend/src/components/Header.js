@@ -40,6 +40,8 @@ export default function Header() {
           } else {
             notifs = await import('../services/api').then(m => m.NotificationService.getByPatient(data.id));
           }
+          const hiddenNotifs = JSON.parse(localStorage.getItem('hiddenNotifs') || '[]');
+          notifs = notifs.filter(n => !hiddenNotifs.includes(n.id));
           setNotifications(notifs.slice(0, 5));
           setUnreadCount(notifs.filter(n => !n.read).length);
         }
@@ -253,8 +255,25 @@ export default function Header() {
               borderRadius: '16px', boxShadow: '0 10px 40px -10px rgba(0,0,0,0.2)', 
               zIndex: 100, overflow: 'hidden'
             }}>
-              <div style={{ padding: '1.2rem', background: 'linear-gradient(135deg, rgba(var(--primary-rgb), 0.1), transparent)', borderBottom: '1px solid var(--border)' }}>
+              <div style={{ padding: '1.2rem', background: 'linear-gradient(135deg, rgba(var(--primary-rgb), 0.1), transparent)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <strong style={{ color: 'var(--text-main)', fontSize: '1.05rem', display: 'block' }}>Bildirimler</strong>
+                {notifications.length > 0 && (
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const hiddenNotifs = JSON.parse(localStorage.getItem('hiddenNotifs') || '[]');
+                      notifications.forEach(n => { if (!hiddenNotifs.includes(n.id)) hiddenNotifs.push(n.id); });
+                      localStorage.setItem('hiddenNotifs', JSON.stringify(hiddenNotifs));
+                      setNotifications([]);
+                      setUnreadCount(0);
+                    }}
+                    style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '0.8rem', cursor: 'pointer', padding: '0', fontWeight: '500' }}
+                    onMouseOver={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                    onMouseOut={(e) => e.currentTarget.style.textDecoration = 'none'}
+                  >
+                    Temizle
+                  </button>
+                )}
               </div>
               <div style={{ maxHeight: '300px', overflowY: 'auto', padding: '0' }}>
                 {notifications.length === 0 ? (
@@ -267,18 +286,40 @@ export default function Header() {
                         padding: '1rem', 
                         borderBottom: '1px solid var(--border)',
                         backgroundColor: notif.read ? 'transparent' : 'rgba(16, 185, 129, 0.05)',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        position: 'relative'
                       }}
                       onClick={() => {
                         setIsNotifOpen(false);
                         router.push('/patient-notifications');
                       }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                        {!notif.read && <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#ef4444' }}></div>}
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                          {new Date(notif.createdAt).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' })}
-                        </span>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          {!notif.read && <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#ef4444' }}></div>}
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                            {new Date(notif.createdAt).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' })}
+                          </span>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const hiddenNotifs = JSON.parse(localStorage.getItem('hiddenNotifs') || '[]');
+                            if (!hiddenNotifs.includes(notif.id)) hiddenNotifs.push(notif.id);
+                            localStorage.setItem('hiddenNotifs', JSON.stringify(hiddenNotifs));
+                            const updated = notifications.filter(n => n.id !== notif.id);
+                            setNotifications(updated);
+                            setUnreadCount(updated.filter(n => !n.read).length);
+                          }}
+                          style={{
+                            background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                          }}
+                          onMouseOver={(e) => e.currentTarget.style.color = '#ef4444'}
+                          onMouseOut={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+                          title="Sil"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </button>
                       </div>
                       <p style={{ color: notif.read ? 'var(--text-muted)' : 'var(--text-main)', fontSize: '0.85rem', margin: 0, fontWeight: notif.read ? '400' : '500', lineHeight: '1.4' }}>
                         {notif.message}

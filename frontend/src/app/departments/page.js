@@ -74,7 +74,7 @@ export default function DepartmentsPage() {
 
   const columns = [
     { header: t('id'), accessor: 'id' },
-    { header: t('dept_name'), render: (row) => t(row.name) },
+    { header: t('dept_name'), render: (row) => <span style={{ textTransform: 'uppercase' }}>{t(row.name)}</span> },
     { header: t('description'), render: (row) => t(row.description) }
   ];
 
