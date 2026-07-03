@@ -64,7 +64,7 @@ export default function SettingsPage() {
         
         {/* Sistem Ayarları (Sadece Admin Görür) */}
         {userProfile?.role === 'ROLE_ADMIN' && (
-          <section className={styles.section} style={{ gridColumn: '1 / -1', padding: '1rem' }}>
+          <section className={styles.section} style={{ gridColumn: '1 / -1' }}>
             <div className={styles.sectionHeader} style={{ marginBottom: '0.5rem' }}>
               <div className={styles.sectionIcon}>⚙️</div>
               <div>

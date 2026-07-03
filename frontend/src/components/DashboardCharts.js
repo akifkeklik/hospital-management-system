@@ -43,7 +43,7 @@ export default function DashboardCharts({ departments, doctors, appointments }) 
         {doctorDistribution.length === 0 ? (
           <p className={styles.noData}>{t('no_data')}</p>
         ) : (
-          <ResponsiveContainer width="100%" height={180}>
+          <ResponsiveContainer width="100%" height={240}>
             <PieChart>
               <Pie
                 data={doctorDistribution}
@@ -70,7 +70,7 @@ export default function DashboardCharts({ departments, doctors, appointments }) 
         {appointmentData.length === 0 ? (
           <p className={styles.noData}>{t('no_data')}</p>
         ) : (
-          <ResponsiveContainer width="100%" height={180}>
+          <ResponsiveContainer width="100%" height={240}>
             <BarChart
               data={appointmentData}
               margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
