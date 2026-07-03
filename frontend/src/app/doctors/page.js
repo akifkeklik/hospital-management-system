@@ -119,7 +119,7 @@ export default function DoctorsPage() {
       <div className={styles.pageHeader}>
         <div>
           <h1 className={styles.pageTitle}>{t('doctors')}</h1>
-          <p className={styles.pageDesc}>{t('doctor_desc')}</p>
+          <p className={styles.pageDesc}>{t('Hastanede görev yapan tüm doktorların listesi ve yönetim paneli.')}</p>
         </div>
         <button 
           className={styles.primaryBtn} 

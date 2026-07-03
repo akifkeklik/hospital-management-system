@@ -27,6 +27,9 @@ function PolyclinicsContent() {
   const [roomNumber, setRoomNumber] = useState('');
   const [departmentId, setDepartmentId] = useState('');
   
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 8;
+  
 
 
   useEffect(() => {
@@ -89,6 +92,9 @@ function PolyclinicsContent() {
   const filteredPolyclinics = filterDeptId 
     ? polyclinics.filter(p => p.departmentId === parseInt(filterDeptId))
     : polyclinics;
+
+  const totalPages = Math.max(1, Math.ceil(filteredPolyclinics.length / itemsPerPage));
+  const paginatedPolyclinics = filteredPolyclinics.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   return (
     <div className={styles.container}>
@@ -214,11 +220,11 @@ function PolyclinicsContent() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredPolyclinics.map((poly, idx) => (
+                  {paginatedPolyclinics.map((poly, idx) => (
                     <tr 
                       key={poly.id} 
                       style={{ 
-                        borderBottom: idx === filteredPolyclinics.length - 1 ? 'none' : '1px solid var(--border)', 
+                        borderBottom: idx === paginatedPolyclinics.length - 1 ? 'none' : '1px solid var(--border)', 
                         transition: 'all 0.3s',
                         backgroundColor: highlightId && parseInt(highlightId) === poly.id ? 'rgba(var(--primary-rgb), 0.1)' : 'transparent'
                       }}
@@ -267,6 +273,43 @@ function PolyclinicsContent() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+          {filteredPolyclinics.length > 0 && (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', padding: '1rem', borderTop: '1px solid var(--border)', backgroundColor: 'rgba(var(--background-rgb), 0.3)' }}>
+              <button 
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                style={{ 
+                  padding: '0.5rem 1rem', 
+                  backgroundColor: page === 1 ? 'var(--surface-hover)' : 'var(--surface)', 
+                  color: page === 1 ? 'var(--text-muted)' : 'var(--text-main)', 
+                  border: '1px solid var(--border)', 
+                  borderRadius: '8px', 
+                  cursor: page === 1 ? 'not-allowed' : 'pointer' 
+                }}
+              >
+                Önceki
+              </button>
+              <span style={{ fontSize: '0.9rem', color: 'var(--text-main)', fontWeight: '500' }}>
+                Sayfa {page} / {totalPages}
+              </span>
+              <button 
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                style={{ 
+                  padding: '0.5rem 1rem', 
+                  backgroundColor: page === totalPages ? 'var(--surface-hover)' : 'var(--primary)', 
+                  color: page === totalPages ? 'var(--text-muted)' : 'white', 
+                  border: page === totalPages ? '1px solid var(--border)' : 'none', 
+                  borderRadius: '8px', 
+                  cursor: page === totalPages ? 'not-allowed' : 'pointer' 
+                }}
+              >
+                Sonraki
+              </button>
             </div>
           )}
         </div>
