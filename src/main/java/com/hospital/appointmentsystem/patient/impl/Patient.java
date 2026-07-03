@@ -30,7 +30,7 @@ import org.hibernate.annotations.SQLRestriction;
  */
 @Entity
 @Table(name = "patients")
-@SQLDelete(sql = "UPDATE patients SET is_active = false WHERE id=?")
+@SQLDelete(sql = "UPDATE patients SET is_active = false, tc_identity_number = CONCAT(tc_identity_number, '_del_', id) WHERE id=?")
 @SQLRestriction("is_active = true")
 public class Patient {
 
@@ -62,7 +62,7 @@ public class Patient {
     // Gerçek hayatta TC Kimlik No benzersizdir,
     // o yüzden unique=true diyoruz.
     // ──────────────────────────────────────────────────────────
-    @Column(name = "tc_identity_number", nullable = false, unique = true, length = 11)
+    @Column(name = "tc_identity_number", nullable = false, unique = true, length = 50)
     private String tcIdentityNumber;
 
     @Column(name = "phone_number", length = 15)
