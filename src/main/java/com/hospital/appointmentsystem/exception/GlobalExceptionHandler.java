@@ -1,5 +1,6 @@
 package com.hospital.appointmentsystem.exception;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -54,6 +55,30 @@ public class GlobalExceptionHandler {
         response.put("error", "Conflict");
         response.put("message", "Sistem çakışması tespit edildi! Bu randevu slotu saniyeler önce başka bir hasta tarafından alınmış veya işlem güncellenmiş olabilir. Lütfen sayfayı yenileyip tekrar deneyin.");
         
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
+
+    /**
+     * Veritabanı bütünlük hatalarını (ör: Duplicate Key / Unique Constraint) yakalar.
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.CONFLICT.value());
+        response.put("error", "Conflict");
+        
+        String message = "Veritabanı kural ihlali (Mükerrer Kayıt). Aynı TC Kimlik No veya E-posta ile zaten bir kayıt bulunuyor olabilir.";
+        
+        // Postgres mesajını güzelleştir
+        if (ex.getCause() != null && ex.getCause().getCause() != null) {
+            String dbMsg = ex.getCause().getCause().getMessage();
+            if (dbMsg.contains("duplicate key value") || dbMsg.contains("Unique constraint")) {
+                message = "Girdiğiniz bilgilere ait sistemde kayıtlı başka bir kullanıcı zaten var (Mükerrer TC veya E-posta). Lütfen kontrol edip tekrar deneyiniz.";
+            }
+        }
+        
+        response.put("message", message);
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
