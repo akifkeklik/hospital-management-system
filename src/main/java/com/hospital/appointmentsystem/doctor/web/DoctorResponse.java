@@ -16,6 +16,8 @@ public class DoctorResponse {
     private String email;
     private Long departmentId;
     private String departmentName;
+    private Long polyclinicId;
+    private String polyclinicName;
 
     public DoctorResponse() {
     }
@@ -84,5 +86,21 @@ public class DoctorResponse {
 
     public void setDepartmentName(String departmentName) {
         this.departmentName = departmentName;
+    }
+
+    public Long getPolyclinicId() {
+        return polyclinicId;
+    }
+
+    public void setPolyclinicId(Long polyclinicId) {
+        this.polyclinicId = polyclinicId;
+    }
+
+    public String getPolyclinicName() {
+        return polyclinicName;
+    }
+
+    public void setPolyclinicName(String polyclinicName) {
+        this.polyclinicName = polyclinicName;
     }
 }

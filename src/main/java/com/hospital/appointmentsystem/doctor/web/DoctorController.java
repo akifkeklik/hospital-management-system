@@ -108,6 +108,7 @@ public class DoctorController {
         dto.setPhoneNumber(request.getPhoneNumber());
         dto.setEmail(request.getEmail());
         dto.setDepartmentId(request.getDepartmentId());
+        dto.setPolyclinicId(request.getPolyclinicId());
         return dto;
     }
 
@@ -121,6 +122,8 @@ public class DoctorController {
         response.setEmail(dto.getEmail());
         response.setDepartmentId(dto.getDepartmentId());
         response.setDepartmentName(dto.getDepartmentName());
+        response.setPolyclinicId(dto.getPolyclinicId());
+        response.setPolyclinicName(dto.getPolyclinicName());
         return response;
     }
 }

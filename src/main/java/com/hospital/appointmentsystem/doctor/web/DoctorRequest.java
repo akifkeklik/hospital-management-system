@@ -46,6 +46,8 @@ public class DoctorRequest {
     @NotNull(message = "Bölüm seçimi zorunludur")
     private Long departmentId; // ⭐ Hangi bölüme ait?
 
+    private Long polyclinicId;
+
     public DoctorRequest() {
     }
 
@@ -97,5 +99,13 @@ public class DoctorRequest {
 
     public void setDepartmentId(Long departmentId) {
         this.departmentId = departmentId;
+    }
+
+    public Long getPolyclinicId() {
+        return polyclinicId;
+    }
+
+    public void setPolyclinicId(Long polyclinicId) {
+        this.polyclinicId = polyclinicId;
     }
 }
