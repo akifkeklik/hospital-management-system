@@ -55,7 +55,7 @@ import org.hibernate.annotations.SQLRestriction;
 // ──────────────────────────────────────────────────────────────
 @Table(name = "departments")
 @SQLDelete(sql = "UPDATE departments SET is_active = false WHERE id=?")
-@SQLRestriction("is_active = true")
+@SQLRestriction("is_active = true OR is_active IS NULL")
 public class Department {
 
     // ──────────────────────────────────────────────────────────

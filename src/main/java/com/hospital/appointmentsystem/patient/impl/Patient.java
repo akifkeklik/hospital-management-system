@@ -31,7 +31,7 @@ import org.hibernate.annotations.SQLRestriction;
 @Entity
 @Table(name = "patients")
 @SQLDelete(sql = "UPDATE patients SET is_active = false, tc_identity_number = CONCAT(tc_identity_number, '_del_', id) WHERE id=?")
-@SQLRestriction("is_active = true")
+@SQLRestriction("is_active = true OR is_active IS NULL")
 public class Patient {
 
     @Id

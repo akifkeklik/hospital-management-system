@@ -50,7 +50,7 @@ import jakarta.persistence.Version;
 @Entity
 @Table(name = "appointments")
 @SQLDelete(sql = "UPDATE appointments SET is_active = false WHERE id=?")
-@SQLRestriction("is_active = true")
+@SQLRestriction("is_active = true OR is_active IS NULL")
 @EntityListeners(AuditingEntityListener.class)
 public class Appointment {
 
