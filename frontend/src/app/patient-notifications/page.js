@@ -58,10 +58,10 @@ export default function PatientNotificationsPage() {
     try {
       await NotificationService.broadcastToDoctors(broadcastMessage);
       setBroadcastMessage('');
-      toast.success(t('Duyuru tüm hekimlere başarıyla gönderildi!'));
+      toast.success(t('broadcast_success'));
     } catch (err) {
       console.error(err);
-      toast.error(t('Duyuru gönderilemedi.'));
+      toast.error(t('broadcast_error'));
     } finally {
       setBroadcasting(false);
     }
@@ -77,9 +77,9 @@ export default function PatientNotificationsPage() {
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
           </div>
           <div>
-            <h1 style={{ fontSize: '1.8rem', color: 'var(--text-main)', margin: 0 }}>{t('Bildirim Merkezi')}</h1>
+            <h1 style={{ fontSize: '1.8rem', color: 'var(--text-main)', margin: 0 }}>{t('notification_center')}</h1>
             <p style={{ color: 'var(--text-muted)', margin: '0.2rem 0 0 0', fontSize: '0.95rem' }}>
-              {t('Güncel durumları ve bilgilendirmeleri takip edin.')}
+              {t('notification_center_desc')}
             </p>
           </div>
         </div>
@@ -105,7 +105,7 @@ export default function PatientNotificationsPage() {
             onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#ef4444'; e.currentTarget.style.color = 'white'; }}
             onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)'; e.currentTarget.style.color = '#ef4444'; }}
           >
-            {t('Tümünü Temizle')}
+            {t('clear_all')}
           </button>
         )}
       </div>
@@ -114,12 +114,12 @@ export default function PatientNotificationsPage() {
         {loading ? (
           <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
             <div className={styles.spinner} style={{ margin: '0 auto 1rem' }}></div>
-            {t('Bildirimler yükleniyor...')}
+            {t('loading_notifications')}
           </div>
         ) : notifications.length === 0 ? (
           <div style={{ padding: '4rem 2rem', textAlign: 'center', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            <span>{t('Şu an için yeni bir bildiriminiz bulunmuyor.')}</span>
+            <span>{t('no_new_notifications')}</span>
           </div>
         ) : (
           notifications.map(notif => (
@@ -144,7 +144,7 @@ export default function PatientNotificationsPage() {
               <div style={{ flex: 1, paddingRight: '1rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    {!notif.read && <span style={{ padding: '2px 8px', fontSize: '0.7rem', fontWeight: 'bold', backgroundColor: 'var(--primary)', color: 'white', borderRadius: '12px', letterSpacing: '0.5px' }}>{t('YENİ')}</span>}
+                    {!notif.read && <span style={{ padding: '2px 8px', fontSize: '0.7rem', fontWeight: 'bold', backgroundColor: 'var(--primary)', color: 'white', borderRadius: '12px', letterSpacing: '0.5px' }}>{t('new')}</span>}
                     <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                       {new Date(notif.createdAt).toLocaleString('tr-TR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}

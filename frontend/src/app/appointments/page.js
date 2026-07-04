@@ -112,8 +112,8 @@ export default function AppointmentsPage() {
   const getStatusBadge = (status) => {
     const statusConfig = {
       SCHEDULED: { label: t('status_scheduled'), color: '#3b82f6', bg: '#eff6ff' },
-      ARRIVED: { label: t('status_arrived') || 'Hastanede', color: '#8b5cf6', bg: '#f5f3ff' },
-      IN_EXAMINATION: { label: t('status_in_examination') || 'Muayenede', color: '#ec4899', bg: '#fdf2f8' },
+      ARRIVED: { label: t('status_arrived'), color: '#8b5cf6', bg: '#f5f3ff' },
+      IN_EXAMINATION: { label: t('status_in_examination'), color: '#ec4899', bg: '#fdf2f8' },
       COMPLETED: { label: t('status_completed'), color: '#10b981', bg: '#ecfdf5' },
       CANCELLED: { label: t('status_cancelled'), color: '#ef4444', bg: '#fef2f2' },
       NO_SHOW: { label: t('status_no_show'), color: '#f59e0b', bg: '#fffbeb' }
@@ -147,8 +147,8 @@ export default function AppointmentsPage() {
       style={{ padding: '0.25rem', borderRadius: '4px', border: '1px solid #e2e8f0', fontSize: '0.75rem', marginRight: '5px', backgroundColor: 'var(--surface)', color: 'var(--text-main)' }}
     >
       <option value="SCHEDULED">{t('status_scheduled')}</option>
-      <option value="ARRIVED">{t('status_arrived') || 'Hastanede'}</option>
-      <option value="IN_EXAMINATION">{t('status_in_examination') || 'Muayenede'}</option>
+      <option value="ARRIVED">{t('status_arrived')}</option>
+      <option value="IN_EXAMINATION">{t('status_in_examination')}</option>
       <option value="COMPLETED">{t('status_completed')}</option>
       <option value="CANCELLED">{t('status_cancelled')}</option>
       <option value="NO_SHOW">{t('status_no_show')}</option>

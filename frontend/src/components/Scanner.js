@@ -124,15 +124,15 @@ export default function Scanner({ onScan }) {
       <div className={styles.header}>
         <h3>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><line x1="8" y1="10" x2="16" y2="10"></line><line x1="8" y1="14" x2="16" y2="14"></line></svg>
-          {t('scanner_title') || 'Kimlik / Barkod Okuyucu'}
+          {t('scanner_title')}
         </h3>
         {mode === 'keyboard' ? (
           <button onClick={startCamera} className={styles.startBtn}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-            {t('open_camera') || 'Kamerayı Aç'}
+            {t('open_camera')}
           </button>
         ) : (
-          <button onClick={stopCamera} className={styles.stopBtn}>{t('close_camera') || 'Kapat'}</button>
+          <button onClick={stopCamera} className={styles.stopBtn}>{t('close_camera')}</button>
         )}
       </div>
       
@@ -145,7 +145,7 @@ export default function Scanner({ onScan }) {
           </div>
         )}
         <div className={styles.statusBox}>
-          {scanStatus || (mode === 'keyboard' ? (t('scanner_placeholder') || 'Barkod okuyucuyu kullanın veya TC Taranması için Kamerayı Açın.') : (t('camera_ready') || 'Kamera hazır.'))}
+          {scanStatus || (mode === 'keyboard' ? (t('scanner_placeholder')) : (t('camera_ready')))}
         </div>
       </div>
     </div>

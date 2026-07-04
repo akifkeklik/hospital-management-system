@@ -34,7 +34,7 @@ export default function DoctorDashboard() {
         }
       } catch (err) {
         console.error(err);
-        setError(t('error_loading_data') || 'Veriler yüklenirken hata oluştu.');
+        setError(t('error_loading_data'));
       } finally {
         setLoading(false);
       }
@@ -47,7 +47,7 @@ export default function DoctorDashboard() {
     return (
       <div className={styles.loadingState}>
         <div className={styles.spinner}></div>
-        <p>{t('loading') || 'Yükleniyor...'}</p>
+        <p>{t('loading')}</p>
       </div>
     );
   }
@@ -67,8 +67,8 @@ export default function DoctorDashboard() {
       {/* Karşılama Alanı */}
       <div className={styles.welcomeSection}>
         <div>
-          <h1 className={styles.welcomeTitle}>{t('welcome') || 'Hoş Geldiniz'}, Dr. {profile?.firstName} {profile?.lastName}</h1>
-          <p className={styles.welcomeSubtitle}>{t('doctor_dashboard_subtitle') || 'Bugünkü ve yaklaşan randevularınızı buradan yönetebilirsiniz.'}</p>
+          <h1 className={styles.welcomeTitle}>{t('welcome')}, Dr. {profile?.firstName} {profile?.lastName}</h1>
+          <p className={styles.welcomeSubtitle}>{t('doctor_dashboard_subtitle')}</p>
         </div>
         <div className={styles.dateBadge}>
           {new Date().toLocaleDateString()}
@@ -83,19 +83,19 @@ export default function DoctorDashboard() {
             <h2 className={styles.cardTitle} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
               <span>
                 <span className={styles.icon}>📅</span>
-                {t('my_appointments') || 'Randevularım'}
+                {t('my_appointments')}
               </span>
               <select 
                 value={timeFilter} 
                 onChange={(e) => setTimeFilter(e.target.value)}
                 style={{ padding: '0.4rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)', fontSize: '0.85rem' }}
               >
-                <option value="all">{t('filter_all_time') || 'Tüm Zamanlar'}</option>
-                <option value="today">{t('filter_today') || 'Bugün'}</option>
-                <option value="week">{t('filter_this_week') || 'Bu Hafta (7 Gün)'}</option>
-                <option value="month">{t('filter_this_month') || 'Bu Ay (30 Gün)'}</option>
-                <option value="3months">{t('filter_three_months') || 'Son 3 Ay'}</option>
-                <option value="6months">{t('filter_six_months') || 'Son 6 Ay'}</option>
+                <option value="all">{t('filter_all_time')}</option>
+                <option value="today">{t('filter_today')}</option>
+                <option value="week">{t('filter_this_week')}</option>
+                <option value="month">{t('filter_this_month')}</option>
+                <option value="3months">{t('filter_three_months')}</option>
+                <option value="6months">{t('filter_six_months')}</option>
               </select>
             </h2>
           </div>
@@ -116,8 +116,8 @@ export default function DoctorDashboard() {
               return true;
             }).length === 0 ? (
               <EmptyState 
-                title={t('empty_state_title') || 'Veri Bulunamadı'} 
-                description={t('empty_state_desc') || 'Şu an için gösterilecek herhangi bir kayıt yok.'} 
+                title={t('empty_state_title')} 
+                description={t('empty_state_desc')} 
               />
             ) : (
               <div className={styles.appointmentList}>
@@ -155,14 +155,14 @@ export default function DoctorDashboard() {
 
         {/* Sağ Kolon: İstatistikler */}
         <div className={styles.statsCard}>
-          <h3>{t('daily_summary') || 'Günlük Özet'}</h3>
+          <h3>{t('daily_summary')}</h3>
           <div className={styles.statItem}>
-            <span>{t('total_appointments') || 'Toplam Randevu'}</span>
+            <span>{t('total_appointments')}</span>
             <span className={styles.statNumber}>{appointments.length}</span>
           </div>
           
           <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
-            <h4 style={{ marginBottom: '1rem', color: 'var(--text-main)', fontSize: '0.95rem' }}>Hızlı İşlemler</h4>
+            <h4 style={{ marginBottom: '1rem', color: 'var(--text-main)', fontSize: '0.95rem' }}>{t('quick_actions')}</h4>
             <a 
               href="/doctor/leaves" 
               style={{ 
@@ -180,7 +180,7 @@ export default function DoctorDashboard() {
               onMouseOver={(e) => e.target.style.opacity = 0.9}
               onMouseOut={(e) => e.target.style.opacity = 1}
             >
-              📅 İzin Talebi Oluştur
+              📅 {t('create_leave_request')}
             </a>
           </div>
         </div>

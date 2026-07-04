@@ -12,7 +12,7 @@ import styles from '../shared.module.css';
 export default function DoctorsPage() {
   const { t } = useSettings();
   const searchParams = useSearchParams();
-  const initialSearch = searchParams.get('search') || '';
+  const initialSearch = searchParams.get('search');
   const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [allDoctors, setAllDoctors] = useState([]);
   const [departments, setDepartments] = useState([]);
@@ -45,7 +45,7 @@ export default function DoctorsPage() {
   }, []); // Run only once, pagination is local now
 
   useEffect(() => {
-    const currentSearch = searchParams.get('search') || '';
+    const currentSearch = searchParams.get('search');
     if (currentSearch !== searchTerm) {
       setSearchTerm(currentSearch);
     }
@@ -108,9 +108,9 @@ export default function DoctorsPage() {
   };
 
   const columns = [
-    { header: t('title_desc') || 'Ünvan/Ad Soyad', render: (row) => `${row.specialization} ${row.firstName} ${row.lastName}` },
+    { header: t('title_desc'), render: (row) => `${row.specialization} ${row.firstName} ${row.lastName}` },
     { header: t('department'), render: (row) => t(row.departmentName) },
-    { header: t('polyclinics') || 'Poliklinik', render: (row) => row.polyclinicName || '-' },
+    { header: t('polyclinics'), render: (row) => row.polyclinicName || '-' },
     { header: t('phone'), accessor: 'phoneNumber' }
   ];
 
@@ -159,28 +159,28 @@ export default function DoctorsPage() {
       <Modal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
-        title={editingId ? t('edit_doctor') || 'Doktor Düzenle' : t('add_doctor')}
+        title={editingId ? t('edit_doctor') : t('add_doctor')}
       >
         <form onSubmit={handleSubmit}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className={styles.formGroup}>
-              <label>{t('name') || 'Ad'}</label>
+              <label>{t('name')}</label>
               <input required value={formData.firstName} onChange={(e) => setFormData({...formData, firstName: e.target.value})} />
             </div>
             <div className={styles.formGroup}>
-              <label>{t('surname') || 'Soyad'}</label>
+              <label>{t('surname')}</label>
               <input required value={formData.lastName} onChange={(e) => setFormData({...formData, lastName: e.target.value})} />
             </div>
           </div>
           
           <div className={styles.formGroup}>
-            <label>{t('department') || 'Bölüm'}</label>
+            <label>{t('department')}</label>
             <select 
               required 
               value={formData.departmentId} 
               onChange={(e) => setFormData({...formData, departmentId: e.target.value, polyclinicId: ''})}
             >
-              <option value="">-- {t('select_department') || 'Bölüm Seçin'} --</option>
+              <option value="">-- {t('select_department')} --</option>
               {departments.map(dept => (
                 <option key={dept.id} value={dept.id}>{dept.name}</option>
               ))}
@@ -188,14 +188,14 @@ export default function DoctorsPage() {
           </div>
 
           <div className={styles.formGroup}>
-            <label>{t('polyclinics') || 'Poliklinik'}</label>
+            <label>{t('polyclinics')}</label>
             <select 
               value={formData.polyclinicId} 
               onChange={(e) => setFormData({...formData, polyclinicId: e.target.value})}
               disabled={!formData.departmentId}
               title={!formData.departmentId ? "Önce bir bölüm seçmelisiniz" : ""}
             >
-              <option value="">-- {t('select_polyclinic') || 'Poliklinik Seçin'} --</option>
+              <option value="">-- {t('select_polyclinic')} --</option>
               {formData.departmentId && polyclinics.filter(p => p.departmentId === parseInt(formData.departmentId)).map(poly => (
                 <option key={poly.id} value={poly.id}>{poly.name} ({poly.roomNumber})</option>
               ))}
@@ -203,16 +203,16 @@ export default function DoctorsPage() {
           </div>
           
           <div className={styles.formGroup}>
-            <label>{t('specialization') || 'Uzmanlık'}</label>
+            <label>{t('specialization')}</label>
             <input required value={formData.specialization} onChange={(e) => setFormData({...formData, specialization: e.target.value})} />
           </div>
           
           <div className={styles.formGroup}>
-            <label>{t('phone') || 'Telefon Numarası'}</label>
+            <label>{t('phone')}</label>
             <input maxLength="15" value={formData.phoneNumber} onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})} />
           </div>
           <div className={styles.formGroup}>
-            <label>{t('email') || 'E-Posta'}</label>
+            <label>{t('email')}</label>
             <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
           </div>
           <div className={styles.formActions}>
@@ -224,12 +224,12 @@ export default function DoctorsPage() {
 
       <ConfirmModal
         isOpen={confirmModal.isOpen}
-        title={t('delete_confirm_title') || 'Silme İşlemi Onayı'}
-        message={t('delete_confirm_message') || 'Bu doktoru silmek istediğinize emin misiniz?'}
+        title={t('delete_confirm_title')}
+        message={t('delete_confirm_message')}
         onConfirm={executeDelete}
         onCancel={() => setConfirmModal({ isOpen: false, id: null })}
-        confirmText={t('yes_delete') || 'Evet, Sil'}
-        cancelText={t('cancel') || 'İptal'}
+        confirmText={t('yes_delete')}
+        cancelText={t('cancel')}
       />
     </div>
   );

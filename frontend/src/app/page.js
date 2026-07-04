@@ -46,11 +46,11 @@ export default function Dashboard() {
     setSendingAnnouncement(true);
     try {
       await NotificationService.broadcastToAll(announcementMessage);
-      toast.success(t('announcement_sent') || 'Duyuru başarıyla tüm kullanıcılara iletildi!');
+      toast.success(t('announcement_sent'));
       setIsAnnouncementModalOpen(false);
       setAnnouncementMessage('');
     } catch (error) {
-      toast.error(t('announcement_error') || 'Duyuru gönderilirken bir hata oluştu.');
+      toast.error(t('announcement_error'));
       console.error(error);
     } finally {
       setSendingAnnouncement(false);

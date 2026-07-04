@@ -54,15 +54,15 @@ export default function DataTable({ columns, data, onEdit, onDelete, actions, pa
             disabled={page === 0} 
             onClick={() => onPageChange(page - 1)}
           >
-            {t('previous') || 'Önceki'}
+            {t('previous')}
           </button>
-          <span className={styles.pageInfo}>{t('page') || 'Sayfa'} {page + 1} / {totalPages}</span>
+          <span className={styles.pageInfo}>{t('page')} {page + 1} / {totalPages}</span>
           <button 
             className={styles.pageBtn} 
             disabled={page >= totalPages - 1} 
             onClick={() => onPageChange(page + 1)}
           >
-            {t('next') || 'Sonraki'}
+            {t('next')}
           </button>
         </div>
       )}

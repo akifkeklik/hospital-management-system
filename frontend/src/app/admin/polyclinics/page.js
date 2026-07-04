@@ -102,8 +102,8 @@ function PolyclinicsContent() {
     <div className={styles.container} style={{ padding: '1rem 2rem' }}>
       <div className={styles.header} style={{ marginBottom: '1rem' }}>
         <div>
-          <h1 className={styles.title} style={{ fontSize: '1.6rem', fontWeight: '700', color: 'var(--text-main)' }}>{t('polyclinic_management') || 'Poliklinik Yönetimi'}</h1>
-          <p style={{ color: 'var(--text-muted)', marginTop: '0.2rem', fontSize: '0.9rem' }}>{t('polyclinic_management_desc') || 'Hastanede bulunan oda ve poliklinik tanımlamalarını yönetin.'}</p>
+          <h1 className={styles.title} style={{ fontSize: '1.6rem', fontWeight: '700', color: 'var(--text-main)' }}>{t('polyclinic_management')}</h1>
+          <p style={{ color: 'var(--text-muted)', marginTop: '0.2rem', fontSize: '0.9rem' }}>{t('polyclinic_management_desc')}</p>
         </div>
       </div>
 
@@ -122,19 +122,19 @@ function PolyclinicsContent() {
             <div style={{ padding: '6px', backgroundColor: 'rgba(var(--primary-rgb), 0.1)', borderRadius: '8px', color: 'var(--primary)' }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
             </div>
-            <h2 style={{ fontSize: '1.05rem', fontWeight: '600', color: 'var(--text-main)', margin: 0 }}>{t('add_new_polyclinic') || 'Yeni Poliklinik Tanımla'}</h2>
+            <h2 style={{ fontSize: '1.05rem', fontWeight: '600', color: 'var(--text-main)', margin: 0 }}>{t('add_new_polyclinic')}</h2>
           </div>
 
           <form onSubmit={handleAddPolyclinic} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-muted)' }}>{t('linked_department') || 'Bağlı Olduğu Bölüm'}</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-muted)' }}>{t('linked_department')}</label>
               <select 
                 required 
                 value={departmentId} 
                 onChange={(e) => setDepartmentId(e.target.value)}
                 style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)', outline: 'none' }}
               >
-                <option value="" disabled>{t('select_department') || '-- Bölüm Seçiniz --'}</option>
+                <option value="" disabled>{t('select_department')}</option>
                 {departments.map(dept => (
                   <option key={dept.id} value={dept.id}>{dept.name}</option>
                 ))}
@@ -142,7 +142,7 @@ function PolyclinicsContent() {
             </div>
 
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-muted)' }}>{t('polyclinic_name') || 'Poliklinik Adı'}</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-muted)' }}>{t('polyclinic_name')}</label>
               <input 
                 type="text" 
                 placeholder="Örn: Dahiliye Polikliniği 1" 
@@ -154,7 +154,7 @@ function PolyclinicsContent() {
             </div>
 
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-muted)' }}>{t('room_number') || 'Oda Numarası'}</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-muted)' }}>{t('room_number')}</label>
               <input 
                 type="text" 
                 placeholder="Örn: B Blok 104" 
@@ -177,7 +177,7 @@ function PolyclinicsContent() {
               transition: 'background-color 0.2s',
               boxShadow: '0 4px 12px rgba(var(--primary-rgb), 0.3)'
             }}>
-              {t('save_to_system') || 'Sisteme Kaydet'}
+              {t('save_to_system')}
             </button>
           </form>
         </div>
@@ -193,7 +193,7 @@ function PolyclinicsContent() {
         }}>
           <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(var(--background-rgb), 0.5)' }}>
             <h2 style={{ fontSize: '1.1rem', fontWeight: '600', color: 'var(--text-main)', margin: 0 }}>
-              {filterDeptId ? `${getDeptName(filterDeptId)} Poliklinikleri` : (t('all_polyclinics') || 'Tüm Mevcut Poliklinikler')}
+              {filterDeptId ? `${getDeptName(filterDeptId)} Poliklinikleri` : (t('all_polyclinics'))}
             </h2>
             <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', backgroundColor: 'var(--background)', padding: '4px 12px', borderRadius: '20px', border: '1px solid var(--border)' }}>
               Toplam: {filteredPolyclinics.length}
@@ -215,10 +215,10 @@ function PolyclinicsContent() {
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
                   <tr style={{ backgroundColor: 'rgba(var(--background-rgb), 0.3)' }}>
-                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}>{t('room_no') || 'Oda No'}</th>
-                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}>{t('polyclinic_name_col') || 'Poliklinik Adı'}</th>
-                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}>{t('linked_department') || 'Bağlı Bölüm'}</th>
-                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', textAlign: 'right' }}>{t('action') || 'İşlem'}</th>
+                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}>{t('room_no')}</th>
+                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}>{t('polyclinic_name_col')}</th>
+                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}>{t('linked_department')}</th>
+                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', textAlign: 'right' }}>{t('action')}</th>
                   </tr>
                 </thead>
                 <tbody>

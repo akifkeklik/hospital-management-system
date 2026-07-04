@@ -120,11 +120,11 @@ export default function PatientHeader() {
           {isNotifOpen && (
             <div style={{...dropdownMenuStyle, right: '-50px', width: '320px'}}>
               <div style={dropdownHeaderStyle}>
-                <strong style={{ color: 'var(--text-main)', fontSize: '1.05rem', display: 'block' }}>Bildirimler</strong>
+                <strong style={{ color: 'var(--text-main)', fontSize: '1.05rem', display: 'block' }}>{t('notifications')}</strong>
               </div>
               <div style={{...dropdownBodyStyle, maxHeight: '300px', overflowY: 'auto', padding: '0'}}>
                 {notifications.length === 0 ? (
-                  <div style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Hiç bildiriminiz yok.</div>
+                  <div style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>{t('Hiç bildiriminiz yok.')}</div>
                 ) : (
                   notifications.map(notif => (
                     <div 
@@ -160,7 +160,7 @@ export default function PatientHeader() {
                   onMouseOver={(e) => { e.currentTarget.style.textDecoration = 'underline'; }}
                   onMouseOut={(e) => { e.currentTarget.style.textDecoration = 'none'; }}
                 >
-                  Tüm Bildirimleri Gör
+                  {t('Tüm Bildirimleri Gör')}
                 </button>
               </div>
             </div>
@@ -182,7 +182,7 @@ export default function PatientHeader() {
             <div style={avatarStyle}>{initial}</div>
             <div style={infoStyle}>
               <span style={nameStyle}>{userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : '...'}</span>
-              <span style={roleStyle}>{t('patient') || 'Hasta'}</span>
+              <span style={roleStyle}>{t('patient')}</span>
             </div>
           </div>
 
@@ -222,7 +222,7 @@ export default function PatientHeader() {
                   onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#ef4444'; e.currentTarget.style.color = 'white'; }}
                   onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)'; e.currentTarget.style.color = '#ef4444'; }}
                 >
-                  {t('logout') || 'Sistemden Çıkış Yap'}
+                  {t('logout')}
                 </button>
               </div>
             </div>

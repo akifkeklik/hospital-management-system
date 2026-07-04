@@ -350,7 +350,7 @@ export default function DoctorHeader() {
                   onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#ef4444'; e.currentTarget.style.color = 'white'; }}
                   onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)'; e.currentTarget.style.color = '#ef4444'; }}
                 >
-                  {t('logout') || 'Sistemden Çıkış Yap'}
+                  {t('logout')}
                 </button>
               </div>
             </div>

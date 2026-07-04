@@ -81,7 +81,7 @@ export default function PatientDashboard() {
       <div style={heroBannerStyle}>
         <div style={heroContentStyle}>
           <h1 style={heroTitleStyle}>
-            {t('hero_welcome') || 'Sizlere Sağlıklı Günler Dileriz!'} <br/>
+            {t('hero_welcome')} <br/>
             <span style={{ color: 'var(--primary)' }}>{userProfile?.firstName ? userProfile.firstName : t('patient')}</span>
           </h1>
           <p style={heroSubtitleStyle}>
@@ -96,7 +96,7 @@ export default function PatientDashboard() {
             </div>
             <input 
               type="text"
-              placeholder={t('hero_search_placeholder') || 'Hangi bölüme veya kime görünmek istersiniz?'}
+              placeholder={t('hero_search_placeholder')}
               value={quickSearch}
               onChange={(e) => setQuickSearch(e.target.value)}
               style={heroSearchInputStyle}
@@ -126,12 +126,12 @@ export default function PatientDashboard() {
             onChange={(e) => setTimeFilter(e.target.value)}
             style={{ padding: '0.4rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)', fontSize: '0.85rem' }}
           >
-            <option value="all">{t('filter_all_time') || 'Tüm Zamanlar'}</option>
-            <option value="today">{t('filter_today') || 'Bugün'}</option>
-            <option value="week">{t('filter_this_week') || 'Bu Hafta (7 Gün)'}</option>
-            <option value="month">{t('filter_this_month') || 'Bu Ay (30 Gün)'}</option>
-            <option value="3months">{t('filter_three_months') || 'Son 3 Ay'}</option>
-            <option value="6months">{t('filter_six_months') || 'Son 6 Ay'}</option>
+            <option value="all">{t('filter_all_time')}</option>
+            <option value="today">{t('filter_today')}</option>
+            <option value="week">{t('filter_this_week')}</option>
+            <option value="month">{t('filter_this_month')}</option>
+            <option value="3months">{t('filter_three_months')}</option>
+            <option value="6months">{t('filter_six_months')}</option>
           </select>
         </div>
         
@@ -152,8 +152,8 @@ export default function PatientDashboard() {
             return true;
         }).length === 0 ? (
           <EmptyState 
-            title={t('empty_state_title') || 'Veri Bulunamadı'} 
-            description={t('empty_state_desc') || 'Şu an için gösterilecek herhangi bir kayıt yok.'} 
+            title={t('empty_state_title')} 
+            description={t('empty_state_desc')} 
           />
         ) : (
           <div style={appointmentsGridStyle}>

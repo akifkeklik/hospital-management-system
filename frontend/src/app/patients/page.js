@@ -11,8 +11,9 @@ import { useSettings } from '../../context/SettingsContext';
 import styles from '../shared.module.css';
 
 export default function PatientsPage() {
+  const { t } = useSettings();
   return (
-    <Suspense fallback={<div>Yükleniyor...</div>}>
+    <Suspense fallback={<div>{t('loading')}</div>}>
       <PatientsContent />
     </Suspense>
   );
@@ -32,11 +33,11 @@ function PatientsContent() {
   });
   const [editingId, setEditingId] = useState(null);
 
-  const initialSearch = searchParams.get('search') || '';
+  const initialSearch = searchParams.get('search');
   const [searchTerm, setSearchTerm] = useState(initialSearch);
 
   useEffect(() => {
-    const currentSearch = searchParams.get('search') || '';
+    const currentSearch = searchParams.get('search');
     if (currentSearch !== searchTerm) {
       setSearchTerm(currentSearch);
     }
@@ -51,7 +52,7 @@ function PatientsContent() {
       const data = await PatientService.getAll(0, 1000);
       setAllPatients(data.content || data);
     } catch (error) {
-      toast.error('Hastalar yüklenemedi.');
+      toast.error(t('error_loading_patients'));
     }
   };
 
@@ -64,16 +65,16 @@ function PatientsContent() {
     try {
       if (editingId) {
         await PatientService.update(editingId, formData);
-        toast.success('Hasta başarıyla güncellendi.');
+        toast.success(t('patient_updated'));
       } else {
         await PatientService.create(formData);
-        toast.success('Hasta başarıyla eklendi.');
+        toast.success(t('patient_added'));
       }
       setIsModalOpen(false);
       setEditingId(null);
       fetchPatients();
     } catch (error) {
-      toast.error(`İşlem başarısız oldu:\n${error.message}`);
+      toast.error(`${t('operation_failed')}:\n${error.message}`);
     }
   };
 
@@ -97,9 +98,9 @@ function PatientsContent() {
     try {
       await PatientService.delete(confirmModal.id);
       fetchPatients();
-      toast.success('Hasta başarıyla silindi.');
+      toast.success(t('patient_deleted'));
     } catch (error) {
-      toast.error('Silme işlemi başarısız. Hastanın randevuları olabilir.');
+      toast.error(t('delete_failed_has_appointments'));
     } finally {
       setConfirmModal({ isOpen: false, id: null });
     }
@@ -144,7 +145,7 @@ function PatientsContent() {
         setSearchTerm(tc);
         const exists = allPatients.some(p => p.tcIdentityNumber === tc);
         if (!exists) {
-          toast.info('Bu kimlik numarasına sahip hasta bulunamadı. Kayıt penceresi açılıyor...');
+          toast.info(t('patient_not_found_opening_register'));
           setFormData({ tcIdentityNumber: tc, firstName: '', lastName: '', phoneNumber: '', email: '' });
           setEditingId(null);
           setIsModalOpen(true);
@@ -154,7 +155,7 @@ function PatientsContent() {
       <div style={{ marginBottom: '1rem', marginTop: '1rem' }}>
         <input 
           type="text" 
-          placeholder={t('search_patient_placeholder') || "TC Kimlik No veya İsim ile ara..."}
+          placeholder={t('search_patient_placeholder')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{ width: '100%', maxWidth: '400px', padding: '0.6rem 1rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)', fontSize: '0.9rem' }}
@@ -174,29 +175,29 @@ function PatientsContent() {
       <Modal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
-        title={editingId ? (t('edit_patient') || 'Hasta Düzenle') : (t('add_patient') || 'Yeni Hasta Kaydı')}
+        title={editingId ? (t('edit_patient')) : (t('add_patient'))}
       >
         <form onSubmit={handleSubmit}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className={styles.formGroup}>
-              <label>{t('name') || 'Ad'}</label>
+              <label>{t('name')}</label>
               <input required value={formData.firstName} onChange={(e) => setFormData({...formData, firstName: e.target.value})} />
             </div>
             <div className={styles.formGroup}>
-              <label>{t('surname') || 'Soyad'}</label>
+              <label>{t('surname')}</label>
               <input required value={formData.lastName} onChange={(e) => setFormData({...formData, lastName: e.target.value})} />
             </div>
           </div>
           <div className={styles.formGroup}>
-            <label>{t('tc_id') || 'TC Kimlik Numarası'}</label>
+            <label>{t('tc_id')}</label>
             <input required minLength="11" maxLength="11" value={formData.tcIdentityNumber} onChange={(e) => setFormData({...formData, tcIdentityNumber: e.target.value})} />
           </div>
           <div className={styles.formGroup}>
-            <label>{t('phone') || 'Telefon Numarası'}</label>
+            <label>{t('phone')}</label>
             <input maxLength="15" value={formData.phoneNumber} onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})} />
           </div>
           <div className={styles.formGroup}>
-            <label>{t('email') || 'E-Posta'}</label>
+            <label>{t('email')}</label>
             <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
           </div>
           <div className={styles.formActions}>
@@ -208,11 +209,11 @@ function PatientsContent() {
 
       <ConfirmModal
         isOpen={confirmModal.isOpen}
-        title="Silme İşlemi Onayı"
-        message="Bu hastayı silmek istediğinize emin misiniz?"
+        title={t('confirm_deletion_title')}
+        message={t('confirm_delete_patient')}
         onConfirm={executeDelete}
         onCancel={() => setConfirmModal({ isOpen: false, id: null })}
-        confirmText="Evet, Sil"
+        confirmText={t('yes_delete')}
         type="danger"
       />
     </div>

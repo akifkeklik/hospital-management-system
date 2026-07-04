@@ -103,16 +103,16 @@ export default function Header() {
     const docSuggestions = allDoctors.filter(d => 
       `${d.firstName} ${d.lastName}`.toLowerCase().includes(term) || 
       (d.specialization && d.specialization.toLowerCase().includes(term))
-    ).slice(0, 5).map(d => ({ type: 'doctor', text: `${d.firstName} ${d.lastName} (Hekim) - ${d.specialization || 'Bölüm Yok'}`, url: `/doctors?search=${encodeURIComponent(d.firstName)}` }));
+    ).slice(0, 5).map(d => ({ type: 'doctor', text: `${d.firstName} ${d.lastName} (${t('doctor')}) - ${d.specialization || t('no_data')}`, url: `/doctors?search=${encodeURIComponent(d.firstName)}` }));
 
     const deptSuggestions = allDepartments.filter(d => 
       d.name.toLowerCase().includes(term)
-    ).slice(0, 3).map(d => ({ type: 'department', text: `${d.name} (Bölüm)`, url: `/doctors?search=${encodeURIComponent(d.name)}` }));
+    ).slice(0, 3).map(d => ({ type: 'department', text: `${d.name} (${t('department')})`, url: `/doctors?search=${encodeURIComponent(d.name)}` }));
 
     const patSuggestions = allPatients.filter(p => 
       `${p.firstName} ${p.lastName}`.toLowerCase().includes(term) || 
       (p.tcIdentityNumber && p.tcIdentityNumber.includes(term))
-    ).slice(0, 3).map(p => ({ type: 'patient', text: `${p.firstName} ${p.lastName} (Hasta) - ${p.tcIdentityNumber}`, url: `/patients?search=${encodeURIComponent(p.tcIdentityNumber)}` }));
+    ).slice(0, 3).map(p => ({ type: 'patient', text: `${p.firstName} ${p.lastName} (${t('patient')}) - ${p.tcIdentityNumber}`, url: `/patients?search=${encodeURIComponent(p.tcIdentityNumber)}` }));
 
     return [...docSuggestions, ...deptSuggestions, ...patSuggestions];
   })() : [];
@@ -163,7 +163,7 @@ export default function Header() {
           </div>
           <input 
             type="text" 
-            placeholder={t('global_search_placeholder') || "Ara... (Örn: Doktor, Bölüm, Hasta)"}
+            placeholder={t('global_search_placeholder')}
             className={styles.searchInput}
             value={searchQuery}
             onChange={(e) => {
@@ -228,7 +228,7 @@ export default function Header() {
               </div>
             ) : (
               <div style={{ padding: '1rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                Sonuç bulunamadı. Tüm sonuçları görmek için "Enter"a basın.
+                Sonuç bulunamadı.
               </div>
             )}
           </div>
@@ -275,7 +275,7 @@ export default function Header() {
               zIndex: 100, overflow: 'hidden'
             }}>
               <div style={{ padding: '1.2rem', background: 'linear-gradient(135deg, rgba(var(--primary-rgb), 0.1), transparent)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <strong style={{ color: 'var(--text-main)', fontSize: '1.05rem', display: 'block' }}>Bildirimler</strong>
+                <strong style={{ color: 'var(--text-main)', fontSize: '1.05rem', display: 'block' }}>{t('notifications')}</strong>
                 {notifications.length > 0 && (
                   <button 
                     onClick={(e) => {
@@ -291,7 +291,7 @@ export default function Header() {
                     onMouseOver={(e) => e.currentTarget.style.textDecoration = 'underline'}
                     onMouseOut={(e) => e.currentTarget.style.textDecoration = 'none'}
                   >
-                    Temizle
+                    {t('delete')}
                   </button>
                 )}
               </div>
@@ -406,12 +406,12 @@ export default function Header() {
                   onClick={() => router.push('/settings')}
                 >
                   <span className={styles.itemLabel}>⚙️</span>
-                  <span className={styles.itemValue}>{t('settings') || 'Ayarlar'}</span>
+                  <span className={styles.itemValue}>{t('settings')}</span>
                 </div>
               </div>
               <div className={styles.dropdownFooter}>
                 <button onClick={handleLogout} className={styles.logoutBtn}>
-                  {t('logout') || 'Sistemden Çıkış Yap'}
+                  {t('logout')}
                 </button>
               </div>
             </div>
