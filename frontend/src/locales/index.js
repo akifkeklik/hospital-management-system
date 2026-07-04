@@ -1,5 +1,9 @@
 export const dictionaries = {
   tr: {
+    "previous": "Geri",
+    "next": "İleri",
+    "page": "Sayfa",
+
     "status_pending": "Bekliyor",
     "status_approved": "Onaylandı",
     "status_rejected": "Reddedildi",
@@ -382,6 +386,10 @@ export const dictionaries = {
     "see_all_notifications": "Tüm Bildirimleri Gör"
   },
   en: {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page",
+
     "status_pending": "Pending",
     "status_approved": "Approved",
     "status_rejected": "Rejected",
@@ -763,6 +771,10 @@ export const dictionaries = {
     "see_all_notifications": "See All Notifications"
   },
   de: {
+    "previous": "Zurück",
+    "next": "Weiter",
+    "page": "Seite",
+
     "status_pending": "Ausstehend",
     "status_approved": "Genehmigt",
     "status_rejected": "Abgelehnt",

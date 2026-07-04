@@ -121,7 +121,7 @@ function PatientsContent() {
     return fullName.includes(term) || tc.includes(term);
   });
 
-  const PAGE_SIZE = 8;
+  const PAGE_SIZE = 5;
   const calculatedTotalPages = Math.ceil(filteredPatients.length / PAGE_SIZE);
   const displayedPatients = filteredPatients.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 

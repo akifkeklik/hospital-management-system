@@ -47,7 +47,7 @@ export default function DataTable({ columns, data, onEdit, onDelete, actions, pa
         </tbody>
       </table>
       
-      {totalPages > 1 && (
+      {totalPages > 0 && (
         <div className={styles.pagination}>
           <button 
             className={styles.pageBtn} 
