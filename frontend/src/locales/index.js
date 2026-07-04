@@ -1,5 +1,14 @@
 export const dictionaries = {
   tr: {
+    "status_pending": "Bekliyor",
+    "status_approved": "Onaylandı",
+    "status_rejected": "Reddedildi",
+    "approve": "Onayla",
+    "reject": "Reddet",
+    "actions": "İşlemler",
+    "leave_status": "Durum",
+    "new_leave_request": "Yeni İzin Talebi",
+
     "forgot_password_subtitle": "Şifrenizi sıfırlamak için bilgilerinizi doğrulayın.",
     "forgot_password_error": "Şifre sıfırlanırken bir hata oluştu.",
     "forgot_password_success": "Şifreniz başarıyla sıfırlandı! Giriş ekranına yönlendiriliyorsunuz...",
@@ -373,6 +382,15 @@ export const dictionaries = {
     "see_all_notifications": "Tüm Bildirimleri Gör"
   },
   en: {
+    "status_pending": "Pending",
+    "status_approved": "Approved",
+    "status_rejected": "Rejected",
+    "approve": "Approve",
+    "reject": "Reject",
+    "actions": "Actions",
+    "leave_status": "Status",
+    "new_leave_request": "New Leave Request",
+
     "forgot_password_subtitle": "Verify your information to reset your password.",
     "forgot_password_error": "An error occurred while resetting the password.",
     "forgot_password_success": "Your password has been reset successfully! Redirecting to login...",
@@ -745,6 +763,15 @@ export const dictionaries = {
     "see_all_notifications": "See All Notifications"
   },
   de: {
+    "status_pending": "Ausstehend",
+    "status_approved": "Genehmigt",
+    "status_rejected": "Abgelehnt",
+    "approve": "Genehmigen",
+    "reject": "Ablehnen",
+    "actions": "Aktionen",
+    "leave_status": "Status",
+    "new_leave_request": "Neuer Urlaubsantrag",
+
     "forgot_password_subtitle": "Überprüfen Sie Ihre Informationen, um Ihr Passwort zurückzusetzen.",
     "forgot_password_error": "Beim Zurücksetzen des Passworts ist ein Fehler aufgetreten.",
     "forgot_password_success": "Ihr Passwort wurde erfolgreich zurückgesetzt! Weiterleitung zur Anmeldung...",

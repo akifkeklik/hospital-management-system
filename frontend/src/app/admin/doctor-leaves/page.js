@@ -77,21 +77,16 @@ export default function DoctorLeavesPage() {
         <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)' }}>
           <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--text-main)' }}>{t('leave_requests')}</h2>
         </div>
-        <div style={{ overflowX: 'auto' }}>
-          {loading ? (
-            <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>{t('loading')}</div>
-          ) : leaves.length === 0 ? (
-            <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>{t('no_leave_requests')}</div>
-          ) : (
-            <table className={styles.table}>
+          <div style={{ overflowX: 'auto', padding: '1rem' }}>
+            <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 0.5rem', textAlign: 'left' }}>
               <thead>
                 <tr>
-                  <th>{t('doctor')}</th>
-                  <th>{t('start_date')}</th>
-                  <th>{t('end_date')}</th>
-                  <th>{t('reason')}</th>
-                  <th>{t('status')}</th>
-                  <th style={{ textAlign: 'right' }}>{t('actions')}</th>
+                  <th style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)', fontWeight: '600', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('doctor')}</th>
+                  <th style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)', fontWeight: '600', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('start_date')}</th>
+                  <th style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)', fontWeight: '600', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('end_date')}</th>
+                  <th style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)', fontWeight: '600', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('reason')}</th>
+                  <th style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)', fontWeight: '600', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('status')}</th>
+                  <th style={{ padding: '1rem 1.5rem', textAlign: 'right', color: 'var(--text-muted)', fontWeight: '600', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -99,59 +94,67 @@ export default function DoctorLeavesPage() {
                   const doc = doctors.find(d => d.id === leave.doctorId);
                   const statusColors = getStatusColors(leave.status);
                   return (
-                    <tr key={leave.id}>
-                      <td>
-                        <div style={{ fontWeight: '500', color: 'var(--text-main)' }}>
+                    <tr key={leave.id} style={{ backgroundColor: 'var(--surface)', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', transition: 'transform 0.2s, box-shadow 0.2s', borderRadius: '12px' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 12px rgba(0,0,0,0.05)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.02)'; }}>
+                      <td style={{ padding: '1.25rem 1.5rem', borderTopLeftRadius: '12px', borderBottomLeftRadius: '12px' }}>
+                        <div style={{ fontWeight: '600', color: 'var(--text-main)' }}>
                           {doc ? `Dr. ${doc.firstName} ${doc.lastName}` : t('unknown_doctor')}
                         </div>
                       </td>
-                      <td style={{ color: 'var(--text-main)' }}>{leave.startDate}</td>
-                      <td style={{ color: 'var(--text-main)' }}>{leave.endDate}</td>
-                      <td style={{ color: 'var(--text-muted)' }}>{leave.reason}</td>
-                      <td>
+                      <td style={{ padding: '1.25rem 1.5rem', color: 'var(--text-main)', fontWeight: '500' }}>{new Date(leave.startDate).toLocaleDateString('tr-TR')}</td>
+                      <td style={{ padding: '1.25rem 1.5rem', color: 'var(--text-main)', fontWeight: '500' }}>{new Date(leave.endDate).toLocaleDateString('tr-TR')}</td>
+                      <td style={{ padding: '1.25rem 1.5rem', color: 'var(--text-muted)' }}>{leave.reason}</td>
+                      <td style={{ padding: '1.25rem 1.5rem' }}>
                         <span style={{
                           display: 'inline-flex',
                           alignItems: 'center',
-                          padding: '0.25rem 0.75rem',
-                          borderRadius: '9999px',
-                          fontSize: '0.875rem',
-                          fontWeight: '500',
+                          padding: '0.4rem 1rem',
+                          borderRadius: '20px',
+                          fontSize: '0.75rem',
+                          fontWeight: '700',
                           backgroundColor: statusColors.bg,
-                          color: statusColors.color
+                          color: statusColors.color,
+                          border: `1px solid ${statusColors.color}40`,
+                          letterSpacing: '0.03em'
                         }}>
                           {getStatusLabel(leave.status)}
                         </span>
                       </td>
-                      <td style={{ textAlign: 'right' }}>
+                      <td style={{ padding: '1.25rem 1.5rem', textAlign: 'right', borderTopRightRadius: '12px', borderBottomRightRadius: '12px' }}>
                         {leave.status === 'PENDING' && (
                           <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
                             <button
                               onClick={() => handleUpdateStatus(leave.id, 'APPROVED')}
                               style={{
-                                padding: '0.375rem 0.75rem',
-                                backgroundColor: '#10b981',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '0.375rem',
+                                padding: '0.5rem 1rem',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                color: '#10b981',
+                                border: '1px solid rgba(16, 185, 129, 0.3)',
+                                borderRadius: '8px',
                                 cursor: 'pointer',
-                                fontSize: '0.875rem',
-                                fontWeight: '500'
+                                fontSize: '0.85rem',
+                                fontWeight: '600',
+                                transition: 'all 0.2s',
                               }}
+                              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#10b981'; e.currentTarget.style.color = '#fff'; }}
+                              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(16, 185, 129, 0.1)'; e.currentTarget.style.color = '#10b981'; }}
                             >
                               {t('approve')}
                             </button>
                             <button
                               onClick={() => handleUpdateStatus(leave.id, 'REJECTED')}
                               style={{
-                                padding: '0.375rem 0.75rem',
-                                backgroundColor: '#ef4444',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '0.375rem',
+                                padding: '0.5rem 1rem',
+                                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                color: '#ef4444',
+                                border: '1px solid rgba(239, 68, 68, 0.3)',
+                                borderRadius: '8px',
                                 cursor: 'pointer',
-                                fontSize: '0.875rem',
-                                fontWeight: '500'
+                                fontSize: '0.85rem',
+                                fontWeight: '600',
+                                transition: 'all 0.2s',
                               }}
+                              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#ef4444'; e.currentTarget.style.color = '#fff'; }}
+                              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)'; e.currentTarget.style.color = '#ef4444'; }}
                             >
                               {t('reject')}
                             </button>
@@ -163,8 +166,7 @@ export default function DoctorLeavesPage() {
                 })}
               </tbody>
             </table>
-          )}
-        </div>
+          </div>
       </div>
     </div>
   );

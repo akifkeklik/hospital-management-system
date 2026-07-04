@@ -113,23 +113,23 @@ export default function DoctorLeavesRequestPage() {
             <p style={{ fontSize: '0.9rem' }}>Yeni bir talep oluşturmak için sağ üstteki butonu kullanabilirsiniz.</p>
           </div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table className={styles.table} style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+          <div style={{ overflowX: 'auto', padding: '1rem' }}>
+            <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 0.5rem', textAlign: 'left' }}>
               <thead>
-                <tr style={{ backgroundColor: 'var(--surface-hover)' }}>
-                  <th style={{ padding: '1.25rem', borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)', fontWeight: '600', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Başlangıç Tarihi</th>
-                  <th style={{ padding: '1.25rem', borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)', fontWeight: '600', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Bitiş Tarihi</th>
-                  <th style={{ padding: '1.25rem', borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)', fontWeight: '600', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Sebep</th>
-                  <th style={{ padding: '1.25rem', borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)', fontWeight: '600', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Durum</th>
+                <tr>
+                  <th style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)', fontWeight: '600', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('start_date') || 'Başlangıç Tarihi'}</th>
+                  <th style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)', fontWeight: '600', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('end_date') || 'Bitiş Tarihi'}</th>
+                  <th style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)', fontWeight: '600', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('reason') || 'Sebep'}</th>
+                  <th style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)', fontWeight: '600', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('leave_status') || 'Durum'}</th>
                 </tr>
               </thead>
               <tbody>
                 {leaves.map((leave, index) => (
-                  <tr key={index} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background-color 0.2s' }}>
-                    <td style={{ padding: '1.25rem', color: 'var(--text-main)', fontWeight: '500' }}>{new Date(leave.startDate).toLocaleDateString('tr-TR')}</td>
-                    <td style={{ padding: '1.25rem', color: 'var(--text-main)', fontWeight: '500' }}>{new Date(leave.endDate).toLocaleDateString('tr-TR')}</td>
-                    <td style={{ padding: '1.25rem', color: 'var(--text-muted)' }}>{leave.reason}</td>
-                    <td style={{ padding: '1.25rem' }}>{getStatusBadge(leave.status)}</td>
+                  <tr key={index} style={{ backgroundColor: 'var(--surface)', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', transition: 'transform 0.2s, box-shadow 0.2s', borderRadius: '12px' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 12px rgba(0,0,0,0.05)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.02)'; }}>
+                    <td style={{ padding: '1.25rem 1.5rem', color: 'var(--text-main)', fontWeight: '600', borderTopLeftRadius: '12px', borderBottomLeftRadius: '12px' }}>{new Date(leave.startDate).toLocaleDateString('tr-TR')}</td>
+                    <td style={{ padding: '1.25rem 1.5rem', color: 'var(--text-main)', fontWeight: '600' }}>{new Date(leave.endDate).toLocaleDateString('tr-TR')}</td>
+                    <td style={{ padding: '1.25rem 1.5rem', color: 'var(--text-muted)', fontWeight: '500' }}>{leave.reason}</td>
+                    <td style={{ padding: '1.25rem 1.5rem', borderTopRightRadius: '12px', borderBottomRightRadius: '12px' }}>{getStatusBadge(leave.status)}</td>
                   </tr>
                 ))}
               </tbody>
