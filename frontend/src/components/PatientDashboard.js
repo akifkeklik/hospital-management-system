@@ -157,6 +157,7 @@ export default function PatientDashboard() {
           <EmptyState 
             title={t('empty_state_title')} 
             description={t('empty_state_desc')} 
+            customSvg={<span/>}
           />
         ) : (
           <div style={appointmentsGridStyle}>
@@ -220,7 +221,7 @@ const containerStyle = {
 
 const heroBannerStyle = {
   display: 'flex',
-  alignItems: 'center',
+  alignItems: 'flex-end',
   justifyContent: 'space-between',
   flexWrap: 'wrap',
   gap: '2rem',
