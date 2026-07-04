@@ -122,12 +122,12 @@ export default function PatientDashboard() {
       </div>
 
       <div style={upcomingSectionStyle}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem', marginBottom: '1rem' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-main)', margin: 0 }}>{t('upcoming_appointments')}</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+          <h2 style={{ fontSize: '1.15rem', fontWeight: '700', color: 'var(--text-main)', margin: 0, whiteSpace: 'nowrap' }}>{t('upcoming_appointments')}</h2>
           <select 
             value={timeFilter} 
             onChange={(e) => setTimeFilter(e.target.value)}
-            style={{ padding: '0.4rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)', fontSize: '0.85rem' }}
+            style={{ padding: '0.6rem 2.5rem 0.6rem 1rem', borderRadius: '10px', border: '1px solid var(--border)', backgroundColor: 'var(--surface)', color: 'var(--text-main)', fontSize: '0.9rem', fontWeight: '500', minWidth: '160px', width: 'auto', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}
           >
             <option value="all">{t('filter_all_time')}</option>
             <option value="today">{t('filter_today')}</option>
@@ -214,9 +214,12 @@ export default function PatientDashboard() {
 const containerStyle = {
   display: 'flex',
   flexDirection: 'column',
-  gap: '1rem',
+  gap: '1.5rem',
   flex: 1,
-  minHeight: 0
+  minHeight: 0,
+  maxWidth: '1100px',
+  margin: '0 auto',
+  width: '100%'
 };
 
 const heroBannerStyle = {
@@ -225,7 +228,7 @@ const heroBannerStyle = {
   justifyContent: 'space-between',
   flexWrap: 'wrap',
   gap: '2rem',
-  padding: '3rem',
+  padding: '2rem 2.5rem',
   borderRadius: '24px',
   background: 'linear-gradient(135deg, rgba(var(--surface-rgb), 0.8), rgba(var(--background-rgb), 1))',
   border: '1px solid rgba(var(--primary-rgb), 0.2)',
@@ -318,12 +321,13 @@ const upcomingSectionStyle = {
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
-  minHeight: 0,
+  minHeight: '300px',
   backgroundColor: 'var(--surface)',
-  borderRadius: '16px',
+  borderRadius: '24px',
   border: '1px solid var(--border)',
-  padding: '1.5rem',
-  overflow: 'hidden'
+  padding: '2rem 2.5rem',
+  overflow: 'hidden',
+  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'
 };
 
 const sectionTitleStyle = {
