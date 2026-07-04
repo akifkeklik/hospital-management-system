@@ -36,7 +36,7 @@ export default function DoctorsPage() {
       setDepartments(depts.content || []);
       setPolyclinics(polys || []);
     } catch (error) {
-      toast.error('Veriler yüklenemedi.');
+      toast.error(t('error_loading_data'));
     }
   };
 
@@ -58,7 +58,7 @@ export default function DoctorsPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.departmentId) {
-      toast.error('Lütfen bir bölüm seçin.');
+      toast.error(t('select_dept_required'));
       return;
     }
     
@@ -71,9 +71,9 @@ export default function DoctorsPage() {
       setIsModalOpen(false);
       setEditingId(null);
       fetchData();
-      toast.success(editingId ? 'Doktor başarıyla güncellendi.' : 'Doktor başarıyla eklendi.');
+      toast.success(editingId ? t('doctor_updated') : t('doctor_added'));
     } catch (error) {
-      toast.error(`İşlem başarısız oldu:\n${error.message}`);
+      toast.error(`${t('operation_failed')}:\n${error.message}`);
     }
   };
 
@@ -99,9 +99,9 @@ export default function DoctorsPage() {
     try {
       await DoctorService.delete(confirmModal.id);
       fetchData();
-      toast.success('Doktor başarıyla silindi.');
+      toast.success(t('doctor_deleted'));
     } catch (error) {
-      toast.error('Silme işlemi başarısız. Doktorun randevuları olabilir.');
+      toast.error(t('doctor_delete_failed'));
     } finally {
       setConfirmModal({ isOpen: false, id: null });
     }
@@ -193,7 +193,7 @@ export default function DoctorsPage() {
               value={formData.polyclinicId} 
               onChange={(e) => setFormData({...formData, polyclinicId: e.target.value})}
               disabled={!formData.departmentId}
-              title={!formData.departmentId ? "Önce bir bölüm seçmelisiniz" : ""}
+              title={!formData.departmentId ? t('select_dept_first') : ""}
             >
               <option value="">-- {t('select_polyclinic')} --</option>
               {formData.departmentId && polyclinics.filter(p => p.departmentId === parseInt(formData.departmentId)).map(poly => (

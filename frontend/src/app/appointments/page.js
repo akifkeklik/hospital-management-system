@@ -42,7 +42,7 @@ export default function AppointmentsPage() {
       setDepartments(depts.content || depts || []);
       setPolyclinics(polys || []);
     } catch (error) {
-      toast.error('Veriler yüklenemedi.');
+      toast.error(t('error_loading_data'));
     }
   };
 
@@ -53,7 +53,7 @@ export default function AppointmentsPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.patientId || !formData.doctorId || !formData.appointmentDate) {
-      toast.error('Lütfen tüm zorunlu alanları doldurun.');
+      toast.error(t('fill_required_fields'));
       return;
     }
     
@@ -66,9 +66,9 @@ export default function AppointmentsPage() {
       setIsModalOpen(false);
       setEditingId(null);
       fetchData();
-      toast.success(editingId ? 'Randevu başarıyla güncellendi.' : 'Randevu başarıyla oluşturuldu.');
+      toast.success(editingId ? t('appointment_updated') : t('appointment_created'));
     } catch (error) {
-      toast.error(`İşlem başarısız oldu:\n${error.message}`);
+      toast.error(`${t('operation_failed')}:\n${error.message}`);
     }
   };
 
@@ -91,9 +91,9 @@ export default function AppointmentsPage() {
     try {
       await AppointmentService.delete(confirmModal.id);
       fetchData();
-      toast.success('Randevu başarıyla silindi.');
+      toast.success(t('appointment_deleted'));
     } catch (error) {
-      toast.error('Silme işlemi başarısız.');
+      toast.error(t('delete_failed'));
     } finally {
       setConfirmModal({ isOpen: false, id: null });
     }
@@ -103,9 +103,9 @@ export default function AppointmentsPage() {
     try {
       await AppointmentService.updateStatus(id, newStatus);
       fetchData();
-      toast.success('Randevu durumu güncellendi.');
+      toast.success(t('status_updated'));
     } catch (error) {
-      toast.error(`Durum güncellenemedi:\n${error.message}`);
+      toast.error(`${t('status_update_failed')}:\n${error.message}`);
     }
   };
 
@@ -196,18 +196,18 @@ export default function AppointmentsPage() {
           <Modal 
             isOpen={isModalOpen} 
             onClose={() => setIsModalOpen(false)} 
-            title={editingId ? 'Randevuyu Düzenle' : 'Yeni Randevu Oluştur'}
+            title={editingId ? t('edit_appointment') : t('create_appointment')}
           >
         <form onSubmit={handleSubmit}>
           
           <div className={styles.formGroup}>
-            <label>Hasta</label>
+            <label>{t('patient')}</label>
             <select 
               required 
               value={formData.patientId} 
               onChange={(e) => setFormData({...formData, patientId: e.target.value})}
             >
-              <option value="">-- Hasta Seçin --</option>
+              <option value="">-- {t('select_patient')} --</option>
               {patients.map(pat => (
                 <option key={pat.id} value={pat.id}>{pat.tcIdentityNumber} - {pat.firstName} {pat.lastName}</option>
               ))}
@@ -215,7 +215,7 @@ export default function AppointmentsPage() {
           </div>
 
           <div className={styles.formGroup}>
-            <label>Bölüm</label>
+            <label>{t('department')}</label>
             <select 
               required 
               value={selectedDepartmentId} 
@@ -225,7 +225,7 @@ export default function AppointmentsPage() {
                 setFormData({...formData, doctorId: ''});
               }}
             >
-              <option value="">-- Bölüm Seçin --</option>
+              <option value="">-- {t('select_department')} --</option>
               {departments.map(dept => (
                 <option key={dept.id} value={dept.id}>{dept.name}</option>
               ))}
@@ -233,7 +233,7 @@ export default function AppointmentsPage() {
           </div>
 
           <div className={styles.formGroup}>
-            <label>Poliklinik</label>
+            <label>{t('polyclinics')}</label>
             <select 
               required 
               disabled={!selectedDepartmentId}
@@ -243,7 +243,7 @@ export default function AppointmentsPage() {
                 setFormData({...formData, doctorId: ''});
               }}
             >
-              <option value="">-- Poliklinik Seçin --</option>
+              <option value="">-- {t('select_polyclinic')} --</option>
               {filteredPolyclinics.map(poly => (
                 <option key={poly.id} value={poly.id}>{poly.name}</option>
               ))}
@@ -251,14 +251,14 @@ export default function AppointmentsPage() {
           </div>
 
           <div className={styles.formGroup}>
-            <label>Doktor</label>
+            <label>{t('doctor')}</label>
             <select 
               required 
               disabled={!selectedPolyclinicId}
               value={formData.doctorId} 
               onChange={(e) => setFormData({...formData, doctorId: e.target.value})}
             >
-              <option value="">-- Doktor Seçin --</option>
+              <option value="">-- {t('select_doctor')} --</option>
               {filteredDoctors.map(doc => (
                 <option key={doc.id} value={doc.id}>{doc.specialization} {doc.firstName} {doc.lastName}</option>
               ))}
@@ -266,7 +266,7 @@ export default function AppointmentsPage() {
           </div>
           
           <div className={styles.formGroup}>
-            <label>Randevu Tarihi ve Saati</label>
+            <label>{t('date_and_time')}</label>
             <input 
               type="datetime-local" 
               required 
@@ -276,7 +276,7 @@ export default function AppointmentsPage() {
           </div>
           
           <div className={styles.formGroup}>
-            <label>Notlar (Şikayet vb.)</label>
+            <label>{t('appointment_notes')}</label>
             <textarea 
               rows="3"
               value={formData.notes} 
@@ -295,8 +295,8 @@ export default function AppointmentsPage() {
 
       <ConfirmModal
         isOpen={confirmModal.isOpen}
-        title="Randevuyu Sil"
-        message="Bu randevuyu iptal edip sistemden silmek istediğinize emin misiniz?"
+        title={t('delete_appointment_title')}
+        message={t('delete_appointment_confirm')}
         onConfirm={executeDelete}
         onCancel={() => setConfirmModal({ isOpen: false, id: null })}
       />

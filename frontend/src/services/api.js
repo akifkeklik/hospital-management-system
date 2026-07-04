@@ -40,8 +40,10 @@ async function fetchAPI(endpoint, options = {}) {
 
     // Eğer başarılı değilse hata fırlat
     if (!response.ok) {
-      if (response.status === 401 || response.status === 403 || (response.status === 500 && url.includes('/me'))) {
-        if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+      // Sadece açık 401 (Unauthorized) hatalarında login'e yönlendir
+      // /me endpointi 500 dönerse bu geçici bir hata olabilir, token silme!
+      if (response.status === 401) {
+        if (typeof window !== 'undefined' && window.location.pathname !== '/login' && window.location.pathname !== '/register' && window.location.pathname !== '/forgot-password') {
           localStorage.removeItem('token');
           window.location.href = '/login';
           return new Promise(() => {}); // Redirect esnasında hata fırlatmayı engellemek için askıda bırak

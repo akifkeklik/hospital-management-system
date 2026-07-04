@@ -42,8 +42,8 @@ export default function PatientDashboard() {
   };
 
   useEffect(() => {
+    fetchData();
     // eslint-disable-next-line
-    
   }, []);
 
   const handleCancelClick = (id) => {

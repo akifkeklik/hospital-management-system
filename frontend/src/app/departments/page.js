@@ -24,7 +24,7 @@ export default function DepartmentsPage() {
       setDepartments(data.content || []);
       setTotalPages(data.totalPages || 0);
     } catch (error) {
-      toast.error('Bölümler yüklenemedi.');
+      toast.error(t('error_loading_departments'));
     }
   };
 
@@ -44,9 +44,9 @@ export default function DepartmentsPage() {
       setFormData({ name: '', description: '' });
       setEditingId(null);
       fetchDepartments();
-      toast.success(editingId ? 'Bölüm başarıyla güncellendi.' : 'Bölüm başarıyla eklendi.');
+      toast.success(editingId ? t('dept_updated') : t('dept_added'));
     } catch (error) {
-      toast.error(`İşlem başarısız oldu:\n${error.message}`);
+      toast.error(`${t('operation_failed')}:\n${error.message}`);
     }
   };
 
@@ -64,9 +64,9 @@ export default function DepartmentsPage() {
     try {
       await DepartmentService.delete(confirmModal.id);
       fetchDepartments();
-      toast.success('Bölüm başarıyla silindi.');
+      toast.success(t('dept_deleted'));
     } catch (error) {
-      toast.error('Silme işlemi başarısız. Bölüme kayıtlı doktorlar olabilir.');
+      toast.error(t('dept_delete_failed'));
     } finally {
       setConfirmModal({ isOpen: false, id: null });
     }
@@ -107,11 +107,11 @@ export default function DepartmentsPage() {
       <Modal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
-        title={editingId ? 'Bölümü Düzenle' : 'Yeni Bölüm Ekle'}
+        title={editingId ? t('edit_dept') : t('add_dept')}
       >
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
-            <label>Bölüm Adı</label>
+            <label>{t('dept_name')}</label>
             <input 
               required
               value={formData.name}
@@ -119,7 +119,7 @@ export default function DepartmentsPage() {
             />
           </div>
           <div className={styles.formGroup}>
-            <label>Açıklama</label>
+            <label>{t('description')}</label>
             <textarea 
               rows="3"
               value={formData.description}
@@ -135,11 +135,11 @@ export default function DepartmentsPage() {
 
       <ConfirmModal
         isOpen={confirmModal.isOpen}
-        title="Silme İşlemi Onayı"
-        message="Bu bölümü silmek istediğinize emin misiniz?"
+        title={t('confirm_deletion_title')}
+        message={t('confirm_delete_dept')}
         onConfirm={executeDelete}
         onCancel={() => setConfirmModal({ isOpen: false, id: null })}
-        confirmText="Evet, Sil"
+        confirmText={t('yes_delete')}
         type="danger"
       />
     </div>
