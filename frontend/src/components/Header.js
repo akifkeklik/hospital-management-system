@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSettings } from '../context/SettingsContext';
 import { AuthService } from '../services/api';
+import { toast } from '../components/Toast';
 import styles from './Header.module.css';
 
 export default function Header() {
@@ -123,10 +124,10 @@ export default function Header() {
     if (searchQuery.trim()) {
       if (filteredSuggestions && filteredSuggestions.length > 0) {
         router.push(filteredSuggestions[0].url);
+        setShowSuggestions(false);
       } else {
-        router.push(`/doctors?search=${encodeURIComponent(searchQuery.trim())}`);
+        toast.error(t('no_results_found'));
       }
-      setShowSuggestions(false);
     }
   };
 
@@ -229,7 +230,7 @@ export default function Header() {
               </div>
             ) : (
               <div style={{ padding: '1rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                Sonuç bulunamadı.
+                {t('no_results_found')}
               </div>
             )}
           </div>

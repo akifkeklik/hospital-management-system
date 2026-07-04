@@ -27,7 +27,7 @@ export default function Scanner({ onScan }) {
       if (e.key === 'Enter') {
         if (keyBuffer.length === 11 && /^\d+$/.test(keyBuffer)) {
           onScan(keyBuffer);
-          setScanStatus('Okundu: ' + keyBuffer);
+          setScanStatus(t('scanned') + ': ' + keyBuffer);
           setTimeout(() => setScanStatus(''), 3000);
         }
         keyBuffer = '';
@@ -57,11 +57,11 @@ export default function Scanner({ onScan }) {
         streamRef.current = stream;
       }
       setIsScanning(true);
-      setScanStatus('Kamera başlatıldı. Kimliği okutun...');
+      setScanStatus(t('camera_started'));
       startOCR();
     } catch (err) {
       console.error(err);
-      setScanStatus('Kamera açılamadı!');
+      setScanStatus(t('camera_failed'));
       setMode('keyboard');
     }
   };
@@ -90,7 +90,7 @@ export default function Scanner({ onScan }) {
       
       const imageData = canvas.toDataURL('image/png');
       try {
-        setScanStatus('Taranıyor...');
+        setScanStatus(t('scanning'));
         const result = await Tesseract.recognize(imageData, 'eng');
         
         const text = result.data.text;
@@ -101,9 +101,9 @@ export default function Scanner({ onScan }) {
           const tc = matches[0];
           onScan(tc);
           stopCamera();
-          setScanStatus('TC Bulundu: ' + tc);
+          setScanStatus(t('tc_found') + ': ' + tc);
         } else {
-          setScanStatus('Bulunamadı, lütfen kimliği yaklaştırın.');
+          setScanStatus(t('tc_not_found_retry'));
         }
       } catch (err) {
         console.error(err);
