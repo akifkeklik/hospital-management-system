@@ -154,7 +154,7 @@ function PatientsContent() {
       <div style={{ marginBottom: '1rem', marginTop: '1rem' }}>
         <input 
           type="text" 
-          placeholder="TC Kimlik No veya İsim ile ara..."
+          placeholder={t('search_patient_placeholder') || "TC Kimlik No veya İsim ile ara..."}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{ width: '100%', maxWidth: '400px', padding: '0.6rem 1rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)', fontSize: '0.9rem' }}
@@ -174,29 +174,29 @@ function PatientsContent() {
       <Modal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
-        title={editingId ? 'Hasta Düzenle' : 'Yeni Hasta Kaydı'}
+        title={editingId ? (t('edit_patient') || 'Hasta Düzenle') : (t('add_patient') || 'Yeni Hasta Kaydı')}
       >
         <form onSubmit={handleSubmit}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className={styles.formGroup}>
-              <label>Ad</label>
+              <label>{t('name') || 'Ad'}</label>
               <input required value={formData.firstName} onChange={(e) => setFormData({...formData, firstName: e.target.value})} />
             </div>
             <div className={styles.formGroup}>
-              <label>Soyad</label>
+              <label>{t('surname') || 'Soyad'}</label>
               <input required value={formData.lastName} onChange={(e) => setFormData({...formData, lastName: e.target.value})} />
             </div>
           </div>
           <div className={styles.formGroup}>
-            <label>TC Kimlik Numarası (11 Haneli)</label>
+            <label>{t('tc_id') || 'TC Kimlik Numarası'}</label>
             <input required minLength="11" maxLength="11" value={formData.tcIdentityNumber} onChange={(e) => setFormData({...formData, tcIdentityNumber: e.target.value})} />
           </div>
           <div className={styles.formGroup}>
-            <label>Telefon Numarası</label>
+            <label>{t('phone') || 'Telefon Numarası'}</label>
             <input maxLength="15" value={formData.phoneNumber} onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})} />
           </div>
           <div className={styles.formGroup}>
-            <label>E-Posta</label>
+            <label>{t('email') || 'E-Posta'}</label>
             <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
           </div>
           <div className={styles.formActions}>

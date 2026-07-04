@@ -17,14 +17,20 @@ async function fetchAPI(endpoint, options = {}) {
     'Accept': 'application/json'
   };
 
-  // Artık Token'ı Cookie'den alacağımız için Authorization header'a gerek yok.
-  // Geriye dönük uyumluluk için localStorage'da kaldıysa temizlenecek (logout aşamasında)
+  // Tarayıcıların üçüncü taraf (third-party) çerezleri engellemesi ihtimaline karşı 
+  // (Vercel ve Render farklı domainler olduğu için), her ihtimale karşı Token'ı 
+  // Authorization header üzerinden de gönderiyoruz.
+  let token = null;
+  if (typeof window !== 'undefined') {
+    token = localStorage.getItem('token');
+  }
 
   const config = {
     ...options,
     credentials: 'include', // Cookie'leri backend'e gönder!
     headers: {
       ...defaultHeaders,
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
       ...options.headers,
     },
   };

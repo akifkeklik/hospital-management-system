@@ -163,7 +163,7 @@ export default function Header() {
           </div>
           <input 
             type="text" 
-            placeholder={t('global_search_placeholder') || "Ara... (Örn: Doktor, Bölüm)"}
+            placeholder={t('global_search_placeholder') || "Ara... (Örn: Doktor, Bölüm, Hasta)"}
             className={styles.searchInput}
             value={searchQuery}
             onChange={(e) => {

@@ -140,7 +140,7 @@ export default function BookAppointment() {
               {departments.map(dept => (
                 <div key={dept.id} className={styles.selectionCard} onClick={() => handleDeptSelect(dept)}>
                   <div className={styles.cardIcon}>🏢</div>
-                  <h3>{dept.name}</h3>
+                  <h3 style={{ textTransform: 'uppercase' }}>{dept.name}</h3>
                   <p>{dept.description || 'Hastalık teşhis ve tedavi'}</p>
                 </div>
               ))}
@@ -152,7 +152,7 @@ export default function BookAppointment() {
         {step === 2 && (
           <div className={styles.animationFadeIn}>
             <button className={styles.backBtn} onClick={() => setStep(1)}>← Geri Dön</button>
-            <h2 className={styles.stepTitle}>{selectedDept?.name} Bölümü Doktorları</h2>
+            <h2 className={styles.stepTitle} style={{ textTransform: 'uppercase' }}>{selectedDept?.name} Bölümü Doktorları</h2>
             {loading ? <p>Yükleniyor...</p> : doctors.length === 0 ? (
               <p>Bu bölümde şu an uygun doktor bulunmamaktadır.</p>
             ) : (
