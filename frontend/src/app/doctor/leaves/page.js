@@ -2,9 +2,11 @@
 import { useEffect, useState } from 'react';
 import { DoctorLeaveService, AuthService } from '../../../services/api';
 import { toast } from '../../../components/Toast';
+import { useSettings } from '../../../context/SettingsContext';
 import styles from '../../shared.module.css';
 
 export default function DoctorLeavesRequestPage() {
+  const { t } = useSettings();
   const [leaves, setLeaves] = useState([]);
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
