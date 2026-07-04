@@ -299,7 +299,7 @@ export default function Header() {
               </div>
               <div style={{ maxHeight: '300px', overflowY: 'auto', padding: '0' }}>
                 {notifications.length === 0 ? (
-                  <div style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>{t('Hiç bildiriminiz yok.')}</div>
+                  <div style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>{t('no_notifications')}</div>
                 ) : (
                   notifications.map(notif => (
                     <div 
@@ -339,7 +339,7 @@ export default function Header() {
                           }}
                           onMouseOver={(e) => e.currentTarget.style.color = '#ef4444'}
                           onMouseOut={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
-                          title="Sil"
+                          title={t('delete')}
                         >
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                         </button>
@@ -358,7 +358,7 @@ export default function Header() {
                   onMouseOver={(e) => { e.currentTarget.style.textDecoration = 'underline'; }}
                   onMouseOut={(e) => { e.currentTarget.style.textDecoration = 'none'; }}
                 >
-                  {t('Tüm Bildirimleri Gör')}
+                  {t('see_all_notifications')}
                 </button>
               </div>
             </div>

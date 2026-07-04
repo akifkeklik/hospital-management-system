@@ -8,7 +8,7 @@ import styles from '../../shared.module.css';
 
 export default function PolyclinicsPage() {
   return (
-    <Suspense fallback={<div>Yükleniyor...</div>}>
+    <Suspense fallback={<div style={{padding:'3rem', textAlign:'center', color:'var(--text-muted)'}}>Loading...</div>}>
       <PolyclinicsContent />
     </Suspense>
   );
@@ -193,7 +193,7 @@ function PolyclinicsContent() {
         }}>
           <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(var(--background-rgb), 0.5)' }}>
             <h2 style={{ fontSize: '1.1rem', fontWeight: '600', color: 'var(--text-main)', margin: 0 }}>
-              {filterDeptId ? `${getDeptName(filterDeptId)} Poliklinikleri` : (t('all_polyclinics'))}
+              {filterDeptId ? `${getDeptName(filterDeptId)} ${t('polyclinics')}` : (t('all_polyclinics'))}
             </h2>
             <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', backgroundColor: 'var(--background)', padding: '4px 12px', borderRadius: '20px', border: '1px solid var(--border)' }}>
               {t('total')} {filteredPolyclinics.length}

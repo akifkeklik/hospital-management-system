@@ -4,6 +4,7 @@ import { AppointmentService, AuthService } from '../services/api';
 import { useSettings } from '../context/SettingsContext';
 import ConfirmModal from './ConfirmModal';
 import EmptyState from './EmptyState';
+import LoadingScreen from './LoadingScreen';
 import styles from './DoctorDashboard.module.css'; // Özel stil
 
 export default function DoctorDashboard() {
@@ -44,12 +45,7 @@ export default function DoctorDashboard() {
   }, []);
 
   if (loading) {
-    return (
-      <div className={styles.loadingState}>
-        <div className={styles.spinner}></div>
-        <p>{t('loading')}</p>
-      </div>
-    );
+    return <LoadingScreen fullScreen={true} />;
   }
 
   if (error) {

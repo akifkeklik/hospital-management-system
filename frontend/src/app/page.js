@@ -9,6 +9,7 @@ import { useSettings } from '../context/SettingsContext';
 import styles from './page.module.css';
 import Modal from '../components/Modal';
 import { toast } from '../components/Toast';
+import LoadingScreen from '../components/LoadingScreen';
 
 function parseJwt(token) {
   try {
@@ -123,12 +124,12 @@ export default function Dashboard() {
           onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
           onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
         >
-          <span style={{ fontSize: '1.2rem' }}>📢</span> Duyuru Yap
+          <span style={{ fontSize: '1.2rem' }}>📢</span> {t('make_announcement')}
         </button>
       </div>
       
       {loading ? (
-        <p>{t('loading')}</p>
+        <LoadingScreen />
       ) : (
         <div className={styles.grid}>
           <Link href="/departments" className={styles.card}>
@@ -177,21 +178,21 @@ export default function Dashboard() {
       <Modal 
         isOpen={isAnnouncementModalOpen} 
         onClose={() => setIsAnnouncementModalOpen(false)} 
-        title="Genel Duyuru Yap"
+        title={t('make_announcement_title')}
       >
         <form onSubmit={handleSendAnnouncement}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-              Bu mesaj sistemdeki <strong>tüm hekimlere ve hastalara</strong> anlık bildirim olarak gönderilecektir.
+              {t('announcement_modal_desc')}
             </div>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <label style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--text-main)' }}>Duyuru Mesajı</label>
+              <label style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--text-main)' }}>{t('announcement_message_label')}</label>
               <textarea 
                 required 
                 value={announcementMessage}
                 onChange={(e) => setAnnouncementMessage(e.target.value)}
-                placeholder="Örn: Değerli hekimlerimiz ve hastalarımız, sistemimizde bakım çalışması yapılacaktır..."
+                placeholder={t('announcement_placeholder')}
                 style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)', minHeight: '120px', resize: 'vertical', fontFamily: 'inherit' }}
               />
             </div>
@@ -202,14 +203,14 @@ export default function Dashboard() {
                 onClick={() => setIsAnnouncementModalOpen(false)}
                 style={{ padding: '0.6rem 1.2rem', backgroundColor: 'transparent', border: '1px solid var(--border)', borderRadius: '6px', cursor: 'pointer', color: 'var(--text-main)', fontWeight: '600' }}
               >
-                İptal
+                {t('cancel')}
               </button>
               <button 
                 type="submit" 
                 disabled={sendingAnnouncement}
                 style={{ padding: '0.6rem 1.2rem', backgroundColor: 'var(--primary)', color: 'white', border: 'none', borderRadius: '6px', cursor: sendingAnnouncement ? 'not-allowed' : 'pointer', fontWeight: '600', opacity: sendingAnnouncement ? 0.7 : 1 }}
               >
-                {sendingAnnouncement ? 'Gönderiliyor...' : 'Paylaş'}
+                {sendingAnnouncement ? t('sending') : t('share')}
               </button>
             </div>
           </div>

@@ -7,6 +7,7 @@ import { useSettings } from '../context/SettingsContext';
 import ConfirmModal from './ConfirmModal';
 import EmptyState from './EmptyState';
 import { toast } from './Toast';
+import LoadingScreen from './LoadingScreen';
 
 export default function PatientDashboard() {
   const { t } = useSettings();
@@ -52,11 +53,11 @@ export default function PatientDashboard() {
   const executeCancel = async () => {
     try {
       await AppointmentService.updateStatus(confirmModal.id, 'CANCELLED');
-      toast.success('Randevunuz başarıyla iptal edildi.');
+      toast.success(t('appointment_cancelled'));
       // eslint-disable-next-line
      // Listeyi yenile
     } catch (error) {
-      toast.error('İptal işlemi başarısız: ' + error.message);
+      toast.error(t('cancel_failed') + ': ' + error.message);
     } finally {
       setConfirmModal({ isOpen: false, id: null });
     }
@@ -103,7 +104,7 @@ export default function PatientDashboard() {
               onChange={(e) => setQuickSearch(e.target.value)}
               style={heroSearchInputStyle}
             />
-            <button type="submit" style={heroSearchBtnStyle}>Ara</button>
+            <button type="submit" style={heroSearchBtnStyle}>{t('search')}</button>
           </form>
         </div>
         
@@ -138,7 +139,7 @@ export default function PatientDashboard() {
         </div>
         
         {loading ? (
-          <p style={emptyStateStyle}>{t('loading')}</p>
+          <LoadingScreen />
         ) : appointments.filter(app => {
             if (timeFilter === 'all') return true;
             const appDate = new Date(app.appointmentDate);
@@ -184,9 +185,9 @@ export default function PatientDashboard() {
                   <button 
                     onClick={() => handleCancelClick(app.id)} 
                     style={cancelBtnStyle}
-                    title="Randevuyu İptal Et"
+                    title={t('cancel_appointment')}
                   >
-                    İptal Et
+                    {t('cancel_appointment_short')}
                   </button>
                 </div>
               </div>
@@ -197,11 +198,11 @@ export default function PatientDashboard() {
 
       <ConfirmModal
         isOpen={confirmModal.isOpen}
-        title="Randevu İptali"
-        message="Bu randevuyu iptal etmek istediğinize emin misiniz? Bu işlem geri alınamaz."
+        title={t('cancel_appointment_title')}
+        message={t('cancel_appointment_confirm_msg')}
         onConfirm={executeCancel}
         onCancel={() => setConfirmModal({ isOpen: false, id: null })}
-        confirmText="Evet, İptal Et"
+        confirmText={t('yes_cancel')}
         type="danger"
       />
     </div>

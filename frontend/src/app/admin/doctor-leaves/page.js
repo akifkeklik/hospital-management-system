@@ -2,9 +2,11 @@
 import { useEffect, useState } from 'react';
 import { DoctorLeaveService, DoctorService } from '../../../services/api';
 import { toast } from '../../../components/Toast';
+import { useSettings } from '../../../context/SettingsContext';
 import styles from '../../shared.module.css';
 
 export default function DoctorLeavesPage() {
+  const { t } = useSettings();
   const [leaves, setLeaves] = useState([]);
   const [doctors, setDoctors] = useState([]);
   const [mounted, setMounted] = useState(false);
@@ -32,14 +34,28 @@ export default function DoctorLeavesPage() {
   };
 
   const handleUpdateStatus = async (id, status) => {
-    if (confirm(`İzin talebini ${status === 'APPROVED' ? 'Onaylamak' : 'Reddetmek'} istediğinize emin misiniz?`)) {
+    const confirmMsg = status === 'APPROVED' ? t('confirm_approve_leave') : t('confirm_reject_leave');
+    if (confirm(confirmMsg)) {
       try {
         await DoctorLeaveService.updateStatus(id, status);
+        toast.success(status === 'APPROVED' ? t('leave_approved') : t('leave_rejected'));
         fetchData();
       } catch (error) {
-        toast.error('İşlem sırasında hata oluştu.');
+        toast.error(t('operation_error'));
       }
     }
+  };
+
+  const getStatusLabel = (status) => {
+    if (status === 'APPROVED') return t('status_approved');
+    if (status === 'REJECTED') return t('status_rejected');
+    return t('status_pending');
+  };
+
+  const getStatusColors = (status) => {
+    if (status === 'APPROVED') return { bg: '#dcfce7', color: '#166534' };
+    if (status === 'REJECTED') return { bg: '#fee2e2', color: '#991b1b' };
+    return { bg: '#fef3c7', color: '#92400e' };
   };
 
   if (!mounted) return null;
@@ -49,48 +65,49 @@ export default function DoctorLeavesPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <div>
           <h1 style={{ fontSize: '2rem', color: 'var(--primary)', marginBottom: '0.5rem' }}>
-            İzin Talepleri
+            {t('leave_requests')}
           </h1>
-          <p style={{ color: '#64748b' }}>
-            Doktorların izin taleplerini inceleyin ve onaylayın. Onaylanan izinlerin tarih aralığındaki randevular otomatik iptal edilecektir.
+          <p style={{ color: 'var(--text-muted)' }}>
+            {t('leave_requests_desc')}
           </p>
         </div>
       </div>
 
       <div className={styles.card}>
-        <div style={{ padding: '1.5rem', borderBottom: '1px solid #e2e8f0' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1e293b' }}>İzin Talepleri</h2>
+        <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)' }}>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--text-main)' }}>{t('leave_requests')}</h2>
         </div>
         <div style={{ overflowX: 'auto' }}>
           {loading ? (
-            <div style={{ padding: '3rem', textAlign: 'center', color: '#64748b' }}>Yükleniyor...</div>
+            <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>{t('loading')}</div>
           ) : leaves.length === 0 ? (
-            <div style={{ padding: '3rem', textAlign: 'center', color: '#64748b' }}>Kayıtlı izin talebi bulunmuyor.</div>
+            <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>{t('no_leave_requests')}</div>
           ) : (
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>Doktor</th>
-                  <th>Başlangıç Tarihi</th>
-                  <th>Bitiş Tarihi</th>
-                  <th>Sebep</th>
-                  <th>Durum</th>
-                  <th style={{ textAlign: 'right' }}>İşlemler</th>
+                  <th>{t('doctor')}</th>
+                  <th>{t('start_date')}</th>
+                  <th>{t('end_date')}</th>
+                  <th>{t('reason')}</th>
+                  <th>{t('status')}</th>
+                  <th style={{ textAlign: 'right' }}>{t('actions')}</th>
                 </tr>
               </thead>
               <tbody>
                 {leaves.map(leave => {
                   const doc = doctors.find(d => d.id === leave.doctorId);
+                  const statusColors = getStatusColors(leave.status);
                   return (
                     <tr key={leave.id}>
                       <td>
-                        <div style={{ fontWeight: '500', color: '#0f172a' }}>
-                          {doc ? `Dr. ${doc.firstName} ${doc.lastName}` : 'Bilinmeyen'}
+                        <div style={{ fontWeight: '500', color: 'var(--text-main)' }}>
+                          {doc ? `Dr. ${doc.firstName} ${doc.lastName}` : t('unknown_doctor')}
                         </div>
                       </td>
-                      <td>{leave.startDate}</td>
-                      <td>{leave.endDate}</td>
-                      <td>{leave.reason}</td>
+                      <td style={{ color: 'var(--text-main)' }}>{leave.startDate}</td>
+                      <td style={{ color: 'var(--text-main)' }}>{leave.endDate}</td>
+                      <td style={{ color: 'var(--text-muted)' }}>{leave.reason}</td>
                       <td>
                         <span style={{
                           display: 'inline-flex',
@@ -99,10 +116,10 @@ export default function DoctorLeavesPage() {
                           borderRadius: '9999px',
                           fontSize: '0.875rem',
                           fontWeight: '500',
-                          backgroundColor: leave.status === 'APPROVED' ? '#dcfce7' : leave.status === 'REJECTED' ? '#fee2e2' : '#fef3c7',
-                          color: leave.status === 'APPROVED' ? '#166534' : leave.status === 'REJECTED' ? '#991b1b' : '#92400e'
+                          backgroundColor: statusColors.bg,
+                          color: statusColors.color
                         }}>
-                          {leave.status === 'APPROVED' ? 'Onaylandı' : leave.status === 'REJECTED' ? 'Reddedildi' : 'Bekliyor'}
+                          {getStatusLabel(leave.status)}
                         </span>
                       </td>
                       <td style={{ textAlign: 'right' }}>
@@ -117,10 +134,11 @@ export default function DoctorLeavesPage() {
                                 border: 'none',
                                 borderRadius: '0.375rem',
                                 cursor: 'pointer',
-                                fontSize: '0.875rem'
+                                fontSize: '0.875rem',
+                                fontWeight: '500'
                               }}
                             >
-                              Onayla
+                              {t('approve')}
                             </button>
                             <button
                               onClick={() => handleUpdateStatus(leave.id, 'REJECTED')}
@@ -131,10 +149,11 @@ export default function DoctorLeavesPage() {
                                 border: 'none',
                                 borderRadius: '0.375rem',
                                 cursor: 'pointer',
-                                fontSize: '0.875rem'
+                                fontSize: '0.875rem',
+                                fontWeight: '500'
                               }}
                             >
-                              Reddet
+                              {t('reject')}
                             </button>
                           </div>
                         )}

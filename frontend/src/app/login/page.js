@@ -30,6 +30,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [departments, setDepartments] = useState([]);
+  const [rememberMe, setRememberMe] = useState(false);
 
   // Doctor Registration Form State
   const [regData, setRegData] = useState({
@@ -81,6 +82,13 @@ export default function LoginPage() {
         }
 
         localStorage.setItem('token', response.token);
+        // If remember me is checked, persist in localStorage (already default)
+        // If not, also store expiry intention in sessionStorage
+        if (!rememberMe) {
+          sessionStorage.setItem('session_only', 'true');
+        } else {
+          sessionStorage.removeItem('session_only');
+        }
         router.push('/');
       } else {
         setError(t('err_no_token'));
@@ -268,6 +276,20 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+          </div>
+
+          {/* Remember Me */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginTop: '-0.5rem' }}>
+            <input
+              type="checkbox"
+              id="rememberMe"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              style={{ width: '16px', height: '16px', accentColor: 'var(--primary)', cursor: 'pointer' }}
+            />
+            <label htmlFor="rememberMe" style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', cursor: 'pointer' }}>
+              {t('remember_me')}
+            </label>
           </div>
           
           <button type="submit" className={styles.button} disabled={loading}>
