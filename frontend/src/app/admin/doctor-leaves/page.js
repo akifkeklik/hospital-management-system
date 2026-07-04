@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { DoctorLeaveService, DoctorService } from '../../../services/api';
 import { toast } from '../../../components/Toast';
 import { useSettings } from '../../../context/SettingsContext';
+import ConfirmModal from '../../../components/ConfirmModal';
 import styles from '../../shared.module.css';
 
 export default function DoctorLeavesPage() {
@@ -11,6 +12,8 @@ export default function DoctorLeavesPage() {
   const [doctors, setDoctors] = useState([]);
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalConfig, setModalConfig] = useState({ id: null, status: null, message: '' });
 
   useEffect(() => {
     setMounted(true);
@@ -33,16 +36,22 @@ export default function DoctorLeavesPage() {
     }
   };
 
-  const handleUpdateStatus = async (id, status) => {
+  const handleUpdateStatusClick = (id, status) => {
     const confirmMsg = status === 'APPROVED' ? t('confirm_approve_leave') : t('confirm_reject_leave');
-    if (confirm(confirmMsg)) {
-      try {
-        await DoctorLeaveService.updateStatus(id, status);
-        toast.success(status === 'APPROVED' ? t('leave_approved') : t('leave_rejected'));
-        fetchData();
-      } catch (error) {
-        toast.error(t('operation_error'));
-      }
+    setModalConfig({ id, status, message: confirmMsg });
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmUpdate = async () => {
+    const { id, status } = modalConfig;
+    try {
+      await DoctorLeaveService.updateStatus(id, status);
+      toast.success(status === 'APPROVED' ? t('leave_approved') : t('leave_rejected'));
+      fetchData();
+    } catch (error) {
+      toast.error(t('operation_error'));
+    } finally {
+      setIsModalOpen(false);
     }
   };
 
@@ -123,7 +132,7 @@ export default function DoctorLeavesPage() {
                         {leave.status === 'PENDING' && (
                           <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
                             <button
-                              onClick={() => handleUpdateStatus(leave.id, 'APPROVED')}
+                              onClick={() => handleUpdateStatusClick(leave.id, 'APPROVED')}
                               style={{
                                 padding: '0.5rem 1rem',
                                 backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -168,6 +177,17 @@ export default function DoctorLeavesPage() {
             </table>
           </div>
       </div>
+      
+      <ConfirmModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleConfirmUpdate}
+        title={modalConfig.status === 'APPROVED' ? t('approve_leave') : t('reject_leave')}
+        message={modalConfig.message}
+        type={modalConfig.status === 'APPROVED' ? 'success' : 'danger'}
+        confirmText={t('confirm') || 'Onayla'}
+        cancelText={t('cancel') || 'İptal'}
+      />
     </div>
   );
 }
