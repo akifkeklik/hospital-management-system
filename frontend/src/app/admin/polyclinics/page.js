@@ -63,23 +63,23 @@ function PolyclinicsContent() {
         roomNumber,
         departmentId: parseInt(departmentId)
       });
-      toast.success('Poliklinik başarıyla eklendi!');
+      toast.success(t('polyclinic_added_success') || 'Poliklinik başarıyla eklendi!');
       setName('');
       setRoomNumber('');
       setDepartmentId('');
       fetchData();
     } catch (error) {
-      toast.error('Poliklinik eklenirken hata oluştu.');
+      toast.error(t('polyclinic_add_error') || 'Poliklinik eklenirken hata oluştu.');
     }
   };
 
   const handleDelete = async (id) => {
-    if (confirm('Bu polikliniği silmek istediğinize emin misiniz?')) {
+    if (confirm(t('confirm_delete_polyclinic') || 'Bu polikliniği silmek istediğinize emin misiniz?')) {
       try {
         await PolyclinicService.delete(id);
         fetchData();
       } catch (error) {
-        toast.error('Silinemedi.');
+        toast.error(t('delete_failed') || 'Silinemedi.');
       }
     }
   };
@@ -88,7 +88,7 @@ function PolyclinicsContent() {
 
   const getDeptName = (id) => {
     const dept = departments.find(d => d.id === parseInt(id));
-    return dept ? dept.name : 'Bilinmeyen Bölüm';
+    return dept ? dept.name : (t('unknown_department') || 'Bilinmeyen Bölüm');
   };
 
   const filteredPolyclinics = filterDeptId 
@@ -145,7 +145,7 @@ function PolyclinicsContent() {
               <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-muted)' }}>{t('polyclinic_name')}</label>
               <input 
                 type="text" 
-                placeholder="Örn: Dahiliye Polikliniği 1" 
+                placeholder={t('placeholder_polyclinic_name') || "Örn: Dahiliye Polikliniği 1"} 
                 required 
                 value={name} 
                 onChange={(e) => setName(e.target.value)} 
@@ -157,7 +157,7 @@ function PolyclinicsContent() {
               <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-muted)' }}>{t('room_number')}</label>
               <input 
                 type="text" 
-                placeholder="Örn: B Blok 104" 
+                placeholder={t('placeholder_room_number') || "Örn: B Blok 104"} 
                 required 
                 value={roomNumber} 
                 onChange={(e) => setRoomNumber(e.target.value)} 
@@ -196,19 +196,19 @@ function PolyclinicsContent() {
               {filterDeptId ? `${getDeptName(filterDeptId)} Poliklinikleri` : (t('all_polyclinics'))}
             </h2>
             <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', backgroundColor: 'var(--background)', padding: '4px 12px', borderRadius: '20px', border: '1px solid var(--border)' }}>
-              Toplam: {filteredPolyclinics.length}
+              {t('total')} {filteredPolyclinics.length}
             </span>
           </div>
 
           {loading ? (
             <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
               <div style={{ width: '40px', height: '40px', border: '3px solid rgba(var(--primary-rgb), 0.2)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 1rem' }}></div>
-              Veriler yükleniyor...
+              {t('loading_data')}
             </div>
           ) : filteredPolyclinics.length === 0 ? (
             <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '1rem', opacity: 0.5 }}><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-              <p>{filterDeptId ? 'Bu bölüme ait kayıtlı poliklinik bulunmamaktadır.' : 'Sistemde henüz kayıtlı poliklinik bulunmamaktadır.'}</p>
+              <p>{filterDeptId ? t('no_polyclinics_dept') : t('no_polyclinics_system')}</p>
             </div>
           ) : (
             <div style={{ overflowX: 'auto' }}>
@@ -268,7 +268,7 @@ function PolyclinicsContent() {
                           onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#ef4444'; e.currentTarget.style.color = 'white'; }}
                           onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)'; e.currentTarget.style.color = '#ef4444'; }}
                         >
-                          Sil
+                          {t('delete')}
                         </button>
                       </td>
                     </tr>
@@ -293,10 +293,10 @@ function PolyclinicsContent() {
                   cursor: page === 1 ? 'not-allowed' : 'pointer' 
                 }}
               >
-                Geri
+                {t('previous')}
               </button>
               <span style={{ fontSize: '0.9rem', color: 'var(--text-main)', fontWeight: '500' }}>
-                Sayfa {page} / {totalPages}
+                {t('page')} {page} / {totalPages}
               </span>
               <button 
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
@@ -310,7 +310,7 @@ function PolyclinicsContent() {
                   cursor: page === totalPages ? 'not-allowed' : 'pointer' 
                 }}
               >
-                İleri
+                {t('next')}
               </button>
             </div>
           )}

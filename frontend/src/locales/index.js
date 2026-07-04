@@ -1,5 +1,17 @@
 export const dictionaries = {
   tr: {
+    "polyclinic_added_success": "Poliklinik başarıyla eklendi!",
+    "polyclinic_add_error": "Poliklinik eklenirken hata oluştu.",
+    "confirm_delete_polyclinic": "Bu polikliniği silmek istediğinize emin misiniz?",
+    "delete_failed": "Silinemedi.",
+    "unknown_department": "Bilinmeyen Bölüm",
+    "placeholder_polyclinic_name": "Örn: Dahiliye Polikliniği 1",
+    "placeholder_room_number": "Örn: B Blok 104",
+    "total": "Toplam:",
+    "loading_data": "Veriler yükleniyor...",
+    "no_polyclinics_dept": "Bu bölüme ait kayıtlı poliklinik bulunmamaktadır.",
+    "no_polyclinics_system": "Sistemde henüz kayıtlı poliklinik bulunmamaktadır.",
+    "delete": "Sil",
     dashboard: "Ana Panel",
     departments: "Bölümler",
     polyclinics: 'Poliklinikler',

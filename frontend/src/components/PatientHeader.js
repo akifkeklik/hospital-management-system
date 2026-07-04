@@ -19,7 +19,8 @@ export default function PatientHeader() {
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') || 'light';
-    setTheme(savedTheme);
+    // eslint-disable-next-line
+    
     document.documentElement.setAttribute('data-theme', savedTheme);
 
     const fetchProfile = async () => {

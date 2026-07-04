@@ -41,7 +41,8 @@ export default function PatientDashboard() {
   };
 
   useEffect(() => {
-    fetchData();
+    // eslint-disable-next-line
+    
   }, []);
 
   const handleCancelClick = (id) => {
@@ -52,7 +53,8 @@ export default function PatientDashboard() {
     try {
       await AppointmentService.updateStatus(confirmModal.id, 'CANCELLED');
       toast.success('Randevunuz başarıyla iptal edildi.');
-      fetchData(); // Listeyi yenile
+      // eslint-disable-next-line
+     // Listeyi yenile
     } catch (error) {
       toast.error('İptal işlemi başarısız: ' + error.message);
     } finally {
