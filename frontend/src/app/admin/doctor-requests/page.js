@@ -10,9 +10,9 @@ export default function DoctorRequestsPage() {
   const { t, tErr } = useSettings();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
+  const [error, setError] = useState('');
   const [confirmModal, setConfirmModal] = useState({ show: false, type: '', reqId: null, message: '' });
+  const [credentialsModal, setCredentialsModal] = useState({ show: false, message: '' });
 
   const fetchRequests = async () => {
     try {
@@ -33,12 +33,6 @@ export default function DoctorRequestsPage() {
     try {
       let successMsg = action === 'approve' ? t('approve_success') : t('reject_success');
       
-      // We need to use raw fetch here ONLY if fetchAPI doesn't return the raw response object.
-      // fetchAPI parses JSON automatically and returns the payload OR throws an Error.
-      // But we need the message from the 200 OK response!
-      // Let's check how fetchAPI handles 200 OK:
-      // If it's a JSON response, fetchAPI returns the parsed JSON object!
-      // The backend returns: { message: "Doktor başarıyla onaylandı..." }
       const data = await fetchAPI(`/admin/doctor-requests/${id}/${action}`, {
         method: 'POST'
       });
@@ -48,7 +42,13 @@ export default function DoctorRequestsPage() {
       }
       
       setConfirmModal({ show: false, type: '', reqId: null, message: '' });
-      toast.success(successMsg, { autoClose: action === 'approve' ? 10000 : 3000 });
+      
+      if (action === 'approve') {
+        setCredentialsModal({ show: true, message: successMsg });
+      } else {
+        toast.success(successMsg);
+      }
+      
       fetchRequests(); // Refresh list
     } catch (err) {
       setConfirmModal({ show: false, type: '', reqId: null, message: '' });
@@ -99,28 +99,22 @@ export default function DoctorRequestsPage() {
                   <td>{req.specialization || '-'}</td>
                   <td>{req.email}</td>
                   <td>
-                    <button 
-                      onClick={() => setConfirmModal({
-                        show: true,
-                        type: 'approve',
-                        reqId: req.id,
-                        message: `${req.firstName} ${req.lastName} ${t('approve_confirm')}`
-                      })}
-                      className={styles.approveBtn}
-                    >
-                      {t('approve')}
-                    </button>
-                    <button 
-                      onClick={() => setConfirmModal({
-                        show: true,
-                        type: 'reject',
-                        reqId: req.id,
-                        message: t('reject_confirm')
-                      })}
-                      className={styles.rejectBtn}
-                    >
-                      {t('reject')}
-                    </button>
+                    <div className={styles.actionButtons}>
+                      <button 
+                        className={styles.approveBtn}
+                        onClick={() => setConfirmModal({ show: true, type: 'approve', reqId: req.id, message: t('approve_confirm') })}
+                        title={t('approve')}
+                      >
+                        <i className="fi fi-rr-check"></i>
+                      </button>
+                      <button 
+                        className={styles.rejectBtn}
+                        onClick={() => setConfirmModal({ show: true, type: 'reject', reqId: req.id, message: t('reject_confirm') })}
+                        title={t('reject')}
+                      >
+                        <i className="fi fi-rr-cross"></i>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -129,16 +123,52 @@ export default function DoctorRequestsPage() {
         </div>
       )}
 
-      {/* Custom Modern Confirm Modal */}
-      <ConfirmModal
-        isOpen={confirmModal.show}
-        title={t('doctor_requests_title')}
-        message={confirmModal.message}
-        onConfirm={executeConfirm}
-        onCancel={() => setConfirmModal({...confirmModal, show: false})}
-        confirmText={confirmModal.type === 'approve' ? t('approve') : t('reject')}
-        type={confirmModal.type === 'approve' ? 'approve' : 'danger'}
-      />
+      {/* Confirmation Modal */}
+      {confirmModal.show && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h3>{t('confirm_action')}</h3>
+            <p>{confirmModal.message}</p>
+            <div className={styles.modalActions}>
+              <button 
+                className={styles.cancelBtn}
+                onClick={() => setConfirmModal({ show: false, type: '', reqId: null, message: '' })}
+              >
+                {t('cancel')}
+              </button>
+              <button 
+                className={confirmModal.type === 'approve' ? styles.confirmApproveBtn : styles.confirmRejectBtn}
+                onClick={executeConfirm}
+              >
+                {t('confirm')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Credentials Modal */}
+      {credentialsModal.show && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent} style={{ maxWidth: '500px', borderTop: '4px solid #10b981' }}>
+            <h3 style={{ color: '#10b981', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <i className="fi fi-rr-check-circle"></i> Onay Başarılı
+            </h3>
+            <p style={{ marginTop: '1rem', fontSize: '1.1rem', lineHeight: '1.5', padding: '1rem', backgroundColor: 'var(--bg-lighter)', borderRadius: '8px', wordBreak: 'break-all' }}>
+              {credentialsModal.message}
+            </p>
+            <div className={styles.modalActions} style={{ marginTop: '1.5rem', justifyContent: 'center' }}>
+              <button 
+                className={styles.confirmApproveBtn}
+                onClick={() => setCredentialsModal({ show: false, message: '' })}
+                style={{ width: '100%', padding: '0.75rem' }}
+              >
+                Anladım, Kapat
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
