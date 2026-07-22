@@ -34,12 +34,12 @@ function PatientsContent() {
   const [editingId, setEditingId] = useState(null);
 
   const initialSearch = searchParams.get('search');
-  const [searchTerm, setSearchTerm] = useState(initialSearch);
+  const [searchTerm, setSearchTerm] = useState(initialSearch || '');
 
   useEffect(() => {
     const currentSearch = searchParams.get('search');
     if (currentSearch !== searchTerm) {
-      setSearchTerm(currentSearch);
+      setSearchTerm(currentSearch || '');
     }
   }, [searchParams]);
 
