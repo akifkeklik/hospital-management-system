@@ -109,7 +109,11 @@ export default function LoginPage() {
         setError(t('err_no_token'));
       }
     } catch (err) {
-      setError(t('err_invalid_credentials'));
+      if (err.message && (err.message.includes('Failed to fetch') || err.message.includes('NetworkError'))) {
+        setError('Sunucuya ulaşılamıyor. Lütfen Vercel ayarlarında NEXT_PUBLIC_API_URL değişkeninin doğru (Render API linkiniz olarak) ayarlandığından emin olun.');
+      } else {
+        setError(t('err_invalid_credentials'));
+      }
     } finally {
       setLoading(false);
     }
