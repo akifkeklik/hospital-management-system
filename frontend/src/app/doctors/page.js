@@ -27,16 +27,26 @@ export default function DoctorsPage() {
 
   const fetchData = async () => {
     try {
-      const [docs, depts, polys] = await Promise.all([
-        DoctorService.getAll(0, 1000), // Fetch all doctors for local search/pagination
-        DepartmentService.getAll(0, 1000),
-        PolyclinicService.getAll()
-      ]);
-      setAllDoctors(docs.content || []);
+      const depts = await DepartmentService.getAll(0, 1000);
       setDepartments(depts.content || []);
+    } catch (error) {
+      console.error('Bölümler yüklenirken hata:', error);
+      toast.error('Bölümler yüklenemedi.');
+    }
+
+    try {
+      const polys = await PolyclinicService.getAll();
       setPolyclinics(polys || []);
     } catch (error) {
-      toast.error(t('error_loading_data'));
+      console.error('Poliklinikler yüklenirken hata:', error);
+    }
+
+    try {
+      const docs = await DoctorService.getAll(0, 1000);
+      setAllDoctors(docs.content || []);
+    } catch (error) {
+      console.error('Doktorlar yüklenirken hata:', error);
+      toast.error('Doktor listesi yüklenemedi.');
     }
   };
 
