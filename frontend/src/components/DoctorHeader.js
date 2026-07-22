@@ -13,13 +13,13 @@ export default function DoctorHeader() {
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState('dark');
   const dropdownRef = useRef(null);
   const notifRef = useRef(null);
 
   useEffect(() => {
     // Tema yükle
-    const savedTheme = localStorage.getItem('theme') || 'light';
+    const savedTheme = localStorage.getItem('theme') || 'dark';
     setTheme(savedTheme);
     document.documentElement.setAttribute('data-theme', savedTheme);
 
@@ -314,11 +314,15 @@ export default function DoctorHeader() {
             </svg>
           </button>
 
-          {isDropdownOpen && userProfile && (
+          {isDropdownOpen && (
             <div style={dropdownMenuStyle}>
               <div style={dropdownHeaderStyle}>
-                <strong style={{ color: 'var(--text-main)', fontSize: '1.05rem', marginBottom: '0.2rem', display: 'block' }}>{userProfile.firstName} {userProfile.lastName}</strong>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{userProfile.email}</span>
+                <strong style={{ color: 'var(--text-main)', fontSize: '1.05rem', marginBottom: '0.2rem', display: 'block' }}>
+                  {userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : t('unknown_patient')}
+                </strong>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                  {userProfile?.email || '-'}
+                </span>
               </div>
               <div style={dropdownBodyStyle}>
                 <div style={dropdownItemStyle}>

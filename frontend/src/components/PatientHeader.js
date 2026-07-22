@@ -7,7 +7,7 @@ import Link from 'next/link';
 
 export default function PatientHeader() {
   const router = useRouter();
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState('dark');
   const [userProfile, setUserProfile] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -18,7 +18,7 @@ export default function PatientHeader() {
   const { t } = useSettings();
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 'light';
+    const savedTheme = localStorage.getItem('theme') || 'dark';
     // eslint-disable-next-line
     
     document.documentElement.setAttribute('data-theme', savedTheme);
@@ -187,11 +187,15 @@ export default function PatientHeader() {
             </div>
           </div>
 
-          {isDropdownOpen && userProfile && (
+          {isDropdownOpen && (
             <div style={dropdownMenuStyle}>
               <div style={dropdownHeaderStyle}>
-                <strong style={{ color: 'var(--text-main)', fontSize: '1.05rem', marginBottom: '0.2rem', display: 'block' }}>{userProfile.firstName} {userProfile.lastName}</strong>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{userProfile.email}</span>
+                <strong style={{ color: 'var(--text-main)', fontSize: '1.05rem', marginBottom: '0.2rem', display: 'block' }}>
+                  {userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : t('unknown_patient')}
+                </strong>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                  {userProfile?.email || '-'}
+                </span>
               </div>
               <div style={dropdownBodyStyle}>
                 <div style={dropdownItemStyle}>

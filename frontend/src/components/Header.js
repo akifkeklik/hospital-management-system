@@ -8,7 +8,7 @@ import styles from './Header.module.css';
 
 export default function Header() {
   const router = useRouter();
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState('dark');
   const [userProfile, setUserProfile] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -26,7 +26,7 @@ export default function Header() {
 
   useEffect(() => {
     // Tema ayarını yükle
-    const savedTheme = localStorage.getItem('theme') || 'light';
+    const savedTheme = localStorage.getItem('theme') || 'dark';
     // eslint-disable-next-line
     
     document.documentElement.setAttribute('data-theme', savedTheme);
@@ -374,11 +374,11 @@ export default function Header() {
             </div>
           </div>
 
-          {isDropdownOpen && userProfile && (
+          {isDropdownOpen && (
             <div className={styles.dropdownMenu}>
               <div className={styles.dropdownHeader}>
-                <strong>{userProfile.firstName} {userProfile.lastName}</strong>
-                <span>{userProfile.email}</span>
+                <strong>{userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : t('unknown_patient')}</strong>
+                <span>{userProfile?.email || '-'}</span>
               </div>
               <div className={styles.dropdownBody}>
                 <div className={styles.dropdownItem}>
