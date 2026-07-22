@@ -39,12 +39,17 @@ export default function LoginPage() {
   });
 
   useEffect(() => {
-    const savedUsername = localStorage.getItem('remembered_username');
-    if (savedUsername) {
-      setUsername(savedUsername);
-      setRememberMe(true);
+    if (loginType) {
+      const savedUsername = localStorage.getItem(`remembered_username_${loginType}`);
+      if (savedUsername) {
+        setUsername(savedUsername);
+        setRememberMe(true);
+      } else {
+        setUsername('');
+        setRememberMe(false);
+      }
     }
-  }, []);
+  }, [loginType]);
 
   useEffect(() => {
     if (showDoctorRegister) {
@@ -92,12 +97,12 @@ export default function LoginPage() {
 
         if (rememberMe) {
           localStorage.setItem('token', response.token);
-          localStorage.setItem('remembered_username', username.trim());
+          localStorage.setItem(`remembered_username_${loginType}`, username.trim());
           sessionStorage.removeItem('token');
         } else {
           sessionStorage.setItem('token', response.token);
           localStorage.removeItem('token');
-          localStorage.removeItem('remembered_username');
+          localStorage.removeItem(`remembered_username_${loginType}`);
         }
         router.push('/');
       } else {

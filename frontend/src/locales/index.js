@@ -1,6 +1,9 @@
 export const dictionaries = {
   tr: {
     "previous": "Geri",
+    "err_invalid_credentials": "Kullanıcı adı veya şifre hatalı.",
+    "err_role_mismatch": "Yetkiniz uyumsuz. Lütfen doğru rolden giriş yapın.",
+    "err_password_update": "Şifre güncellenirken bir hata oluştu.",
     "next": "İleri",
     "page": "Sayfa",
 
@@ -392,6 +395,9 @@ export const dictionaries = {
   },
   en: {
     "previous": "Previous",
+    "err_invalid_credentials": "Invalid username or password.",
+    "err_role_mismatch": "Role mismatch. Please login with the correct role.",
+    "err_password_update": "An error occurred while updating the password.",
     "next": "Next",
     "unknown_patient": "Unknown User",
     "registration_error": "An error occurred during registration.",
@@ -782,6 +788,9 @@ export const dictionaries = {
   },
   de: {
     "previous": "Zurück",
+    "err_invalid_credentials": "Ungültiger Benutzername oder Passwort.",
+    "err_role_mismatch": "Rollenkonflikt. Bitte melden Sie sich mit der richtigen Rolle an.",
+    "err_password_update": "Beim Aktualisieren des Passworts ist ein Fehler aufgetreten.",
     "next": "Weiter",
     "unknown_patient": "Unbekannter Benutzer",
     "registration_error": "Bei der Registrierung ist ein Fehler aufgetreten.",
@@ -1172,6 +1181,9 @@ export const dictionaries = {
   },
   fr: {
     dashboard: "Tableau de Bord",
+    "err_invalid_credentials": "Nom d'utilisateur ou mot de passe invalide.",
+    "err_role_mismatch": "Inadéquation des rôles. Veuillez vous connecter avec le bon rôle.",
+    "err_password_update": "Une erreur s'est produite lors de la mise à jour du mot de passe.",
     departments: "Départements",
     "unknown_patient": "Utilisateur inconnu",
     "registration_error": "Une erreur est survenue lors de l'inscription.",
@@ -1500,6 +1512,9 @@ export const dictionaries = {
   },
   es: {
     dashboard: "Panel",
+    "err_invalid_credentials": "Usuario o contraseña inválidos.",
+    "err_role_mismatch": "No coincidencia de roles. Por favor, inicie sesión con el rol correcto.",
+    "err_password_update": "Ocurrió un error al actualizar la contraseña.",
     departments: "Departamentos",
     "unknown_patient": "Usuario desconocido",
     "registration_error": "Ocurrió un error durante el registro.",
@@ -1828,6 +1843,9 @@ export const dictionaries = {
   },
   ru: {
     dashboard: "Панель",
+    "err_invalid_credentials": "Неверное имя пользователя или пароль.",
+    "err_role_mismatch": "Несоответствие роли. Пожалуйста, войдите с правильной ролью.",
+    "err_password_update": "Произошла ошибка при обновлении пароля.",
     departments: "Отделения",
     "unknown_patient": "Неизвестный пользователь",
     "registration_error": "Произошла ошибка при регистрации.",
@@ -2156,6 +2174,9 @@ export const dictionaries = {
   },
   ar: {
     dashboard: "لوحة القيادة",
+    "err_invalid_credentials": "اسم المستخدم أو كلمة المرور غير صالحة.",
+    "err_role_mismatch": "عدم تطابق الدور. الرجاء تسجيل الدخول بالدور الصحيح.",
+    "err_password_update": "حدث خطأ أثناء تحديث كلمة المرور.",
     departments: "الأقسام",
     "unknown_patient": "مستخدم غير معروف",
     "registration_error": "حدث خطأ أثناء التسجيل.",
@@ -2484,6 +2505,9 @@ export const dictionaries = {
   },
   zh: {
     dashboard: "仪表板",
+    "err_invalid_credentials": "无效的用户名或密码。",
+    "err_role_mismatch": "角色不匹配。请使用正确的角色登录。",
+    "err_password_update": "更新密码时出错。",
     departments: "部门",
     "unknown_patient": "未知用户",
     "registration_error": "注册过程中发生错误。",
