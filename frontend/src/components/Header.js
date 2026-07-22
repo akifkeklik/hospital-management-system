@@ -32,7 +32,7 @@ export default function Header() {
     document.documentElement.setAttribute('data-theme', savedTheme);
 
     // Profil bilgisini çek
-    const fetchProfile = async () => {
+    const fetchProfile = async (retryCount = 0) => {
       try {
         const data = await AuthService.getMe();
         setUserProfile(data);
@@ -50,6 +50,9 @@ export default function Header() {
         }
       } catch (error) {
         console.error("Profil bilgisi alınamadı:", error);
+        if (retryCount < 2) {
+          setTimeout(() => fetchProfile(retryCount + 1), 3000);
+        }
       }
     };
     fetchProfile();

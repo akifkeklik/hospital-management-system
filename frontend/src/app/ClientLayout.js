@@ -29,13 +29,33 @@ export default function ClientLayout({ children }) {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     
     if (!token && !isAuthPage) {
-      router.push('/login');
-    } else if (token) {
+      router.replace('/login');
+      return;
+    }
+    
+    if (token) {
       const decoded = parseJwt(token);
-      if (decoded && decoded.role) {
+      
+      // Token geçersiz veya süresi dolmuşsa temizle ve login'e yönlendir
+      if (!decoded || (decoded.exp && decoded.exp * 1000 < Date.now())) {
+        localStorage.removeItem('token');
+        sessionStorage.removeItem('token');
+        setIsAuthenticated(false);
+        setRole(null);
+        if (!isAuthPage) {
+          router.replace('/login');
+        }
+        return;
+      }
+      
+      if (decoded.role) {
         setRole(decoded.role);
       }
       setIsAuthenticated(true);
+    } else {
+      // Token yok ama auth sayfasındayız - state'i sıfırla
+      setIsAuthenticated(false);
+      setRole(null);
     }
   }, [pathname, isAuthPage, router]);
 

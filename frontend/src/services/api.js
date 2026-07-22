@@ -161,7 +161,8 @@ export const AuthService = {
       }
       localStorage.removeItem('token');
       sessionStorage.removeItem('token');
-      window.location.href = '/login';
+      // Geri butonu ile tekrar girişi engellemek için replace kullan
+      window.location.replace('/login');
     }
   }
 };

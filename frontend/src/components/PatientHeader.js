@@ -23,7 +23,7 @@ export default function PatientHeader() {
     
     document.documentElement.setAttribute('data-theme', savedTheme);
 
-    const fetchProfile = async () => {
+    const fetchProfile = async (retryCount = 0) => {
       try {
         const data = await AuthService.getMe();
         setUserProfile(data);
@@ -34,6 +34,10 @@ export default function PatientHeader() {
         }
       } catch (error) {
         console.error("Profil bilgisi alınamadı:", error);
+        // Render cold start timeout olabilir, 3 saniye sonra tekrar dene (max 2 retry)
+        if (retryCount < 2) {
+          setTimeout(() => fetchProfile(retryCount + 1), 3000);
+        }
       }
     };
     fetchProfile();
