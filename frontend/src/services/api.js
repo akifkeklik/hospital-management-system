@@ -9,7 +9,7 @@ const API_BASE_URL = rawUrl.endsWith('/api') ? rawUrl : `${rawUrl}/api`;
  * - Hataları tek bir yerden yönetmek için.
  * - JSON dönüşümlerini otomatik yapmak için.
  */
-async function fetchAPI(endpoint, options = {}) {
+export async function fetchAPI(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
   
   const defaultHeaders = {

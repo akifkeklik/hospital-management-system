@@ -1,12 +1,13 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useSettings } from '../../../context/SettingsContext';
+import { fetchAPI } from '../../../services/api';
 import { toast } from '../../../components/Toast';
 import ConfirmModal from '../../../components/ConfirmModal';
 import styles from './page.module.css';
 
 export default function DoctorRequestsPage() {
-  const { t } = useSettings();
+  const { t, tErr } = useSettings();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,13 +16,7 @@ export default function DoctorRequestsPage() {
 
   const fetchRequests = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/admin/doctor-requests`, {
-        headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (!res.ok) throw new Error('İstekler alınamadı');
-      const data = await res.json();
+      const data = await fetchAPI('/admin/doctor-requests');
       setRequests(data);
     } catch (err) {
       setError(tErr(err.message));
@@ -36,25 +31,24 @@ export default function DoctorRequestsPage() {
 
   const handleAction = async (id, action) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/admin/doctor-requests/${id}/${action}`, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+      let successMsg = action === 'approve' ? t('approve_success') : t('reject_success');
+      
+      // We need to use raw fetch here ONLY if fetchAPI doesn't return the raw response object.
+      // fetchAPI parses JSON automatically and returns the payload OR throws an Error.
+      // But we need the message from the 200 OK response!
+      // Let's check how fetchAPI handles 200 OK:
+      // If it's a JSON response, fetchAPI returns the parsed JSON object!
+      // The backend returns: { message: "Doktor başarıyla onaylandı..." }
+      const data = await fetchAPI(`/admin/doctor-requests/${id}/${action}`, {
+        method: 'POST'
       });
-      if (!res.ok) {
-        let errorMsg = 'İşlem başarısız';
-        try {
-          const data = await res.json();
-          errorMsg = data.message || errorMsg;
-        } catch (e) {
-          const text = await res.text();
-          errorMsg = text || errorMsg;
-        }
-        throw new Error(errorMsg);
+      
+      if (data && data.message) {
+        successMsg = data.message;
       }
+      
       setConfirmModal({ show: false, type: '', reqId: null, message: '' });
-      toast.success(action === 'approve' ? t('approve_success') : t('reject_success'));
+      toast.success(successMsg, { autoClose: action === 'approve' ? 10000 : 3000 });
       fetchRequests(); // Refresh list
     } catch (err) {
       setConfirmModal({ show: false, type: '', reqId: null, message: '' });
