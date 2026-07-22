@@ -126,18 +126,10 @@ export default function LoginPage() {
     setSuccessMsg('');
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/auth/doctor-register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            ...regData,
-            departmentId: regData.departmentId ? Number(regData.departmentId) : null
-        })
+      const data = await AuthService.doctorRegister({
+        ...regData,
+        departmentId: regData.departmentId ? Number(regData.departmentId) : null
       });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.message || data.error || t('err_registration_failed'));
-      }
       setSuccessMsg(data.message || t('success_registration'));
       setShowDoctorRegister(false);
       setRegData({tcIdentityNumber: '', firstName: '', lastName: '', email: '', phoneNumber: '', specialization: '', departmentId: ''});

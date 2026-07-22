@@ -74,15 +74,8 @@ export default function BookAppointment() {
 
     setLoading(true);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/appointments/available-slots?doctorId=${selectedDoctor.id}&date=${date}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-      });
-      if (response.ok) {
-        const slots = await response.json();
-        setAvailableSlots(slots);
-      } else {
-        setAvailableSlots([]);
-      }
+      const slots = await AppointmentService.getAvailableSlots(selectedDoctor.id, date);
+      setAvailableSlots(slots);
     } catch (error) {
       console.error("Slots load error:", error);
       setAvailableSlots([]);

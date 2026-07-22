@@ -122,6 +122,7 @@ export const AppointmentService = {
     body: JSON.stringify({ status }) 
   }),
   delete: (id) => fetchAPI(`/appointments/${id}`, { method: 'DELETE' }),
+  getAvailableSlots: (doctorId, date) => fetchAPI(`/appointments/available-slots?doctorId=${doctorId}&date=${date}`),
 };
 
 // ── AUTHENTICATION API ──
@@ -133,6 +134,10 @@ export const AuthService = {
   register: (data) => fetchAPI('/auth/register', { 
     method: 'POST', 
     body: JSON.stringify(data) 
+  }),
+  doctorRegister: (data) => fetchAPI('/auth/doctor-register', {
+    method: 'POST',
+    body: JSON.stringify(data)
   }),
   resetPassword: (tcIdentityNumber, email, newPassword) => fetchAPI('/auth/reset-password', {
     method: 'POST',
