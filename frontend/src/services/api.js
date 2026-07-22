@@ -147,8 +147,13 @@ export const AuthService = {
     if (typeof window === 'undefined') return null;
     return localStorage.getItem('token') || sessionStorage.getItem('token');
   },
-  logout: () => {
+  logout: async () => {
     if (typeof window !== 'undefined') {
+      try {
+        await fetchAPI('/auth/logout', { method: 'POST' });
+      } catch (e) {
+        console.error("Logout fetch error", e);
+      }
       localStorage.removeItem('token');
       sessionStorage.removeItem('token');
       window.location.href = '/login';

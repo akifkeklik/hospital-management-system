@@ -1,8 +1,8 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSettings } from '../context/SettingsContext';
 import { AuthService } from '../services/api';
+import { useSettings } from '../context/SettingsContext';
 import Link from 'next/link';
 
 export default function PatientHeader() {
@@ -58,8 +58,7 @@ export default function PatientHeader() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    router.push('/login');
+    AuthService.logout();
   };
 
   const initial = userProfile?.firstName && userProfile?.lastName 
