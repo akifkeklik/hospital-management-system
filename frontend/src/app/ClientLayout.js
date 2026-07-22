@@ -26,7 +26,7 @@ export default function ClientLayout({ children }) {
 
   useEffect(() => {
     setMounted(true);
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     
     if (!token && !isAuthPage) {
       router.push('/login');

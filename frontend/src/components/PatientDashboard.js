@@ -54,8 +54,7 @@ export default function PatientDashboard() {
     try {
       await AppointmentService.updateStatus(confirmModal.id, 'CANCELLED');
       toast.success(t('appointment_cancelled'));
-      // eslint-disable-next-line
-     // Listeyi yenile
+      fetchData();
     } catch (error) {
       toast.error(t('cancel_failed') + ': ' + error.message);
     } finally {
@@ -214,28 +213,27 @@ export default function PatientDashboard() {
 const containerStyle = {
   display: 'flex',
   flexDirection: 'column',
-  gap: '1.5rem',
+  gap: '1rem',
   flex: 1,
   minHeight: 0,
-  maxWidth: '1100px',
+  maxWidth: '1200px',
   margin: '0 auto',
-  width: '100%'
+  width: '100%',
+  paddingBottom: '0.5rem'
 };
 
 const heroBannerStyle = {
   display: 'flex',
-  alignItems: 'flex-end',
+  alignItems: 'center',
   justifyContent: 'space-between',
   flexWrap: 'wrap',
-  gap: '2rem',
-  padding: '2rem 2.5rem',
-  borderRadius: '24px',
-  background: 'linear-gradient(135deg, rgba(var(--surface-rgb), 0.8), rgba(var(--background-rgb), 1))',
+  gap: '1.25rem',
+  padding: '1.35rem 1.75rem',
+  borderRadius: '18px',
+  background: 'linear-gradient(135deg, rgba(var(--surface-rgb), 0.9), rgba(var(--background-rgb), 1))',
   border: '1px solid rgba(var(--primary-rgb), 0.2)',
-  boxShadow: '0 20px 40px -15px rgba(var(--primary-rgb), 0.1)',
-  marginBottom: '2rem',
-  position: 'relative',
-  overflow: 'hidden'
+  boxShadow: '0 10px 25px -10px rgba(var(--primary-rgb), 0.1)',
+  position: 'relative'
 };
 
 const heroContentStyle = {
@@ -249,17 +247,17 @@ const heroActionStyle = {
 };
 
 const heroTitleStyle = {
-  fontSize: '2.5rem',
+  fontSize: '1.7rem',
   fontWeight: '800',
   color: 'var(--text-main)',
-  lineHeight: '1.2',
-  margin: '0 0 1rem 0'
+  lineHeight: '1.25',
+  margin: '0 0 0.35rem 0'
 };
 
 const heroSubtitleStyle = {
-  fontSize: '1.1rem',
+  fontSize: '0.92rem',
   color: 'var(--text-muted)',
-  marginBottom: '2rem'
+  marginBottom: '0.85rem'
 };
 
 const heroSearchFormStyle = {
@@ -283,10 +281,10 @@ const heroSearchIconStyle = {
 
 const heroSearchInputStyle = {
   width: '100%',
-  padding: '1rem 1rem 1rem 3rem',
+  padding: '0.65rem 0.85rem 0.65rem 2.6rem',
   border: 'none',
   outline: 'none',
-  fontSize: '1rem',
+  fontSize: '0.9rem',
   backgroundColor: 'var(--surface)',
   color: 'var(--text-main)'
 };
@@ -307,10 +305,10 @@ const bigBookBtnStyle = {
   justifyContent: 'center',
   backgroundColor: 'var(--primary)',
   color: '#ffffff',
-  padding: '0.75rem 1.5rem',
-  fontSize: '1rem',
+  padding: '0.6rem 1.25rem',
+  fontSize: '0.9rem',
   fontWeight: '700',
-  borderRadius: '12px',
+  borderRadius: '10px',
   textDecoration: 'none',
   boxShadow: '0 4px 6px -1px rgba(var(--primary-rgb), 0.3)',
   transition: 'transform 0.2s, box-shadow 0.2s',
@@ -321,12 +319,11 @@ const upcomingSectionStyle = {
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
-  minHeight: '300px',
+  minHeight: '220px',
   backgroundColor: 'var(--surface)',
-  borderRadius: '24px',
+  borderRadius: '18px',
   border: '1px solid var(--border)',
-  padding: '2rem 2.5rem',
-  overflow: 'hidden',
+  padding: '1.25rem 1.75rem',
   boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'
 };
 

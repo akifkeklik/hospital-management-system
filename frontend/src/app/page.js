@@ -59,7 +59,7 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     if (token) {
       const decoded = parseJwt(token);
       if (decoded && decoded.role) {

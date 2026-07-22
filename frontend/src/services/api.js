@@ -22,7 +22,7 @@ async function fetchAPI(endpoint, options = {}) {
   // Authorization header üzerinden de gönderiyoruz.
   let token = null;
   if (typeof window !== 'undefined') {
-    token = localStorage.getItem('token');
+    token = localStorage.getItem('token') || sessionStorage.getItem('token');
   }
 
   const config = {
@@ -45,6 +45,7 @@ async function fetchAPI(endpoint, options = {}) {
       if (response.status === 401) {
         if (typeof window !== 'undefined' && window.location.pathname !== '/login' && window.location.pathname !== '/register' && window.location.pathname !== '/forgot-password') {
           localStorage.removeItem('token');
+          sessionStorage.removeItem('token');
           window.location.href = '/login';
           return new Promise(() => {}); // Redirect esnasında hata fırlatmayı engellemek için askıda bırak
         }
@@ -142,6 +143,17 @@ export const AuthService = {
     body: JSON.stringify({ tcIdentityNumber, newPassword })
   }),
   getMe: () => fetchAPI('/auth/me'),
+  getToken: () => {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('token') || sessionStorage.getItem('token');
+  },
+  logout: () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+      sessionStorage.removeItem('token');
+      window.location.href = '/login';
+    }
+  }
 };
 
 // ── SYSTEM SETTINGS API ──

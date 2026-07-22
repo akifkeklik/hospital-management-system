@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { AuthService, DepartmentService } from '../../services/api';
 import { useSettings } from '../../context/SettingsContext';
+import LanguageSelector from '../../components/LanguageSelector';
 import styles from './page.module.css';
 
 function parseJwt(token) {
@@ -36,6 +37,14 @@ export default function LoginPage() {
   const [regData, setRegData] = useState({
     tcIdentityNumber: '', firstName: '', lastName: '', email: '', phoneNumber: '', specialization: '', departmentId: ''
   });
+
+  useEffect(() => {
+    const savedUsername = localStorage.getItem('remembered_username');
+    if (savedUsername) {
+      setUsername(savedUsername);
+      setRememberMe(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (showDoctorRegister) {
@@ -81,13 +90,14 @@ export default function LoginPage() {
           return;
         }
 
-        localStorage.setItem('token', response.token);
-        // If remember me is checked, persist in localStorage (already default)
-        // If not, also store expiry intention in sessionStorage
-        if (!rememberMe) {
-          sessionStorage.setItem('session_only', 'true');
+        if (rememberMe) {
+          localStorage.setItem('token', response.token);
+          localStorage.setItem('remembered_username', username.trim());
+          sessionStorage.removeItem('token');
         } else {
-          sessionStorage.removeItem('session_only');
+          sessionStorage.setItem('token', response.token);
+          localStorage.removeItem('token');
+          localStorage.removeItem('remembered_username');
         }
         router.push('/');
       } else {
@@ -149,26 +159,7 @@ export default function LoginPage() {
   };
 
   const renderLanguageSelector = () => (
-    <div style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(0,0,0,0.3)', padding: '0.5rem 1rem', borderRadius: '8px', zIndex: 10, backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)' }}>
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="3"></circle>
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-      </svg>
-      <select 
-        value={language} 
-        onChange={(e) => changeLanguage(e.target.value)}
-        style={{ background: 'transparent', color: '#fff', border: 'none', outline: 'none', cursor: 'pointer', fontSize: '0.95rem', fontWeight: '500' }}
-      >
-        <option style={{color: '#000'}} value="tr">Türkçe</option>
-        <option style={{color: '#000'}} value="en">English</option>
-        <option style={{color: '#000'}} value="de">Deutsch</option>
-        <option style={{color: '#000'}} value="fr">Français</option>
-        <option style={{color: '#000'}} value="es">Español</option>
-        <option style={{color: '#000'}} value="ru">Русский</option>
-        <option style={{color: '#000'}} value="ar">العربية</option>
-        <option style={{color: '#000'}} value="zh">中文</option>
-      </select>
-    </div>
+    <LanguageSelector style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', zIndex: 100 }} />
   );
 
   const renderInitialSelection = () => (
