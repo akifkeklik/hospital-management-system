@@ -99,22 +99,28 @@ export default function DoctorRequestsPage() {
                   <td>{req.specialization || '-'}</td>
                   <td>{req.email}</td>
                   <td>
-                    <div className={styles.actionButtons}>
-                      <button 
-                        className={styles.approveBtn}
-                        onClick={() => setConfirmModal({ show: true, type: 'approve', reqId: req.id, message: t('approve_confirm') })}
-                        title={t('approve')}
-                      >
-                        <i className="fi fi-rr-check"></i>
-                      </button>
-                      <button 
-                        className={styles.rejectBtn}
-                        onClick={() => setConfirmModal({ show: true, type: 'reject', reqId: req.id, message: t('reject_confirm') })}
-                        title={t('reject')}
-                      >
-                        <i className="fi fi-rr-cross"></i>
-                      </button>
-                    </div>
+                    <button 
+                      onClick={() => setConfirmModal({
+                        show: true,
+                        type: 'approve',
+                        reqId: req.id,
+                        message: `${req.firstName} ${req.lastName} ${t('approve_confirm')}`
+                      })}
+                      className={styles.approveBtn}
+                    >
+                      {t('approve')}
+                    </button>
+                    <button 
+                      onClick={() => setConfirmModal({
+                        show: true,
+                        type: 'reject',
+                        reqId: req.id,
+                        message: t('reject_confirm')
+                      })}
+                      className={styles.rejectBtn}
+                    >
+                      {t('reject')}
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -123,29 +129,16 @@ export default function DoctorRequestsPage() {
         </div>
       )}
 
-      {/* Confirmation Modal */}
-      {confirmModal.show && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modalContent}>
-            <h3>{t('confirm_action')}</h3>
-            <p>{confirmModal.message}</p>
-            <div className={styles.modalActions}>
-              <button 
-                className={styles.cancelBtn}
-                onClick={() => setConfirmModal({ show: false, type: '', reqId: null, message: '' })}
-              >
-                {t('cancel')}
-              </button>
-              <button 
-                className={confirmModal.type === 'approve' ? styles.confirmApproveBtn : styles.confirmRejectBtn}
-                onClick={executeConfirm}
-              >
-                {t('confirm')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Custom Modern Confirm Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.show}
+        title={t('doctor_requests_title')}
+        message={confirmModal.message}
+        onConfirm={executeConfirm}
+        onCancel={() => setConfirmModal({...confirmModal, show: false})}
+        confirmText={confirmModal.type === 'approve' ? t('approve') : t('reject')}
+        type={confirmModal.type === 'approve' ? 'approve' : 'danger'}
+      />
 
       {/* Credentials Modal */}
       {credentialsModal.show && (

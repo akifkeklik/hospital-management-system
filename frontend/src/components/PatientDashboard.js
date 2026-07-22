@@ -19,7 +19,7 @@ export default function PatientDashboard() {
   const [quickSearch, setQuickSearch] = useState('');
   const [timeFilter, setTimeFilter] = useState('all');
 
-  const fetchData = async () => {
+  const fetchData = async (retryCount = 0) => {
     try {
       const profile = await AuthService.getMe();
       setUserProfile(profile);
@@ -36,6 +36,10 @@ export default function PatientDashboard() {
       setAppointments(scheduled);
     } catch (error) {
       console.error("Hasta verileri alınamadı:", error);
+      if (retryCount < 2) {
+        setTimeout(() => fetchData(retryCount + 1), 3000);
+        return; // Retrying, don't set loading false yet
+      }
     } finally {
       setLoading(false);
     }

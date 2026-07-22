@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,7 +30,8 @@ public class DoctorController {
         this.doctorService = doctorService;
     }
 
-    // POST /api/doctors — Yeni doktor oluştur
+    // POST /api/appointments — Yeni doktor oluştur
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<DoctorResponse> createDoctor(
             @Valid @RequestBody DoctorRequest request) {
@@ -78,6 +80,7 @@ public class DoctorController {
     }
 
     // PUT /api/doctors/{id} — Doktor güncelle
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<DoctorResponse> updateDoctor(
             @PathVariable Long id,
@@ -91,6 +94,7 @@ public class DoctorController {
     }
 
     // DELETE /api/doctors/{id} — Doktor sil
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDoctor(@PathVariable Long id) {
 
