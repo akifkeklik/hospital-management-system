@@ -336,8 +336,21 @@ export default function LoginPage() {
         <h1 className={styles.title}>{t('doctor_registration_title')}</h1>
         <p className={styles.subtitle}>{t('doctor_registration_subtitle')}</p>
 
-        <form onSubmit={handleDoctorRegister} className={styles.form}>
-          <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem'}}>
+        {departments.length === 0 ? (
+          <div style={{ marginTop: '1rem', padding: '1.5rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '8px', color: '#fca5a5', textAlign: 'center', lineHeight: '1.5' }}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginBottom: '1rem', margin: '0 auto', display: 'block' }}>
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <strong>{t('no_departments_warning_title') || 'Kayıt Yapılamıyor'}</strong>
+            <div style={{ fontSize: '0.9rem', marginTop: '0.5rem', opacity: 0.9 }}>
+              {t('no_departments_warning_desc') || 'Sistemde henüz kayıtlı hiçbir bölüm (poliklinik) bulunmadığı için doktor kaydı oluşturulamamaktadır. Lütfen sistem yöneticisi ile iletişime geçin.'}
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleDoctorRegister} className={styles.form}>
+            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem'}}>
             <div className={styles.inputGroup}>
                 <label>{t('placeholder_tc')}</label>
                 <input type="text" pattern="[0-9]{11}" maxLength="11" required value={regData.tcIdentityNumber} onChange={(e) => setRegData({...regData, tcIdentityNumber: e.target.value.replace(/[^0-9]/g, '')})} className={styles.input} placeholder="11 Haneli" />
@@ -407,6 +420,7 @@ export default function LoginPage() {
             {loading ? t('submitting') : t('submit_request')}
           </button>
         </form>
+        )}
 
         <div className={styles.backLink} style={{marginTop: '0.75rem', justifyContent: 'center', width: '100%'}}>
             <button type="button" onClick={() => { setShowDoctorRegister(false); setError(''); }} className={styles.linkButton}>
