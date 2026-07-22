@@ -11,7 +11,7 @@ import { useSettings } from '../../context/SettingsContext';
 import styles from '../shared.module.css';
 
 export default function PatientsPage() {
-  const { t } = useSettings();
+  const { t, tErr } = useSettings();
   return (
     <Suspense fallback={<div>{t('loading')}</div>}>
       <PatientsContent />

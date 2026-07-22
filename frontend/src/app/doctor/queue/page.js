@@ -53,7 +53,7 @@ export default function DoctorQueuePage() {
       await AppointmentService.updateStatus(id, newStatus);
       fetchData();
     } catch (error) {
-      toast.error("Hata: " + error.message);
+      toast.error(tErr(error.message));
     }
   };
 

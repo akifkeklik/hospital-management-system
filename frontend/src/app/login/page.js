@@ -17,7 +17,7 @@ function parseJwt(token) {
 
 export default function LoginPage() {
   const router = useRouter();
-  const { t, language, changeLanguage } = useSettings();
+  const { t, tErr, language, changeLanguage } = useSettings();
   const [loginType, setLoginType] = useState(null); // 'PATIENT', 'DOCTOR', veya 'ADMIN'
   const [showDoctorRegister, setShowDoctorRegister] = useState(false);
   const [showForcePasswordChange, setShowForcePasswordChange] = useState(false);
@@ -133,7 +133,7 @@ export default function LoginPage() {
       setShowDoctorRegister(false);
       setRegData({tcIdentityNumber: '', firstName: '', lastName: '', email: '', phoneNumber: '', specialization: '', departmentId: ''});
     } catch (err) {
-      setError(err.message);
+      setError(tErr(err.message));
     } finally {
       setLoading(false);
     }
@@ -152,7 +152,7 @@ export default function LoginPage() {
       localStorage.setItem('token', tempToken);
       router.push('/');
     } catch (err) {
-      setError(err.message || t('err_password_update'));
+      setError(tErr(err.message) || t('err_password_update'));
     } finally {
       setLoading(false);
     }

@@ -10,7 +10,7 @@ import { useSettings } from '../../context/SettingsContext';
 import styles from '../shared.module.css';
 
 export default function DoctorsPage() {
-  const { t } = useSettings();
+  const { t, tErr } = useSettings();
   const searchParams = useSearchParams();
   const initialSearch = searchParams.get('search');
   const [searchTerm, setSearchTerm] = useState(initialSearch);

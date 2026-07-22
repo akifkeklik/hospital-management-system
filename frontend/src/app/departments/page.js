@@ -9,7 +9,7 @@ import { useSettings } from '../../context/SettingsContext';
 import styles from '../shared.module.css';
 
 export default function DepartmentsPage() {
-  const { t } = useSettings();
+  const { t, tErr } = useSettings();
   const [departments, setDepartments] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);

@@ -8,7 +8,7 @@ import styles from '../login/page.module.css';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { t } = useSettings();
+  const { t, tErr } = useSettings();
   
   const [formData, setFormData] = useState({
     tcIdentityNumber: '',
@@ -43,7 +43,7 @@ export default function RegisterPage() {
         router.push('/login');
       }, 2000);
     } catch (err) {
-      setError(err.message || t('registration_error'));
+      setError(tErr(err.message) || t('registration_error'));
     } finally {
       setLoading(false);
     }

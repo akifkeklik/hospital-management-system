@@ -10,7 +10,7 @@ import { toast } from './Toast';
 import LoadingScreen from './LoadingScreen';
 
 export default function PatientDashboard() {
-  const { t } = useSettings();
+  const { t, tErr } = useSettings();
   const router = useRouter();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);

@@ -8,7 +8,7 @@ import styles from './page.module.css';
 
 export default function BookAppointment() {
   const router = useRouter();
-  const { t } = useSettings();
+  const { t, tErr } = useSettings();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [userProfile, setUserProfile] = useState(null);

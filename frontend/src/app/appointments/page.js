@@ -9,7 +9,7 @@ import { useSettings } from '../../context/SettingsContext';
 import styles from '../shared.module.css';
 
 export default function AppointmentsPage() {
-  const { t } = useSettings();
+  const { t, tErr } = useSettings();
   const [appointments, setAppointments] = useState([]);
   const [patients, setPatients] = useState([]);
   const [doctors, setDoctors] = useState([]);

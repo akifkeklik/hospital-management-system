@@ -1,6 +1,7 @@
 'use client';
 import { createContext, useContext, useState, useEffect } from 'react';
 import { dictionaries } from '../locales';
+import { translateError } from '../utils/errorTranslator';
 
 const SettingsContext = createContext();
 
@@ -68,9 +69,12 @@ export function SettingsProvider({ children }) {
     return dictionaries[language][normalizedKey] || normalizedKey;
   };
 
+  // Error translation function (backend hata mesajlarını kullanıcı diline çevirir)
+  const tErr = (rawMessage) => translateError(rawMessage, language);
+
   return (
     <SettingsContext.Provider value={{ 
-      language, changeLanguage, t,
+      language, changeLanguage, t, tErr,
       themeColor, applyThemeColor,
       THEMES, LANGUAGES
     }}>

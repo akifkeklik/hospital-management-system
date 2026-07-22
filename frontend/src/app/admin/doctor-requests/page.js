@@ -24,7 +24,7 @@ export default function DoctorRequestsPage() {
       const data = await res.json();
       setRequests(data);
     } catch (err) {
-      setError(err.message);
+      setError(tErr(err.message));
     } finally {
       setLoading(false);
     }
@@ -58,7 +58,7 @@ export default function DoctorRequestsPage() {
       fetchRequests(); // Refresh list
     } catch (err) {
       setConfirmModal({ show: false, type: '', reqId: null, message: '' });
-      toast.error(err.message);
+      toast.error(tErr(err.message));
     }
   };
 

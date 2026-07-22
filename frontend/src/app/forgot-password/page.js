@@ -8,7 +8,7 @@ import styles from '../login/page.module.css';
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
-  const { t } = useSettings();
+  const { t, tErr } = useSettings();
   
   const [formData, setFormData] = useState({
     tcIdentityNumber: '',
@@ -40,7 +40,7 @@ export default function ForgotPasswordPage() {
         router.push('/login');
       }, 3000);
     } catch (err) {
-      setError(err.message || t('forgot_password_error'));
+      setError(tErr(err.message) || t('forgot_password_error'));
     } finally {
       setLoading(false);
     }
