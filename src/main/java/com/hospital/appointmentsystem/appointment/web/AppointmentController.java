@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 /**
  * 🌐 Appointment Controller — Randevu REST API Endpoint'leri
@@ -32,6 +33,7 @@ public class AppointmentController {
     }
 
     // POST /api/appointments — Yeni randevu oluştur
+    @PreAuthorize("hasAnyRole('ADMIN','PATIENT')")
     @PostMapping
     public ResponseEntity<AppointmentResponse> createAppointment(
             @Valid @RequestBody AppointmentRequest request) {
@@ -54,6 +56,7 @@ public class AppointmentController {
     }
 
     // GET /api/appointments — Tüm randevuları listele
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<Page<AppointmentResponse>> getAllAppointments(Pageable pageable) {
 
@@ -89,7 +92,8 @@ public class AppointmentController {
         return ResponseEntity.ok(responses);
     }
 
-    // GET /api/appointments/available-slots — Belirli doktor ve tarih için müsait saatleri getir
+    // GET /api/appointments/available-slots — Belirli doktor ve tarih için müsait
+    // saatleri getir
     @GetMapping("/available-slots")
     public ResponseEntity<List<String>> getAvailableSlots(
             @RequestParam Long doctorId,
@@ -100,6 +104,7 @@ public class AppointmentController {
     }
 
     // PUT /api/appointments/{id} — Randevu güncelle
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<AppointmentResponse> updateAppointment(
             @PathVariable Long id,
@@ -112,20 +117,8 @@ public class AppointmentController {
         return ResponseEntity.ok(response);
     }
 
-    // ──────────────────────────────────────────────────────────
-    // ⭐ PATCH /api/appointments/{id}/status — Sadece durum güncelle
-    //
-    // @PatchMapping → Kaynağın tamamını değil, BİR KISMINI günceller
-    // PUT   → Tüm alanları güncelle
-    // PATCH → Sadece belirli bir alanı güncelle
-    //
-    // Örnek: PATCH /api/appointments/1/status
-    // Body: { "status": "COMPLETED" }
-    //
-    // @RequestBody Map<String, String>
-    // → JSON'u bir anahtar-değer haritasına çevirir
-    // → { "status": "COMPLETED" } → map.get("status") = "COMPLETED"
-    // ──────────────────────────────────────────────────────────
+    // PATCH /api/appointments/{id}/status — Sadece durum güncelle
+    @PreAuthorize("hasAnyRole('ADMIN','DOCTOR')")
     @PatchMapping("/{id}/status")
     public ResponseEntity<AppointmentResponse> updateStatus(
             @PathVariable Long id,
@@ -139,6 +132,7 @@ public class AppointmentController {
     }
 
     // DELETE /api/appointments/{id} — Randevu sil
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAppointment(@PathVariable Long id) {
 
