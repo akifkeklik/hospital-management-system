@@ -2,12 +2,16 @@ package com.hospital.appointmentsystem.department.impl;
 
 import com.hospital.appointmentsystem.department.api.DepartmentDto;
 import com.hospital.appointmentsystem.department.api.DepartmentService;
+import com.hospital.appointmentsystem.exception.BusinessRuleException;
+import com.hospital.appointmentsystem.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 
 /**
  * ╔══════════════════════════════════════════════════════════════════╗
@@ -75,11 +79,12 @@ public class DepartmentServiceImpl implements DepartmentService {
     // 📌 CREATE — Yeni Bölüm Oluştur
     // ──────────────────────────────────────────────────────────
     @Override
+    @CacheEvict(value = "departments", allEntries = true)
     public DepartmentDto createDepartment(DepartmentDto departmentDto) {
 
         // 1. İş kuralı: Aynı isimde bölüm var mı kontrol et
         if (departmentRepository.existsByName(departmentDto.getName())) {
-            throw new RuntimeException(
+            throw new BusinessRuleException(
                     "Bu isimde bir bölüm zaten var: " + departmentDto.getName()
             );
         }
@@ -102,6 +107,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     // 📌 READ (by ID) — ID ile Bölüm Getir
     // ──────────────────────────────────────────────────────────
     @Override
+    @Cacheable(value = "departments", key = "#id")
     public DepartmentDto getDepartmentById(Long id) {
 
         // findById() → JpaRepository'den geliyor
@@ -110,8 +116,8 @@ public class DepartmentServiceImpl implements DepartmentService {
         // .orElseThrow() → Eğer yoksa hata fırlat
         // Yani: "ID=5 olan bölümü bul, bulamazsan hata ver!"
         Department department = departmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(
-                        "Bölüm bulunamadı! ID: " + id
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Department", "id", id
                 ));
 
         return mapToDto(department);
@@ -121,6 +127,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     // 📌 READ (all) — Tüm Bölümleri Getir
     // ──────────────────────────────────────────────────────────
     @Override
+    @Cacheable(value = "departments")
     public Page<DepartmentDto> getAllDepartments(Pageable pageable) {
         Page<Department> departments = departmentRepository.findAll(pageable);
         return departments.map(this::mapToDto);
@@ -130,12 +137,13 @@ public class DepartmentServiceImpl implements DepartmentService {
     // 📌 UPDATE — Bölüm Güncelle
     // ──────────────────────────────────────────────────────────
     @Override
+    @CacheEvict(value = "departments", allEntries = true)
     public DepartmentDto updateDepartment(Long id, DepartmentDto departmentDto) {
 
         // 1. Önce mevcut bölümü bul (yoksa hata)
         Department existingDepartment = departmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(
-                        "Güncellenecek bölüm bulunamadı! ID: " + id
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Department", "id", id
                 ));
 
         // 2. Alanları güncelle
@@ -154,12 +162,13 @@ public class DepartmentServiceImpl implements DepartmentService {
     // 📌 DELETE — Bölüm Sil
     // ──────────────────────────────────────────────────────────
     @Override
+    @CacheEvict(value = "departments", allEntries = true)
     public void deleteDepartment(Long id) {
 
         // Önce var mı kontrol et
         Department department = departmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(
-                        "Silinecek bölüm bulunamadı! ID: " + id
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Department", "id", id
                 ));
 
         // deleteById() → JpaRepository'den geliyor

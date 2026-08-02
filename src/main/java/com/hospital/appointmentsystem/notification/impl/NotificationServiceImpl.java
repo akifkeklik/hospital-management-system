@@ -1,5 +1,6 @@
 package com.hospital.appointmentsystem.notification.impl;
 
+import com.hospital.appointmentsystem.exception.ResourceNotFoundException;
 import com.hospital.appointmentsystem.notification.api.NotificationDto;
 import com.hospital.appointmentsystem.notification.api.NotificationService;
 import org.springframework.stereotype.Service;
@@ -72,7 +73,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void markAsRead(Long notificationId) {
         Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new RuntimeException("Bildirim bulunamadı"));
+                .orElseThrow(() -> new ResourceNotFoundException("Notification", "id", notificationId));
         notification.setRead(true);
         notificationRepository.save(notification);
     }

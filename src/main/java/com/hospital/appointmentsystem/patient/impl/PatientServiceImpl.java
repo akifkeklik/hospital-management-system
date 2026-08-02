@@ -1,5 +1,7 @@
 package com.hospital.appointmentsystem.patient.impl;
 
+import com.hospital.appointmentsystem.exception.BusinessRuleException;
+import com.hospital.appointmentsystem.exception.ResourceNotFoundException;
 import com.hospital.appointmentsystem.patient.api.PatientDto;
 import com.hospital.appointmentsystem.patient.api.PatientService;
 import org.springframework.stereotype.Service;
@@ -26,7 +28,7 @@ public class PatientServiceImpl implements PatientService {
     public PatientDto createPatient(PatientDto patientDto) {
         // İş kuralı: Aynı TC ile hasta var mı?
         if (patientRepository.existsByTcIdentityNumber(patientDto.getTcIdentityNumber())) {
-            throw new RuntimeException(
+            throw new BusinessRuleException(
                     "Bu TC Kimlik No ile kayıtlı hasta zaten var: " + patientDto.getTcIdentityNumber()
             );
         }
@@ -39,7 +41,7 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public PatientDto getPatientById(Long id) {
         Patient patient = patientRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Hasta bulunamadı! ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Patient", "id", id));
         return mapToDto(patient);
     }
 
@@ -52,7 +54,7 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public PatientDto updatePatient(Long id, PatientDto patientDto) {
         Patient existingPatient = patientRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Güncellenecek hasta bulunamadı! ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Patient", "id", id));
 
         existingPatient.setFirstName(patientDto.getFirstName());
         existingPatient.setLastName(patientDto.getLastName());
@@ -67,7 +69,7 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public void deletePatient(Long id) {
         Patient patient = patientRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Silinecek hasta bulunamadı! ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Patient", "id", id));
         patientRepository.deleteById(id);
     }
 

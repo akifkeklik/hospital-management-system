@@ -4,7 +4,8 @@ import com.hospital.appointmentsystem.user.api.UserService;
 import com.hospital.appointmentsystem.patient.api.PatientService;
 import com.hospital.appointmentsystem.patient.api.PatientDto;
 import com.hospital.appointmentsystem.user.impl.User;
-import com.hospital.appointmentsystem.user.impl.UserRepository; // needed to get the user for role
+import com.hospital.appointmentsystem.user.impl.UserRepository;
+import com.hospital.appointmentsystem.exception.ResourceNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -196,7 +197,7 @@ public class AuthController {
         }
         
         User user = userRepository.findByUsername(principal.getName())
-                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", principal.getName()));
                 
         if ("ROLE_PATIENT".equals(user.getRole())) {
             PatientDto patient = patientService.getPatientById(user.getReferenceId());

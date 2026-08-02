@@ -4,6 +4,8 @@ import com.hospital.appointmentsystem.appointment.api.AppointmentDto;
 import com.hospital.appointmentsystem.appointment.api.AppointmentService;
 import com.hospital.appointmentsystem.doctor.impl.Doctor;
 import com.hospital.appointmentsystem.doctor.impl.DoctorRepository;
+import com.hospital.appointmentsystem.exception.BusinessRuleException;
+import com.hospital.appointmentsystem.exception.ResourceNotFoundException;
 import com.hospital.appointmentsystem.patient.impl.Patient;
 import com.hospital.appointmentsystem.patient.impl.PatientRepository;
 import org.springframework.stereotype.Service;
@@ -64,14 +66,14 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         // 1. Hastayı bul
         Patient patient = patientRepository.findById(appointmentDto.getPatientId())
-                .orElseThrow(() -> new RuntimeException(
-                        "Hasta bulunamadı! ID: " + appointmentDto.getPatientId()
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Patient", "id", appointmentDto.getPatientId()
                 ));
 
         // 2. Doktoru bul
         Doctor doctor = doctorRepository.findById(appointmentDto.getDoctorId())
-                .orElseThrow(() -> new RuntimeException(
-                        "Doktor bulunamadı! ID: " + appointmentDto.getDoctorId()
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Doctor", "id", appointmentDto.getDoctorId()
                 ));
 
         // ⭐ Randevu saati uygunluk kontrolü
@@ -83,7 +85,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         // saniyeleri atıp saat:dakika formatında kontrol et (örn: "09:15")
         String timeString = String.format("%02d:%02d", time.getHour(), time.getMinute());
         if (!availableSlots.contains(timeString)) {
-            throw new RuntimeException("Seçilen randevu saati dolu veya mesai saatleri dışında!");
+            throw new BusinessRuleException("Seçilen randevu saati dolu veya mesai saatleri dışında!");
         }
 
         // 3. Randevu oluştur ve ilişkileri kur
@@ -101,7 +103,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public AppointmentDto getAppointmentById(Long id) {
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Randevu bulunamadı! ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", id));
         return mapToDto(appointment);
     }
 
@@ -114,7 +116,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public List<AppointmentDto> getAppointmentsByPatientId(Long patientId) {
         if (!patientRepository.existsById(patientId)) {
-            throw new RuntimeException("Hasta bulunamadı! ID: " + patientId);
+            throw new ResourceNotFoundException("Patient", "id", patientId);
         }
         return appointmentRepository.findByPatientId(patientId).stream()
                 .map(this::mapToDto)
@@ -124,7 +126,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public List<AppointmentDto> getAppointmentsByDoctorId(Long doctorId) {
         if (!doctorRepository.existsById(doctorId)) {
-            throw new RuntimeException("Doktor bulunamadı! ID: " + doctorId);
+            throw new ResourceNotFoundException("Doctor", "id", doctorId);
         }
         return appointmentRepository.findByDoctorId(doctorId).stream()
                 .map(this::mapToDto)
@@ -134,7 +136,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public List<String> getAvailableSlots(Long doctorId, LocalDate date) {
         if (!doctorRepository.existsById(doctorId)) {
-            throw new RuntimeException("Doktor bulunamadı! ID: " + doctorId);
+            throw new ResourceNotFoundException("Doctor", "id", doctorId);
         }
 
         // DOKTOR İZİN KONTROLÜ (Enterprise Feature)
@@ -192,16 +194,16 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public AppointmentDto updateAppointment(Long id, AppointmentDto appointmentDto) {
         Appointment existingAppointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Randevu bulunamadı! ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", id));
 
         Patient patient = patientRepository.findById(appointmentDto.getPatientId())
-                .orElseThrow(() -> new RuntimeException(
-                        "Hasta bulunamadı! ID: " + appointmentDto.getPatientId()
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Patient", "id", appointmentDto.getPatientId()
                 ));
 
         Doctor doctor = doctorRepository.findById(appointmentDto.getDoctorId())
-                .orElseThrow(() -> new RuntimeException(
-                        "Doktor bulunamadı! ID: " + appointmentDto.getDoctorId()
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Doctor", "id", appointmentDto.getDoctorId()
                 ));
 
         existingAppointment.setPatient(patient);
@@ -219,7 +221,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             String timeString = String.format("%02d:%02d", time.getHour(), time.getMinute());
             
             if (!availableSlots.contains(timeString)) {
-                throw new RuntimeException("Seçilen randevu saati dolu veya mesai saatleri dışında!");
+                throw new BusinessRuleException("Seçilen randevu saati dolu veya mesai saatleri dışında!");
             }
         }
 
@@ -231,7 +233,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             AppointmentStatus newStatus = AppointmentStatus.valueOf(appointmentDto.getStatus());
             if ((newStatus == AppointmentStatus.COMPLETED || newStatus == AppointmentStatus.NO_SHOW) 
                 && appointmentDto.getAppointmentDate().isAfter(LocalDateTime.now())) {
-                throw new RuntimeException("Gelecekteki bir randevu 'Tamamlandı' veya 'Gelmedi' olarak işaretlenemez!");
+                throw new BusinessRuleException("Gelecekteki bir randevu 'Tamamlandı' veya 'Gelmedi' olarak işaretlenemez!");
             }
             existingAppointment.setStatus(newStatus);
         }
@@ -254,7 +256,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public AppointmentDto updateAppointmentStatus(Long id, String status) {
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Randevu bulunamadı! ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", id));
 
         // String → Enum dönüşümü
         // "COMPLETED" → AppointmentStatus.COMPLETED
@@ -264,12 +266,12 @@ public class AppointmentServiceImpl implements AppointmentService {
             // ⭐ İŞ KURALI: Gelecekteki bir randevu 'Tamamlandı' veya 'Gelmedi' yapılamaz
             if ((newStatus == AppointmentStatus.COMPLETED || newStatus == AppointmentStatus.NO_SHOW) 
                 && appointment.getAppointmentDate().isAfter(LocalDateTime.now())) {
-                throw new RuntimeException("Gelecekteki bir randevu 'Tamamlandı' veya 'Gelmedi' olarak işaretlenemez!");
+                throw new BusinessRuleException("Gelecekteki bir randevu 'Tamamlandı' veya 'Gelmedi' olarak işaretlenemez!");
             }
             
             appointment.setStatus(newStatus);
         } catch (IllegalArgumentException e) {
-            throw new RuntimeException(
+            throw new BusinessRuleException(
                     "Geçersiz randevu durumu: " + status +
                     ". Geçerli değerler: SCHEDULED, ARRIVED, IN_EXAMINATION, COMPLETED, CANCELLED, NO_SHOW"
             );
@@ -282,7 +284,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public void deleteAppointment(Long id) {
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Silinecek randevu bulunamadı! ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", id));
         appointmentRepository.deleteById(id);
     }
 

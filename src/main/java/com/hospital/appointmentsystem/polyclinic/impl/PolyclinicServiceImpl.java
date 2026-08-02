@@ -1,11 +1,14 @@
 package com.hospital.appointmentsystem.polyclinic.impl;
 
+import com.hospital.appointmentsystem.exception.ResourceNotFoundException;
 import com.hospital.appointmentsystem.polyclinic.api.PolyclinicDto;
 import com.hospital.appointmentsystem.polyclinic.api.PolyclinicService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 
 @Service
 public class PolyclinicServiceImpl implements PolyclinicService {
@@ -17,33 +20,38 @@ public class PolyclinicServiceImpl implements PolyclinicService {
     }
 
     @Override
+    @Cacheable(value = "polyclinics")
     public List<PolyclinicDto> getAllPolyclinics() {
         return repository.findAll().stream().map(this::mapToDto).collect(Collectors.toList());
     }
 
     @Override
+    @Cacheable(value = "polyclinics", key = "#departmentId")
     public List<PolyclinicDto> getPolyclinicsByDepartment(Long departmentId) {
         return repository.findByDepartmentId(departmentId).stream().map(this::mapToDto).collect(Collectors.toList());
     }
 
     @Override
-    public PolyclinicDto createPolyclinic(PolyclinicDto dto) {
-        Polyclinic polyclinic = new Polyclinic(dto.getName(), dto.getRoomNumber(), dto.getDepartmentId());
+    @CacheEvict(value = "polyclinics", allEntries = true)
+    public PolyclinicDto createPolyclinic(PolyclinicDto polyclinicDto) {
+        Polyclinic polyclinic = new Polyclinic(polyclinicDto.getName(), polyclinicDto.getRoomNumber(), polyclinicDto.getDepartmentId());
         polyclinic = repository.save(polyclinic);
         return mapToDto(polyclinic);
     }
 
     @Override
-    public PolyclinicDto updatePolyclinic(Long id, PolyclinicDto dto) {
-        Polyclinic polyclinic = repository.findById(id).orElseThrow(() -> new RuntimeException("Poliklinik bulunamadı"));
-        polyclinic.setName(dto.getName());
-        polyclinic.setRoomNumber(dto.getRoomNumber());
-        polyclinic.setDepartmentId(dto.getDepartmentId());
+    @CacheEvict(value = "polyclinics", allEntries = true)
+    public PolyclinicDto updatePolyclinic(Long id, PolyclinicDto polyclinicDto) {
+        Polyclinic polyclinic = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Polyclinic", "id", id));
+        polyclinic.setName(polyclinicDto.getName());
+        polyclinic.setRoomNumber(polyclinicDto.getRoomNumber());
+        polyclinic.setDepartmentId(polyclinicDto.getDepartmentId());
         polyclinic = repository.save(polyclinic);
         return mapToDto(polyclinic);
     }
 
     @Override
+    @CacheEvict(value = "polyclinics", allEntries = true)
     public void deletePolyclinic(Long id) {
         repository.deleteById(id);
     }

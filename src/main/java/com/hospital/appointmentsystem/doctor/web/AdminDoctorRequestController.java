@@ -4,6 +4,7 @@ import com.hospital.appointmentsystem.doctor.impl.DoctorRegistrationRequest;
 import com.hospital.appointmentsystem.doctor.impl.DoctorRegistrationRequestRepository;
 import com.hospital.appointmentsystem.doctor.api.DoctorService;
 import com.hospital.appointmentsystem.doctor.api.DoctorDto;
+import com.hospital.appointmentsystem.exception.ResourceNotFoundException;
 import com.hospital.appointmentsystem.user.api.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +40,7 @@ public class AdminDoctorRequestController {
     public ResponseEntity<?> approveRequest(@PathVariable Long id) {
         try {
             DoctorRegistrationRequest request = repository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Kayıt isteği bulunamadı"));
+                    .orElseThrow(() -> new ResourceNotFoundException("DoctorRegistrationRequest", "id", id));
 
             if (!"PENDING".equals(request.getStatus())) {
                 return ResponseEntity.badRequest().body(new MessageResponse("Bu istek zaten işlem görmüş."));
@@ -89,7 +90,7 @@ public class AdminDoctorRequestController {
     @PostMapping("/{id}/reject")
     public ResponseEntity<?> rejectRequest(@PathVariable Long id) {
         DoctorRegistrationRequest request = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Kayıt isteği bulunamadı"));
+                .orElseThrow(() -> new ResourceNotFoundException("DoctorRegistrationRequest", "id", id));
 
         if (!"PENDING".equals(request.getStatus())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Bu istek zaten işlem görmüş."));

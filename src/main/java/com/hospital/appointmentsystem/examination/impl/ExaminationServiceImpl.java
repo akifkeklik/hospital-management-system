@@ -5,6 +5,7 @@ import com.hospital.appointmentsystem.appointment.impl.AppointmentRepository;
 import com.hospital.appointmentsystem.examination.api.DiagnosisDto;
 import com.hospital.appointmentsystem.examination.api.ExaminationService;
 import com.hospital.appointmentsystem.examination.api.PrescriptionDto;
+import com.hospital.appointmentsystem.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public class ExaminationServiceImpl implements ExaminationService {
     @Override
     public DiagnosisDto addDiagnosis(DiagnosisDto dto) {
         Appointment appointment = appointmentRepository.findById(dto.getAppointmentId())
-                .orElseThrow(() -> new RuntimeException("Randevu bulunamadı"));
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", dto.getAppointmentId()));
         Diagnosis diagnosis = new Diagnosis(appointment, dto.getIcd10Code(), dto.getDescription());
         diagnosis = diagnosisRepository.save(diagnosis);
         return mapToDto(diagnosis);
@@ -48,7 +49,7 @@ public class ExaminationServiceImpl implements ExaminationService {
     @Override
     public PrescriptionDto addPrescription(PrescriptionDto dto) {
         Appointment appointment = appointmentRepository.findById(dto.getAppointmentId())
-                .orElseThrow(() -> new RuntimeException("Randevu bulunamadı"));
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", dto.getAppointmentId()));
         Prescription prescription = new Prescription(appointment, dto.getMedicationName(), dto.getDosage(), dto.getUsageInstruction());
         prescription = prescriptionRepository.save(prescription);
         return mapToDto(prescription);

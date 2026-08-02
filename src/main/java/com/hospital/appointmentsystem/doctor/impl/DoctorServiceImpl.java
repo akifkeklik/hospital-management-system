@@ -4,6 +4,7 @@ import com.hospital.appointmentsystem.department.impl.Department;
 import com.hospital.appointmentsystem.department.impl.DepartmentRepository;
 import com.hospital.appointmentsystem.doctor.api.DoctorDto;
 import com.hospital.appointmentsystem.doctor.api.DoctorService;
+import com.hospital.appointmentsystem.exception.ResourceNotFoundException;
 import com.hospital.appointmentsystem.polyclinic.impl.Polyclinic;
 import com.hospital.appointmentsystem.polyclinic.impl.PolyclinicRepository;
 import com.hospital.appointmentsystem.user.api.UserService;
@@ -13,6 +14,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 
 /**
  * ╔══════════════════════════════════════════════════════════════════╗
@@ -52,6 +55,7 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
+    @CacheEvict(value = "doctors", allEntries = true)
     public DoctorDto createDoctor(DoctorDto doctorDto) {
 
         // ⭐ İLİŞKİ KURMA AŞAMASI
@@ -59,14 +63,14 @@ public class DoctorServiceImpl implements DoctorService {
         // 2. Bu ID ile Department objesini veritabanından çekiyoruz
         // 3. Department objesini Doctor'a bağlıyoruz
         Department department = departmentRepository.findById(doctorDto.getDepartmentId())
-                .orElseThrow(() -> new RuntimeException(
-                        "Bölüm bulunamadı! ID: " + doctorDto.getDepartmentId()
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Department", "id", doctorDto.getDepartmentId()
                 ));
 
         Polyclinic polyclinic = null;
         if (doctorDto.getPolyclinicId() != null) {
             polyclinic = polyclinicRepository.findById(doctorDto.getPolyclinicId())
-                    .orElseThrow(() -> new RuntimeException("Poliklinik bulunamadı! ID: " + doctorDto.getPolyclinicId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Polyclinic", "id", doctorDto.getPolyclinicId()));
         }
 
         // DTO → Entity dönüşümü + Department bağlama
@@ -86,23 +90,26 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
+    @Cacheable(value = "doctors", key = "#id")
     public DoctorDto getDoctorById(Long id) {
         Doctor doctor = doctorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Doktor bulunamadı! ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Doctor", "id", id));
         return mapToDto(doctor);
     }
 
     @Override
+    @Cacheable(value = "doctors")
     public Page<DoctorDto> getAllDoctors(Pageable pageable) {
         Page<Doctor> doctors = doctorRepository.findAll(pageable);
         return doctors.map(this::mapToDto);
     }
 
     @Override
+    @Cacheable(value = "doctors", key = "'dept_' + #departmentId")
     public List<DoctorDto> getDoctorsByDepartmentId(Long departmentId) {
         // Önce bölümün var olduğunu kontrol et
         if (!departmentRepository.existsById(departmentId)) {
-            throw new RuntimeException("Bölüm bulunamadı! ID: " + departmentId);
+            throw new ResourceNotFoundException("Department", "id", departmentId);
         }
 
         return doctorRepository.findByDepartmentId(departmentId).stream()
@@ -111,20 +118,21 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
+    @CacheEvict(value = "doctors", allEntries = true)
     public DoctorDto updateDoctor(Long id, DoctorDto doctorDto) {
         Doctor existingDoctor = doctorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Güncellenecek doktor bulunamadı! ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Doctor", "id", id));
 
         // Bölüm değişmiş olabilir, yeni bölümü çek
         Department department = departmentRepository.findById(doctorDto.getDepartmentId())
-                .orElseThrow(() -> new RuntimeException(
-                        "Bölüm bulunamadı! ID: " + doctorDto.getDepartmentId()
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Department", "id", doctorDto.getDepartmentId()
                 ));
 
         Polyclinic polyclinic = null;
         if (doctorDto.getPolyclinicId() != null) {
             polyclinic = polyclinicRepository.findById(doctorDto.getPolyclinicId())
-                    .orElseThrow(() -> new RuntimeException("Poliklinik bulunamadı! ID: " + doctorDto.getPolyclinicId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Polyclinic", "id", doctorDto.getPolyclinicId()));
         }
 
         existingDoctor.setFirstName(doctorDto.getFirstName());
@@ -140,9 +148,10 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
+    @CacheEvict(value = "doctors", allEntries = true)
     public void deleteDoctor(Long id) {
         Doctor doctor = doctorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Silinecek doktor bulunamadı! ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Doctor", "id", id));
         doctorRepository.deleteById(id);
     }
 

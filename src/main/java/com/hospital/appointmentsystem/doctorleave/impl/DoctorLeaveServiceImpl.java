@@ -2,6 +2,7 @@ package com.hospital.appointmentsystem.doctorleave.impl;
 
 import com.hospital.appointmentsystem.appointment.api.AppointmentDto;
 import com.hospital.appointmentsystem.appointment.api.AppointmentService;
+import com.hospital.appointmentsystem.exception.ResourceNotFoundException;
 import com.hospital.appointmentsystem.notification.api.NotificationService;
 import com.hospital.appointmentsystem.doctorleave.api.DoctorLeaveDto;
 import com.hospital.appointmentsystem.doctorleave.api.DoctorLeaveService;
@@ -47,7 +48,7 @@ public class DoctorLeaveServiceImpl implements DoctorLeaveService {
 
     @Override
     public DoctorLeaveDto updateLeaveStatus(Long id, String status) {
-        DoctorLeave leave = repository.findById(id).orElseThrow(() -> new RuntimeException("İzin bulunamadı"));
+        DoctorLeave leave = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("DoctorLeave", "id", id));
         leave.setStatus(status);
         leave = repository.save(leave);
 

@@ -1,17 +1,18 @@
 package com.hospital.appointmentsystem.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.hospital.appointmentsystem.exception.ApiErrorResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,6 +22,8 @@ import org.springframework.web.cors.CorsConfiguration;
 
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.UUID;
+import org.slf4j.MDC;
 
 @Configuration
 @EnableWebSecurity
@@ -71,7 +74,34 @@ public class SecurityConfig {
                 .authenticationEntryPoint((request, response, authException) -> {
                     response.setContentType("application/json;charset=UTF-8");
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.getWriter().write("{\"error\": \"Yetkisiz Erişim\", \"message\": \"Lütfen geçerli bir token ile giriş yapın.\"}");
+
+                    ApiErrorResponse errorResponse = new ApiErrorResponse(
+                            HttpStatus.UNAUTHORIZED.value(),
+                            HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                            "Kimlik doğrulama başarısız. Lütfen geçerli bir token ile giriş yapın.",
+                            request.getRequestURI(),
+                            MDC.get("traceId") != null ? MDC.get("traceId") : UUID.randomUUID().toString()
+                    );
+
+                    ObjectMapper mapper = new ObjectMapper();
+                    mapper.registerModule(new JavaTimeModule());
+                    response.getWriter().write(mapper.writeValueAsString(errorResponse));
+                })
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+
+                    ApiErrorResponse errorResponse = new ApiErrorResponse(
+                            HttpStatus.FORBIDDEN.value(),
+                            HttpStatus.FORBIDDEN.getReasonPhrase(),
+                            "Bu işlem için yetkiniz bulunmamaktadır.",
+                            request.getRequestURI(),
+                            MDC.get("traceId") != null ? MDC.get("traceId") : UUID.randomUUID().toString()
+                    );
+
+                    ObjectMapper mapper = new ObjectMapper();
+                    mapper.registerModule(new JavaTimeModule());
+                    response.getWriter().write(mapper.writeValueAsString(errorResponse));
                 })
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
