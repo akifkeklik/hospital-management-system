@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * ╔══════════════════════════════════════════════════════════════════╗
@@ -55,6 +56,7 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
+    @Transactional
     @CacheEvict(value = "doctors", allEntries = true)
     public DoctorDto createDoctor(DoctorDto doctorDto) {
 
@@ -85,6 +87,7 @@ public class DoctorServiceImpl implements DoctorService {
         String tc = doctorDto.getTcIdentityNumber();
         String defaultPassword = tc != null && tc.length() >= 6 ? tc.substring(0, 6) : "123456";
         userService.registerUser(tc, doctorDto.getEmail(), defaultPassword, "ROLE_DOCTOR", savedDoctor.getId());
+        userService.setNeedsPasswordChange(tc, true);
 
         return mapToDto(savedDoctor);
     }
@@ -98,7 +101,6 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
-    @Cacheable(value = "doctors")
     public Page<DoctorDto> getAllDoctors(Pageable pageable) {
         Page<Doctor> doctors = doctorRepository.findAll(pageable);
         return doctors.map(this::mapToDto);
@@ -118,6 +120,7 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
+    @Transactional
     @CacheEvict(value = "doctors", allEntries = true)
     public DoctorDto updateDoctor(Long id, DoctorDto doctorDto) {
         Doctor existingDoctor = doctorRepository.findById(id)
@@ -148,6 +151,7 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
+    @Transactional
     @CacheEvict(value = "doctors", allEntries = true)
     public void deleteDoctor(Long id) {
         Doctor doctor = doctorRepository.findById(id)
@@ -169,7 +173,6 @@ public class DoctorServiceImpl implements DoctorService {
 
         // ⭐ İlişkili entity'den bilgi alma
         // doctor.getDepartment() → Department objesini verir
-        dto.setEmail(doctor.getEmail());
 
         if (doctor.getDepartment() != null) {
             dto.setDepartmentId(doctor.getDepartment().getId());

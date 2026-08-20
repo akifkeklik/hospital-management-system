@@ -64,13 +64,17 @@ public class HospitalAppointmentApplication {
         return args -> {
             // 1. Varsayılan Admin Kullanıcısı Oluşturma
             if (!userService.existsByUsername("admin")) {
-                userService.registerUser("admin", "admin@hospital.com", "admin123", "ROLE_ADMIN", null);
-                System.out.println("✅ Varsayılan Sistem Yöneticisi (Admin) oluşturuldu. Kullanıcı: admin | Şifre: admin123");
+                String adminPassword = System.getenv("ADMIN_PASSWORD");
+                if (adminPassword == null || adminPassword.trim().isEmpty()) {
+                    adminPassword = java.util.UUID.randomUUID().toString().substring(0, 8);
+                }
+                userService.registerUser("admin", "admin@hospital.com", adminPassword, "ROLE_ADMIN", null);
+                System.out.println("✅ Varsayılan Sistem Yöneticisi (Admin) oluşturuldu. Kullanıcı: admin | Şifre: " + adminPassword);
             }
 
             // 2. Varsayılan Verilerin Yüklenmesi (SADECE BİR KERE ÇALIŞIR)
-            // Kullanıcı bu verileri sonradan silerse, sunucu yeniden başladığında tekrar geri GELMESİN diye flag kullanıyoruz.
-            if (!userService.existsByUsername("system_seeded_flag")) {
+            // Sistemde henüz hiç bölüm yoksa, varsayılan verileri yüklüyoruz.
+            if (departmentRepository.count() == 0) {
                 System.out.println("⏳ İlk Kurulum: Varsayılan veriler yükleniyor...");
                 
                 String[] defaultDepartments = {
@@ -195,8 +199,6 @@ public class HospitalAppointmentApplication {
                     System.out.println("   + Kuruldu: Örnek Hastalar ve Randevular");
                 }
                 
-                // Kurulumun bir daha çalışmaması için flag user oluşturuyoruz
-                userService.registerUser("system_seeded_flag", "seeded@system.local", "system_seeded_flag_pass", "ROLE_ADMIN", null);
                 System.out.println("✅ İlk Kurulum tamamlandı! Veriler bir daha üzerine yazılmayacak.");
             } else {
                 System.out.println("ℹ️ Sistem veritabanı zaten daha önce kurulmuş. Seeder atlandı.");

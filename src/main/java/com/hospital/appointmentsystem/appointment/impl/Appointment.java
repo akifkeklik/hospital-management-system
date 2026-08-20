@@ -50,7 +50,7 @@ import jakarta.persistence.Version;
 @Entity
 @Table(name = "appointments")
 @SQLDelete(sql = "UPDATE appointments SET is_active = false WHERE id=?")
-@SQLRestriction("is_active = true OR is_active IS NULL")
+@SQLRestriction("is_active = true")
 @EntityListeners(AuditingEntityListener.class)
 public class Appointment {
 
@@ -107,7 +107,7 @@ public class Appointment {
     // ORDINAL → veritabanında "0" yazar (anlaşılmaz!)
     // ──────────────────────────────────────────────────────────
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
+    @Column(name = "status", nullable = false, length = 50)
     private AppointmentStatus status;
 
     @Column(name = "notes", length = 500)

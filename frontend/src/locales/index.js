@@ -1,3 +1,13 @@
+/**
+ * 🌍 LOCALIZATION (I18N) DICTIONARY
+ * 
+ * This file contains a monolithic dictionary for all application strings
+ * across different languages (tr, en, de, etc.). 
+ * 
+ * NOTE: As the application grows, consider splitting this file into 
+ * separate JSON files (e.g. `tr.json`, `en.json`) and loading them dynamically
+ * to reduce initial bundle size and improve maintainability.
+ */
 export const dictionaries = {
   tr: {
     "previous": "Geri",

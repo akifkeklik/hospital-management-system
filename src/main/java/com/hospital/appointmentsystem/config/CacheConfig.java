@@ -55,9 +55,9 @@ public class CacheConfig {
         public ValueWrapper get(Object key) {
             ValueWrapper valueWrapper = delegate.get(key);
             if (valueWrapper == null) {
-                log.info("[Cache MISS] {} - key: {}", getName(), key);
+                log.debug("[Cache MISS] {} - key: {}", getName(), key);
             } else {
-                log.info("[Cache HIT] {} - key: {}", getName(), key);
+                log.debug("[Cache HIT] {} - key: {}", getName(), key);
             }
             return valueWrapper;
         }
@@ -66,34 +66,34 @@ public class CacheConfig {
         public <T> T get(Object key, Class<T> type) {
             T value = delegate.get(key, type);
             if (value == null) {
-                log.info("[Cache MISS] {} - key: {}", getName(), key);
+                log.debug("[Cache MISS] {} - key: {}", getName(), key);
             } else {
-                log.info("[Cache HIT] {} - key: {}", getName(), key);
+                log.debug("[Cache HIT] {} - key: {}", getName(), key);
             }
             return value;
         }
 
         @Override
         public <T> T get(Object key, Callable<T> valueLoader) {
-            log.info("[Cache ACCESS] {} - key: {} (valueLoader)", getName(), key);
+            log.debug("[Cache ACCESS] {} - key: {} (valueLoader)", getName(), key);
             return delegate.get(key, valueLoader);
         }
 
         @Override
         public void put(Object key, Object value) {
-            log.info("[Cache PUT] {} - key: {}", getName(), key);
+            log.debug("[Cache PUT] {} - key: {}", getName(), key);
             delegate.put(key, value);
         }
 
         @Override
         public void evict(Object key) {
-            log.info("[Cache EVICT] {} - key: {}", getName(), key);
+            log.debug("[Cache EVICT] {} - key: {}", getName(), key);
             delegate.evict(key);
         }
 
         @Override
         public void clear() {
-            log.info("[Cache CLEAR] {}", getName());
+            log.debug("[Cache CLEAR] {}", getName());
             delegate.clear();
         }
     }

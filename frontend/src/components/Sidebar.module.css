@@ -212,3 +212,10 @@
   opacity: 1;
   transition-delay: 0.08s;
 }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+}

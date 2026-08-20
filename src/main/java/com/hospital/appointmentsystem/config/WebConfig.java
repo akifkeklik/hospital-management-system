@@ -25,15 +25,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * ║                                                                  ║
  * ╚══════════════════════════════════════════════════════════════════╝
  */
-@Configuration
+// @Configuration
 public class WebConfig implements WebMvcConfigurer {
-
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**") // Sadece /api/ ile başlayan isteklere izin ver
-                .allowedOriginPatterns("*") // Tüm adreslere izin ver (Vercel dahil)
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS") // İzin verilen HTTP metotları
-                .allowedHeaders("*") // Tüm başlıklara (header) izin ver
-                .allowCredentials(true); // Gerekirse çerez (cookie) vb. geçişine izin ver
-    }
+    // CORS configuration is handled exclusively in SecurityConfig.java
+    // to prevent duplicate/conflicting CORS filters.
 }

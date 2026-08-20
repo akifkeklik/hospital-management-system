@@ -7,13 +7,7 @@ import { useSettings } from '../../context/SettingsContext';
 import LanguageSelector from '../../components/LanguageSelector';
 import styles from './page.module.css';
 
-function parseJwt(token) {
-  try {
-    return JSON.parse(atob(token.split('.')[1]));
-  } catch (e) {
-    return null;
-  }
-}
+import { parseJwt } from '../../utils/jwt';
 
 export default function LoginPage() {
   const router = useRouter();

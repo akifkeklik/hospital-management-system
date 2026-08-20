@@ -3,6 +3,7 @@ package com.hospital.appointmentsystem.user.impl;
 import com.hospital.appointmentsystem.user.api.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Service
@@ -27,6 +28,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void registerUser(String username, String email, String password, String role, Long referenceId) {
         User newUser = new User(
                 username,
@@ -39,6 +41,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public boolean resetPassword(String username, String email, String newPassword) {
         Optional<User> optionalUser = userRepository.findByUsername(username);
         
@@ -55,6 +58,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void setNeedsPasswordChange(String username, boolean flag) {
         userRepository.findByUsername(username).ifPresent(user -> {
             user.setNeedsPasswordChange(flag);
@@ -63,6 +67,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public boolean changePassword(String username, String newPassword) {
         Optional<User> optionalUser = userRepository.findByUsername(username);
         if (optionalUser.isPresent()) {

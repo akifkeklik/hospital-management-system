@@ -12,17 +12,39 @@ package com.hospital.appointmentsystem.doctor.api;
  * → İstemciye sadece "hangi bölümde" bilgisini veriyoruz
  * → İstemci bölüm detayını merak ederse /api/departments/{id} ile alır
  */
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
 public class DoctorDto {
 
     private Long id;
+    
+    @NotBlank(message = "Ad boş bırakılamaz")
+    @Size(min = 2, max = 50, message = "Ad 2 ile 50 karakter arasında olmalıdır")
     private String firstName;
+    
+    @NotBlank(message = "Soyad boş bırakılamaz")
+    @Size(min = 2, max = 50, message = "Soyad 2 ile 50 karakter arasında olmalıdır")
     private String lastName;
+    
+    @NotBlank(message = "TC Kimlik No boş bırakılamaz")
+    @Size(min = 11, max = 11, message = "TC Kimlik No 11 haneli olmalıdır")
     private String tcIdentityNumber;
+    
+    @NotBlank(message = "Uzmanlık alanı boş bırakılamaz")
     private String specialization;
+    
+    @NotBlank(message = "Telefon boş bırakılamaz")
     private String phoneNumber;
+    
+    @NotBlank(message = "E-posta boş bırakılamaz")
+    @Email(message = "Geçerli bir e-posta adresi giriniz")
     private String email;
 
     // İlişkili entity'nin sadece ID ve adı
+    @NotNull(message = "Bölüm seçilmelidir")
     private Long departmentId;
     private String departmentName;
     private Long polyclinicId;

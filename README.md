@@ -57,7 +57,11 @@ mvn spring-boot:run
 ```bash
 cd frontend
 ```
-2. Install dependencies:
+2. Copy the example environment file and configure it if necessary:
+```bash
+cp .env.example .env
+```
+3. Install dependencies:
 ```bash
 npm install
 ```

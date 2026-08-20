@@ -72,6 +72,7 @@ public class AuthController {
         final String jwt = jwtUtil.generateToken(userDetails, user.getRole(), user.getReferenceId());
 
         org.springframework.http.ResponseCookie jwtCookie = org.springframework.http.ResponseCookie.from("jwt", jwt)
+                .httpOnly(true)
                 .secure(true) // Production'da (HTTPS ve Cross-Origin) true ZORUNLUDUR
                 .path("/")
                 .maxAge(10 * 60 * 60) // 10 saat
@@ -183,12 +184,7 @@ public class AuthController {
         }
     }
 
-    // GEÇİCİ: Geliştirme aşamasında kilitli kalan TC'leri silmek için
-    @GetMapping("/force-delete/{tc}")
-    public ResponseEntity<?> forceDelete(@PathVariable String tc) {
-        userRepository.findByUsername(tc).ifPresent(userRepository::delete);
-        return ResponseEntity.ok(new MessageResponse(tc + " numaralı kayıt veritabanından tamamen silindi. Şimdi baştan kayıt olabilirsiniz!"));
-    }
+
 
     @GetMapping("/me")
     public ResponseEntity<?> getMe(Principal principal) {

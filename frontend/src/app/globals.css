@@ -18,10 +18,17 @@
 
   --text-main: #f8fafc;     /* Beyaza yakın */
   --text-muted: #94a3b8;    /* Orta gri */
+  --secondary: #e2e8f0;     /* Başlık ve vurgu metinleri */
   --danger: #f87171;
   --success: #34d399;
   --warning: #fbbf24;
   --info: #60a5fa;
+
+  /* RGB değerleri (rgba() ile kullanım için) */
+  --surface-rgb: 17, 24, 39;
+  --background-rgb: 9, 12, 16;
+  --cancel-bg: rgba(239, 68, 68, 0.15);
+  --cancel-border: rgba(239, 68, 68, 0.3);
 
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
@@ -49,10 +56,17 @@
   
   --text-main: #0f172a;     /* Neredeyse Siyah */
   --text-muted: #64748b;    /* Yumuşak Gri */
+  --secondary: #1e293b;     /* Başlık ve vurgu metinleri */
   --danger: #ef4444;        /* Kırmızı (İptal/Sil) */
   --success: #10b981;       /* Yeşil (Başarılı) */
   --warning: #f59e0b;       /* Turuncu (Bekliyor) */
   --info: #3b82f6;          /* Mavi (Bilgi) */
+
+  /* RGB değerleri (rgba() ile kullanım için) */
+  --surface-rgb: 255, 255, 255;
+  --background-rgb: 248, 250, 252;
+  --cancel-bg: #fef2f2;
+  --cancel-border: #fca5a5;
   
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
@@ -200,4 +214,25 @@ input[type="radio"]:checked::after {
 input[type="checkbox"]:hover, input[type="radio"]:hover {
   border-color: var(--primary);
   box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.1);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .page-content {
+    padding: 0.75rem;
+  }
+
+  .app-container {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-content {
+    padding: 0.5rem;
+  }
+
+  input, select, textarea {
+    font-size: 16px; /* iOS zoom engelleme */
+  }
 }

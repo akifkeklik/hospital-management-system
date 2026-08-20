@@ -53,18 +53,22 @@ export async function fetchAPI(endpoint, options = {}) {
 
       let errorMessage = response.statusText;
       try {
-        const errorData = await response.json();
-        if (errorData.details) {
-          // Validation error
-          const detailsStr = Object.values(errorData.details).join('\n');
-          errorMessage = `${errorData.error}:\n${detailsStr}`;
-        } else if (errorData.message) {
-          errorMessage = errorData.message;
+        const rawText = await response.text();
+        if (rawText) {
+          try {
+            const errorData = JSON.parse(rawText);
+            if (errorData.details) {
+              const detailsStr = Object.values(errorData.details).join('\n');
+              errorMessage = `${errorData.error}:\n${detailsStr}`;
+            } else if (errorData.message) {
+              errorMessage = errorData.message;
+            }
+          } catch (e) {
+            errorMessage = rawText; // Not JSON, use raw text
+          }
         }
       } catch (e) {
-        // Not JSON, just use raw text
-        const rawText = await response.text();
-        if (rawText) errorMessage = rawText;
+        // Ignore and fallback to statusText
       }
       throw new Error(errorMessage);
     }

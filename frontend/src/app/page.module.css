@@ -59,3 +59,36 @@
   color: var(--secondary);
   line-height: 1;
 }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+  }
+
+  .card {
+    padding: 0.75rem;
+  }
+
+  .cardIcon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.4rem;
+  }
+
+  .count {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.35rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+}

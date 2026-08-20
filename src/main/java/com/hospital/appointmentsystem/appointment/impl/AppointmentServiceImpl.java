@@ -9,6 +9,7 @@ import com.hospital.appointmentsystem.exception.ResourceNotFoundException;
 import com.hospital.appointmentsystem.patient.impl.Patient;
 import com.hospital.appointmentsystem.patient.impl.PatientRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -62,6 +63,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    @Transactional
     public AppointmentDto createAppointment(AppointmentDto appointmentDto) {
 
         // 1. Hastayı bul
@@ -156,10 +158,8 @@ public class AppointmentServiceImpl implements AppointmentService {
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
         
-        List<Appointment> existingAppointments = appointmentRepository.findByDoctorId(doctorId).stream()
-            .filter(app -> app.getStatus() == AppointmentStatus.SCHEDULED)
-            .filter(app -> app.getAppointmentDate().isAfter(startOfDay) && app.getAppointmentDate().isBefore(endOfDay))
-            .collect(Collectors.toList());
+        List<Appointment> existingAppointments = appointmentRepository
+            .findByDoctorIdAndStatusAndAppointmentDateBetween(doctorId, AppointmentStatus.SCHEDULED, startOfDay, endOfDay);
 
         // Dolu saatlerin listesi
         List<LocalTime> bookedTimes = existingAppointments.stream()
@@ -192,6 +192,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    @Transactional
     public AppointmentDto updateAppointment(Long id, AppointmentDto appointmentDto) {
         Appointment existingAppointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", id));
@@ -254,6 +255,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     // → Eğer geçersiz bir değer gelirse hata fırlatır
     // ──────────────────────────────────────────────────────────
     @Override
+    @Transactional
     public AppointmentDto updateAppointmentStatus(Long id, String status) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", id));
@@ -282,8 +284,9 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    @Transactional
     public void deleteAppointment(Long id) {
-        Appointment appointment = appointmentRepository.findById(id)
+        appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", id));
         appointmentRepository.deleteById(id);
     }

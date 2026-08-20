@@ -19,4 +19,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     // Belirli durumdaki randevuları getir (ör: tüm SCHEDULED olanlar)
     List<Appointment> findByStatus(AppointmentStatus status);
+
+    // Belli bir tarih aralığındaki doktor randevularını getir
+    List<Appointment> findByDoctorIdAndStatusAndAppointmentDateBetween(Long doctorId, AppointmentStatus status, java.time.LocalDateTime start, java.time.LocalDateTime end);
 }

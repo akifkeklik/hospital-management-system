@@ -46,6 +46,7 @@ public class AppointmentController {
     }
 
     // GET /api/appointments/{id} — ID ile randevu getir
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'PATIENT')")
     @GetMapping("/{id}")
     public ResponseEntity<AppointmentResponse> getAppointmentById(@PathVariable Long id) {
 
@@ -67,6 +68,7 @@ public class AppointmentController {
     }
 
     // GET /api/appointments/patient/{patientId} — Hastanın randevuları
+    @PreAuthorize("hasAnyRole('ADMIN', 'PATIENT', 'DOCTOR')")
     @GetMapping("/patient/{patientId}")
     public ResponseEntity<List<AppointmentResponse>> getAppointmentsByPatient(
             @PathVariable Long patientId) {
@@ -80,6 +82,7 @@ public class AppointmentController {
     }
 
     // GET /api/appointments/doctor/{doctorId} — Doktorun randevuları
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     @GetMapping("/doctor/{doctorId}")
     public ResponseEntity<List<AppointmentResponse>> getAppointmentsByDoctor(
             @PathVariable Long doctorId) {

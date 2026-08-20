@@ -8,13 +8,7 @@ import DoctorHeader from '../components/DoctorHeader';
 import { SettingsProvider } from '../context/SettingsContext';
 import ToastContainer from '../components/Toast';
 
-function parseJwt(token) {
-  try {
-    return JSON.parse(atob(token.split('.')[1]));
-  } catch (e) {
-    return null;
-  }
-}
+import { parseJwt } from '../utils/jwt';
 
 export default function ClientLayout({ children }) {
   const pathname = usePathname();

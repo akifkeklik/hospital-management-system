@@ -1,6 +1,8 @@
 package com.hospital.appointmentsystem.appointment.api;
 
 import java.time.LocalDateTime;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * 📦 Appointment DTO — Randevu veri transfer objesi.
@@ -8,12 +10,22 @@ import java.time.LocalDateTime;
 public class AppointmentDto {
 
     private Long id;
+    
+    @NotNull(message = "Hasta ID boş olamaz")
     private Long patientId;
+    
     private String patientFullName;   // Hasta adı soyadı
+    
+    @NotNull(message = "Doktor ID boş olamaz")
     private Long doctorId;
+    
     private String doctorFullName;    // Doktor adı soyadı
     private String departmentName;    // Doktorun bölümü
+    
+    @NotNull(message = "Randevu tarihi boş olamaz")
+    @Future(message = "Randevu tarihi geçmişte olamaz")
     private LocalDateTime appointmentDate;
+    
     private String status;            // Enum String olarak
     private String notes;
 
