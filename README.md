@@ -1,4 +1,4 @@
-# Hospital Appointment & Management System 🏥
+# Hospital Management System 🏥
 
 A modern, robust, and secure Hospital Information Management System (HIMS) built with **Java Spring Boot** and **Next.js**. Designed following Clean Architecture and Domain-Driven Design (Lite) principles, it provides a seamless, high-performance experience for patients, doctors, and hospital administrators.
 
