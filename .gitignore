@@ -35,3 +35,6 @@ build/
 ### Custom/Misc ###
 *.log
 frontend/.env
+
+# Teknofest Tasks
+tasks/
