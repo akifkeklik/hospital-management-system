@@ -417,7 +417,11 @@ export const dictionaries = {
     "pwa_install": "Uygulamayı Kur",
     "est_wait": "Tahmini Bekleme",
     "minutes": "dk",
-    "queue_pos": "Sırada"
+    "queue_pos": "Sırada",
+    "read_aloud": "Sesli Oku",
+    "high_contrast_mode": "Yüksek Kontrast Modu",
+    "appointment": "Randevu",
+    "department": "Bölüm"
   },
   en: {
     "previous": "Previous",
@@ -826,7 +830,11 @@ export const dictionaries = {
     "pwa_install": "Install App",
     "est_wait": "Est. Wait",
     "minutes": "min",
-    "queue_pos": "Queue"
+    "queue_pos": "Queue",
+    "read_aloud": "Read Aloud",
+    "high_contrast_mode": "High Contrast Mode",
+    "appointment": "Appointment",
+    "department": "Department"
   },
   de: {
     "previous": "Zurück",
@@ -1235,7 +1243,11 @@ export const dictionaries = {
     "pwa_install": "App installieren",
     "est_wait": "Gesch. Wartezeit",
     "minutes": "Min",
-    "queue_pos": "Warteschlange"
+    "queue_pos": "Warteschlange",
+    "read_aloud": "Vorlesen",
+    "high_contrast_mode": "Kontrastmodus",
+    "appointment": "Termin",
+    "department": "Abteilung"
   },
   fr: {
     dashboard: "Tableau de Bord",
@@ -1582,7 +1594,11 @@ export const dictionaries = {
     "pwa_install": "Installer l'application",
     "est_wait": "Attente Est.",
     "minutes": "min",
-    "queue_pos": "File d'attente"
+    "queue_pos": "File d'attente",
+    "read_aloud": "Lecture Vocale",
+    "high_contrast_mode": "Mode Contraste Élevé",
+    "appointment": "Rendez-vous",
+    "department": "Département"
   },
   es: {
     dashboard: "Panel",
@@ -1929,7 +1945,11 @@ export const dictionaries = {
     "pwa_install": "Instalar aplicación",
     "est_wait": "Espera Est.",
     "minutes": "min",
-    "queue_pos": "Fila"
+    "queue_pos": "Fila",
+    "read_aloud": "Leer en voz alta",
+    "high_contrast_mode": "Modo de Alto Contraste",
+    "appointment": "Cita",
+    "department": "Departamento"
   },
   ru: {
     dashboard: "Панель",
@@ -2276,7 +2296,11 @@ export const dictionaries = {
     "pwa_install": "Установить приложение",
     "est_wait": "Ожидание",
     "minutes": "мин",
-    "queue_pos": "В очереди"
+    "queue_pos": "В очереди",
+    "read_aloud": "Прочитать вслух",
+    "high_contrast_mode": "Высокий Контраст",
+    "appointment": "Встреча",
+    "department": "Отделение"
   },
   ar: {
     dashboard: "لوحة القيادة",
@@ -2623,7 +2647,11 @@ export const dictionaries = {
     "pwa_install": "تثبيت التطبيق",
     "est_wait": "وقت الانتظار",
     "minutes": "دقائق",
-    "queue_pos": "في الطابور"
+    "queue_pos": "في الطابور",
+    "read_aloud": "قراءة بصوت عال",
+    "high_contrast_mode": "وضع التباين العالي",
+    "appointment": "موعد",
+    "department": "قسم"
   },
   zh: {
     dashboard: "仪表板",
@@ -2970,6 +2998,10 @@ export const dictionaries = {
     "pwa_install": "安装应用",
     "est_wait": "预计等待",
     "minutes": "分钟",
-    "queue_pos": "排队人数"
+    "queue_pos": "排队人数",
+    "read_aloud": "朗读",
+    "high_contrast_mode": "高对比度模式",
+    "appointment": "预约",
+    "department": "科室"
   }
 };

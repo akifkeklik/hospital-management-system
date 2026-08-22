@@ -8,10 +8,12 @@ import ConfirmModal from './ConfirmModal';
 import EmptyState from './EmptyState';
 import { toast } from './Toast';
 import LoadingScreen from './LoadingScreen';
+import { useSpeech } from '../hooks/useSpeech';
 import styles from './PatientDashboard.module.css';
 
 export default function PatientDashboard() {
   const { t, tErr } = useSettings();
+  const { speak, isSpeaking, stop } = useSpeech();
   const router = useRouter();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -203,13 +205,22 @@ export default function PatientDashboard() {
                       </div>
                     )}
                   </div>
-                  <button 
-                    onClick={() => handleCancelClick(app.id)} 
-                    className={styles.cancelBtn}
-                    title={t('cancel_appointment')}
-                  >
-                    {t('cancel_appointment_short')}
-                  </button>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <button 
+                      onClick={() => speak(`${t('appointment')}: ${formatDate(app.appointmentDate)}, Doktor ${app.doctorFullName}, ${t(app.departmentName)} ${t('department')}. ${waitTimes[app.id] ? t('est_wait') + ' ' + waitTimes[app.id].estimatedMinutes + ' ' + t('minutes') : ''}`)}
+                      className={styles.speechBtn}
+                      title={t('read_aloud') || "Sesli Oku"}
+                    >
+                      🔊
+                    </button>
+                    <button 
+                      onClick={() => handleCancelClick(app.id)} 
+                      className={styles.cancelBtn}
+                      title={t('cancel_appointment')}
+                    >
+                      {t('cancel_appointment_short')}
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

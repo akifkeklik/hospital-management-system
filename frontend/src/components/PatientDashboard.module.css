@@ -245,6 +245,25 @@
 }
 
 /* ── CANCEL BUTTON (Dark Mode Uyumlu) ── */
+.speechBtn {
+  background-color: rgba(68, 170, 255, 0.1);
+  color: var(--info);
+  border: 1px solid rgba(68, 170, 255, 0.5);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.speechBtn:hover {
+  background-color: var(--info);
+  color: white;
+}
+
 .cancelBtn {
   background-color: var(--cancel-bg);
   color: var(--danger);
