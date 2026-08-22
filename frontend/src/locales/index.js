@@ -413,7 +413,8 @@ export const dictionaries = {
     "ai_confidence": "Güven Oranı",
     "ai_book_this_dept": "Bu Bölümden Randevu Al",
     "ai_retry": "Tekrar Dene",
-    "ai_skip": "AI kullanmadan doğrudan bölüm seçin"
+    "ai_skip": "AI kullanmadan doğrudan bölüm seçin",
+    "pwa_install": "Uygulamayı Kur"
   },
   en: {
     "previous": "Previous",
@@ -818,7 +819,8 @@ export const dictionaries = {
     "ai_confidence": "Confidence",
     "ai_book_this_dept": "Book from This Department",
     "ai_retry": "Try Again",
-    "ai_skip": "Skip AI and select department directly"
+    "ai_skip": "Skip AI and select department directly",
+    "pwa_install": "Install App"
   },
   de: {
     "previous": "Zurück",
@@ -1223,7 +1225,8 @@ export const dictionaries = {
     "ai_confidence": "Konfidenz",
     "ai_book_this_dept": "Termin in dieser Abteilung buchen",
     "ai_retry": "Erneut versuchen",
-    "ai_skip": "KI überspringen und Abteilung direkt wählen"
+    "ai_skip": "KI überspringen und Abteilung direkt wählen",
+    "pwa_install": "App installieren"
   },
   fr: {
     dashboard: "Tableau de Bord",
@@ -1566,7 +1569,8 @@ export const dictionaries = {
     "ai_confidence": "Confiance",
     "ai_book_this_dept": "Réserver dans ce Département",
     "ai_retry": "Réessayer",
-    "ai_skip": "Passer l'IA et sélectionner directement"
+    "ai_skip": "Passer l'IA et sélectionner directement",
+    "pwa_install": "Installer l'application"
   },
   es: {
     dashboard: "Panel",
@@ -1909,7 +1913,8 @@ export const dictionaries = {
     "ai_confidence": "Confianza",
     "ai_book_this_dept": "Reservar en este Departamento",
     "ai_retry": "Intentar de Nuevo",
-    "ai_skip": "Omitir IA y seleccionar directamente"
+    "ai_skip": "Omitir IA y seleccionar directamente",
+    "pwa_install": "Instalar aplicación"
   },
   ru: {
     dashboard: "Панель",
@@ -2252,7 +2257,8 @@ export const dictionaries = {
     "ai_confidence": "Уверенность",
     "ai_book_this_dept": "Записаться в этот Отдел",
     "ai_retry": "Попробовать снова",
-    "ai_skip": "Пропустить ИИ и выбрать напрямую"
+    "ai_skip": "Пропустить ИИ и выбрать напрямую",
+    "pwa_install": "Установить приложение"
   },
   ar: {
     dashboard: "لوحة القيادة",
@@ -2595,7 +2601,8 @@ export const dictionaries = {
     "ai_confidence": "نسبة الثقة",
     "ai_book_this_dept": "حجز موعد في هذا القسم",
     "ai_retry": "حاول مرة أخرى",
-    "ai_skip": "تخطي الذكاء الاصطناعي والاختيار مباشرة"
+    "ai_skip": "تخطي الذكاء الاصطناعي والاختيار مباشرة",
+    "pwa_install": "تثبيت التطبيق"
   },
   zh: {
     dashboard: "仪表板",
@@ -2938,6 +2945,7 @@ export const dictionaries = {
     "ai_confidence": "置信度",
     "ai_book_this_dept": "预约该科室",
     "ai_retry": "重试",
-    "ai_skip": "跳过AI，直接选择科室"
+    "ai_skip": "跳过AI，直接选择科室",
+    "pwa_install": "安装应用"
   }
 };

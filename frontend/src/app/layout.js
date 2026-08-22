@@ -11,6 +11,16 @@ const inter = Inter({
 export const metadata = {
   title: 'Hastane Randevu Sistemi',
   description: 'DDD Mimari ile geliştirilmiş Hastane Randevu Sistemi',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'HBYS',
+  },
+};
+
+export const viewport = {
+  themeColor: '#818cf8',
 };
 
 export default function RootLayout({ children }) {

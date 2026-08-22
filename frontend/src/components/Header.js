@@ -4,9 +4,11 @@ import { useRouter } from 'next/navigation';
 import { useSettings } from '../context/SettingsContext';
 import { AuthService } from '../services/api';
 import { toast } from '../components/Toast';
+import { usePwaInstall } from '../hooks/usePwaInstall';
 import styles from './Header.module.css';
 
 export default function Header() {
+  const { isInstallable, installApp } = usePwaInstall();
   const router = useRouter();
   const [theme, setTheme] = useState('dark');
   const [userProfile, setUserProfile] = useState(null);
@@ -234,6 +236,15 @@ export default function Header() {
         )}
       </div>
       <div className={styles.actions}>
+        {isInstallable && (
+          <button onClick={installApp} className={styles.installBtn} title={t('pwa_install') || "Uygulamayı Kur"}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+          </button>
+        )}
         <button className={styles.themeToggle} onClick={toggleTheme} title={t('toggle_theme')}>
           {theme === 'light' ? (
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
