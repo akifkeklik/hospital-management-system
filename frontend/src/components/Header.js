@@ -249,11 +249,11 @@ export default function Header() {
         )}
         <button className={styles.themeToggle} onClick={toggleTheme} title={theme === 'dark' ? t('light_mode') : theme === 'light' ? t('high_contrast_mode') : t('dark_mode')}>
           {theme === 'dark' ? (
-            <span style={{ fontSize: '1.2rem' }}>🌙</span>
-          ) : theme === 'light' ? (
             <span style={{ fontSize: '1.2rem' }}>☀️</span>
-          ) : (
+          ) : theme === 'light' ? (
             <span style={{ fontSize: '1.2rem' }}>👁️</span>
+          ) : (
+            <span style={{ fontSize: '1.2rem' }}>🌙</span>
           )}
         </button>
 
