@@ -1,15 +1,16 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { AppointmentService, DepartmentService, PolyclinicService, DoctorService, PatientService, AuthService } from '../../services/api';
+import { AppointmentService, DepartmentService, DoctorService, AuthService } from '../../services/api';
 import { toast } from '../../components/Toast';
 import { useSettings } from '../../context/SettingsContext';
+import SymptomAnalyzer from '../../components/SymptomAnalyzer';
 import styles from './page.module.css';
 
 export default function BookAppointment() {
   const router = useRouter();
   const { t, tErr } = useSettings();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0); // 0 = AI Asistan, 1-5 = mevcut adımlar
   const [loading, setLoading] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
 
@@ -109,22 +110,38 @@ export default function BookAppointment() {
     }
   };
 
+  // Progress bar adım sayısı (AI adımı 0 olduğundan 1-4 arası gösterilir)
+  const displayStep = Math.max(step, 1);
+
   return (
     <div className={styles.wizardContainer}>
-      {/* Progress Bar */}
-      <div className={styles.progressContainer}>
-        {[1, 2, 3, 4].map(s => (
-          <div key={s} className={`${styles.progressStep} ${step >= s ? styles.active : ''}`}>
-            <div className={styles.stepCircle}>{s}</div>
-            <div className={styles.stepLabel}>
-              {s === 1 ? t('department') : s === 2 ? t('doctor') : s === 3 ? t('date_and_time') : t('confirmation')}
+      {/* Progress Bar — sadece step >= 1 iken göster */}
+      {step >= 1 && (
+        <div className={styles.progressContainer}>
+          {[1, 2, 3, 4].map(s => (
+            <div key={s} className={`${styles.progressStep} ${displayStep >= s ? styles.active : ''}`}>
+              <div className={styles.stepCircle}>{s}</div>
+              <div className={styles.stepLabel}>
+                {s === 1 ? t('department') : s === 2 ? t('doctor') : s === 3 ? t('date_and_time') : t('confirmation')}
+              </div>
             </div>
-          </div>
-        ))}
-        <div className={styles.progressLine} style={{ width: `${(Math.min(step, 4) - 1) * 33.33}%` }}></div>
-      </div>
+          ))}
+          <div className={styles.progressLine} style={{ width: `${(Math.min(displayStep, 4) - 1) * 33.33}%` }}></div>
+        </div>
+      )}
 
       <div className={styles.stepContent}>
+        {/* Adım 0: AI Semptom Analizi */}
+        {step === 0 && (
+          <div className={styles.animationFadeIn}>
+            <SymptomAnalyzer
+              departments={departments}
+              onDepartmentSelect={(dept) => handleDeptSelect(dept)}
+              onSkip={() => setStep(1)}
+            />
+          </div>
+        )}
+
         {/* Adım 1: Bölüm Seçimi */}
         {step === 1 && (
           <div className={styles.animationFadeIn}>

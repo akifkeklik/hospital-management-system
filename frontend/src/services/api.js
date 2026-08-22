@@ -231,6 +231,14 @@ export const PolyclinicService = {
   })
 };
 
+// ── YAPAY ZEKA (AI) SERVİSİ ──
+export const AiService = {
+  analyzeSymptoms: (symptoms, availableDepartments) => fetchAPI('/ai/analyze-symptoms', {
+    method: 'POST',
+    body: JSON.stringify({ symptoms, availableDepartments })
+  })
+};
+
 // ── EXAMINATION API ──
 export const ExaminationService = {
   addDiagnosis: (data) => fetchAPI('/examinations/diagnoses', { method: 'POST', body: JSON.stringify(data) }),
