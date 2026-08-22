@@ -9,6 +9,7 @@ import EmptyState from './EmptyState';
 import { toast } from './Toast';
 import LoadingScreen from './LoadingScreen';
 import { useSpeech } from '../hooks/useSpeech';
+import HospitalMap from './HospitalMap';
 import styles from './PatientDashboard.module.css';
 
 export default function PatientDashboard() {
@@ -22,6 +23,7 @@ export default function PatientDashboard() {
   const [quickSearch, setQuickSearch] = useState('');
   const [timeFilter, setTimeFilter] = useState('all');
   const [waitTimes, setWaitTimes] = useState({});
+  const [mapDept, setMapDept] = useState(null);
 
   const fetchData = async (retryCount = 0) => {
     try {
@@ -204,6 +206,11 @@ export default function PatientDashboard() {
                         {t('est_wait')}: {waitTimes[app.id].estimatedMinutes} {t('minutes')} ({t('queue_pos')}: {waitTimes[app.id].queuePosition})
                       </div>
                     )}
+                    <div style={{ marginTop: '0.75rem' }}>
+                      <button onClick={() => setMapDept(app.departmentName)} className={styles.mapBtn}>
+                        📍 {t('view_on_map')}
+                      </button>
+                    </div>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     <button 
@@ -236,6 +243,12 @@ export default function PatientDashboard() {
         onCancel={() => setConfirmModal({ isOpen: false, id: null })}
         confirmText={t('yes_cancel')}
         type="danger"
+      />
+
+      <HospitalMap
+        departmentName={mapDept}
+        isOpen={!!mapDept}
+        onClose={() => setMapDept(null)}
       />
     </div>
   );

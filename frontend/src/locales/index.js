@@ -421,7 +421,15 @@ export const dictionaries = {
     "read_aloud": "Sesli Oku",
     "high_contrast_mode": "Yüksek Kontrast Modu",
     "appointment": "Randevu",
-    "department": "Bölüm"
+    "department": "Bölüm",
+    "hospital_map": "Hastane Haritası",
+    "hospital_floor_plan": "Hastane Kat Planı",
+    "block": "Blok",
+    "floor": "Kat",
+    "room": "Oda",
+    "entrance": "GİRİŞ",
+    "view_on_map": "Haritada Gör",
+    "dept_not_on_map": "Bu bölüm haritada tanımlı değil."
   },
   en: {
     "previous": "Previous",
@@ -834,7 +842,15 @@ export const dictionaries = {
     "read_aloud": "Read Aloud",
     "high_contrast_mode": "High Contrast Mode",
     "appointment": "Appointment",
-    "department": "Department"
+    "department": "Department",
+    "hospital_map": "Hospital Map",
+    "hospital_floor_plan": "Hospital Floor Plan",
+    "block": "Block",
+    "floor": "Floor",
+    "room": "Room",
+    "entrance": "ENTRANCE",
+    "view_on_map": "View on Map",
+    "dept_not_on_map": "This department is not on the map."
   },
   de: {
     "previous": "Zurück",
@@ -1247,7 +1263,15 @@ export const dictionaries = {
     "read_aloud": "Vorlesen",
     "high_contrast_mode": "Kontrastmodus",
     "appointment": "Termin",
-    "department": "Abteilung"
+    "department": "Abteilung",
+    "hospital_map": "Krankenhauskarte",
+    "hospital_floor_plan": "Krankenhaus-Grundriss",
+    "block": "Block",
+    "floor": "Etage",
+    "room": "Zimmer",
+    "entrance": "EINGANG",
+    "view_on_map": "Auf Karte anzeigen",
+    "dept_not_on_map": "Diese Abteilung ist nicht auf der Karte verzeichnet."
   },
   fr: {
     dashboard: "Tableau de Bord",
@@ -1598,7 +1622,15 @@ export const dictionaries = {
     "read_aloud": "Lecture Vocale",
     "high_contrast_mode": "Mode Contraste Élevé",
     "appointment": "Rendez-vous",
-    "department": "Département"
+    "department": "Département",
+    "hospital_map": "Carte de l'hôpital",
+    "hospital_floor_plan": "Plan de l'hôpital",
+    "block": "Bloc",
+    "floor": "Étage",
+    "room": "Chambre",
+    "entrance": "ENTRÉE",
+    "view_on_map": "Voir sur la carte",
+    "dept_not_on_map": "Ce département n'est pas sur la carte."
   },
   es: {
     dashboard: "Panel",
@@ -1949,7 +1981,15 @@ export const dictionaries = {
     "read_aloud": "Leer en voz alta",
     "high_contrast_mode": "Modo de Alto Contraste",
     "appointment": "Cita",
-    "department": "Departamento"
+    "department": "Departamento",
+    "hospital_map": "Mapa del Hospital",
+    "hospital_floor_plan": "Plano del Hospital",
+    "block": "Bloque",
+    "floor": "Piso",
+    "room": "Habitación",
+    "entrance": "ENTRADA",
+    "view_on_map": "Ver en el mapa",
+    "dept_not_on_map": "Este departamento no está en el mapa."
   },
   ru: {
     dashboard: "Панель",
@@ -2300,7 +2340,15 @@ export const dictionaries = {
     "read_aloud": "Прочитать вслух",
     "high_contrast_mode": "Высокий Контраст",
     "appointment": "Встреча",
-    "department": "Отделение"
+    "department": "Отделение",
+    "hospital_map": "Карта больницы",
+    "hospital_floor_plan": "План этажа",
+    "block": "Блок",
+    "floor": "Этаж",
+    "room": "Комната",
+    "entrance": "ВХОД",
+    "view_on_map": "Посмотреть на карте",
+    "dept_not_on_map": "Этого отделения нет на карте."
   },
   ar: {
     dashboard: "لوحة القيادة",
@@ -2651,7 +2699,15 @@ export const dictionaries = {
     "read_aloud": "قراءة بصوت عال",
     "high_contrast_mode": "وضع التباين العالي",
     "appointment": "موعد",
-    "department": "قسم"
+    "department": "قسم",
+    "hospital_map": "خريطة المستشفى",
+    "hospital_floor_plan": "مخطط المستشفى",
+    "block": "كتلة",
+    "floor": "طابق",
+    "room": "غرفة",
+    "entrance": "مدخل",
+    "view_on_map": "عرض على الخريطة",
+    "dept_not_on_map": "هذا القسم غير موجود على الخريطة."
   },
   zh: {
     dashboard: "仪表板",
@@ -3002,6 +3058,14 @@ export const dictionaries = {
     "read_aloud": "朗读",
     "high_contrast_mode": "高对比度模式",
     "appointment": "预约",
-    "department": "科室"
+    "department": "科室",
+    "hospital_map": "医院地图",
+    "hospital_floor_plan": "医院楼层平面图",
+    "block": "区域",
+    "floor": "楼层",
+    "room": "房间",
+    "entrance": "入口",
+    "view_on_map": "在地图上查看",
+    "dept_not_on_map": "此科室不在地图上。"
   }
 };

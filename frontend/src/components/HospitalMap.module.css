@@ -1,0 +1,118 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+  padding: 1rem;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-xl);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  color: var(--primary);
+  font-weight: 600;
+  margin: 0.25rem 0 0 0;
+}
+
+.closeBtn {
+  background: var(--background);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeBtn:hover {
+  background: var(--danger);
+  color: white;
+  border-color: var(--danger);
+}
+
+.mapContainer {
+  padding: 1.5rem 2rem;
+}
+
+.map {
+  width: 100%;
+  height: auto;
+}
+
+.targetRoom {
+  animation: glow 1.5s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(var(--primary-rgb), 0.3)); }
+  50% { filter: drop-shadow(0 0 12px rgba(var(--primary-rgb), 0.6)); }
+}
+
+.pinBounce {
+  animation: bounce 0.8s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.notFound {
+  padding: 1rem 2rem 1.5rem;
+  color: var(--warning);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .modal { border-radius: 16px; }
+  .header { padding: 1rem 1.25rem; }
+  .mapContainer { padding: 1rem; }
+  .title { font-size: 1rem; }
+}

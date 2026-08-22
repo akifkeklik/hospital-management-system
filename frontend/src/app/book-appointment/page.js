@@ -5,6 +5,7 @@ import { AppointmentService, DepartmentService, DoctorService, AuthService } fro
 import { toast } from '../../components/Toast';
 import { useSettings } from '../../context/SettingsContext';
 import SymptomAnalyzer from '../../components/SymptomAnalyzer';
+import HospitalMap from '../../components/HospitalMap';
 import styles from './page.module.css';
 
 export default function BookAppointment() {
@@ -25,6 +26,7 @@ export default function BookAppointment() {
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [notes, setNotes] = useState('');
+  const [showMap, setShowMap] = useState(false);
 
   useEffect(() => {
     async function init() {
@@ -277,9 +279,16 @@ export default function BookAppointment() {
               <p><strong>{t('doctor')}:</strong> Dr. {selectedDoctor?.firstName} {selectedDoctor?.lastName}</p>
               <p><strong>{t('date')}:</strong> {selectedDate} {t('select_time')}: {selectedTime}</p>
             </div>
+            
+            <button onClick={() => setShowMap(true)} className={styles.mapViewBtn} style={{ marginBottom: '1rem', background: 'none', border: '1px solid var(--border)', color: 'var(--primary)', padding: '0.5rem 1rem', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '1rem auto' }}>
+              📍 {t('view_on_map')}
+            </button>
+
             <button className={styles.confirmBtn} onClick={() => router.push('/')}>
               {t('go_home')}
             </button>
+
+            <HospitalMap departmentName={selectedDept?.name} isOpen={showMap} onClose={() => setShowMap(false)} />
           </div>
         )}
       </div>
