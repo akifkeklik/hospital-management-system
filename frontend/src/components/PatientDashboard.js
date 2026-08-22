@@ -19,6 +19,7 @@ export default function PatientDashboard() {
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
   const [quickSearch, setQuickSearch] = useState('');
   const [timeFilter, setTimeFilter] = useState('all');
+  const [waitTimes, setWaitTimes] = useState({});
 
   const fetchData = async (retryCount = 0) => {
     try {
@@ -35,6 +36,22 @@ export default function PatientDashboard() {
       scheduled.sort((a, b) => new Date(a.appointmentDate) - new Date(b.appointmentDate));
       
       setAppointments(scheduled);
+
+      // Sadece bugünkü randevular için bekleme süresini çek
+      const now = new Date();
+      const newWaitTimes = {};
+      for (const app of scheduled) {
+        const appDate = new Date(app.appointmentDate);
+        if (appDate.getDate() === now.getDate() && appDate.getMonth() === now.getMonth() && appDate.getFullYear() === now.getFullYear()) {
+          try {
+            const wt = await AppointmentService.getWaitEstimate(app.id);
+            newWaitTimes[app.id] = wt;
+          } catch (e) {
+            console.error("Wait time fetch error:", e);
+          }
+        }
+      }
+      setWaitTimes(newWaitTimes);
     } catch (error) {
       console.error("Hasta verileri alınamadı:", error);
       if (retryCount < 2) {
@@ -177,6 +194,14 @@ export default function PatientDashboard() {
                     <div className={styles.appDoctor}>Dr. {app.doctorFullName}</div>
                     <div className={styles.appDept}>{t(app.departmentName)}</div>
                     {app.notes && <div className={styles.appNotes}>{t('appointment_notes')}: {app.notes}</div>}
+                    {waitTimes[app.id] && (
+                      <div className={`${styles.waitBadge} ${styles['wait' + waitTimes[app.id].busyLevel]}`}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        {t('est_wait')}: {waitTimes[app.id].estimatedMinutes} {t('minutes')} ({t('queue_pos')}: {waitTimes[app.id].queuePosition})
+                      </div>
+                    )}
                   </div>
                   <button 
                     onClick={() => handleCancelClick(app.id)} 

@@ -2,6 +2,7 @@ package com.hospital.appointmentsystem.appointment.web;
 
 import com.hospital.appointmentsystem.appointment.api.AppointmentDto;
 import com.hospital.appointmentsystem.appointment.api.AppointmentService;
+import com.hospital.appointmentsystem.appointment.api.WaitTimeDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -141,6 +142,13 @@ public class AppointmentController {
 
         appointmentService.deleteAppointment(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/wait-estimate")
+    @PreAuthorize("hasRole('PATIENT') or hasRole('DOCTOR') or hasRole('ADMIN')")
+    public ResponseEntity<WaitTimeDto> getWaitEstimate(@PathVariable Long id) {
+        WaitTimeDto estimate = appointmentService.getEstimatedWaitTime(id);
+        return ResponseEntity.ok(estimate);
     }
 
     // ── Dönüşüm Metotları ──

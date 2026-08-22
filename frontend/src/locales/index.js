@@ -414,7 +414,10 @@ export const dictionaries = {
     "ai_book_this_dept": "Bu Bölümden Randevu Al",
     "ai_retry": "Tekrar Dene",
     "ai_skip": "AI kullanmadan doğrudan bölüm seçin",
-    "pwa_install": "Uygulamayı Kur"
+    "pwa_install": "Uygulamayı Kur",
+    "est_wait": "Tahmini Bekleme",
+    "minutes": "dk",
+    "queue_pos": "Sırada"
   },
   en: {
     "previous": "Previous",
@@ -820,7 +823,10 @@ export const dictionaries = {
     "ai_book_this_dept": "Book from This Department",
     "ai_retry": "Try Again",
     "ai_skip": "Skip AI and select department directly",
-    "pwa_install": "Install App"
+    "pwa_install": "Install App",
+    "est_wait": "Est. Wait",
+    "minutes": "min",
+    "queue_pos": "Queue"
   },
   de: {
     "previous": "Zurück",
@@ -1226,7 +1232,10 @@ export const dictionaries = {
     "ai_book_this_dept": "Termin in dieser Abteilung buchen",
     "ai_retry": "Erneut versuchen",
     "ai_skip": "KI überspringen und Abteilung direkt wählen",
-    "pwa_install": "App installieren"
+    "pwa_install": "App installieren",
+    "est_wait": "Gesch. Wartezeit",
+    "minutes": "Min",
+    "queue_pos": "Warteschlange"
   },
   fr: {
     dashboard: "Tableau de Bord",
@@ -1570,7 +1579,10 @@ export const dictionaries = {
     "ai_book_this_dept": "Réserver dans ce Département",
     "ai_retry": "Réessayer",
     "ai_skip": "Passer l'IA et sélectionner directement",
-    "pwa_install": "Installer l'application"
+    "pwa_install": "Installer l'application",
+    "est_wait": "Attente Est.",
+    "minutes": "min",
+    "queue_pos": "File d'attente"
   },
   es: {
     dashboard: "Panel",
@@ -1914,7 +1926,10 @@ export const dictionaries = {
     "ai_book_this_dept": "Reservar en este Departamento",
     "ai_retry": "Intentar de Nuevo",
     "ai_skip": "Omitir IA y seleccionar directamente",
-    "pwa_install": "Instalar aplicación"
+    "pwa_install": "Instalar aplicación",
+    "est_wait": "Espera Est.",
+    "minutes": "min",
+    "queue_pos": "Fila"
   },
   ru: {
     dashboard: "Панель",
@@ -2258,7 +2273,10 @@ export const dictionaries = {
     "ai_book_this_dept": "Записаться в этот Отдел",
     "ai_retry": "Попробовать снова",
     "ai_skip": "Пропустить ИИ и выбрать напрямую",
-    "pwa_install": "Установить приложение"
+    "pwa_install": "Установить приложение",
+    "est_wait": "Ожидание",
+    "minutes": "мин",
+    "queue_pos": "В очереди"
   },
   ar: {
     dashboard: "لوحة القيادة",
@@ -2602,7 +2620,10 @@ export const dictionaries = {
     "ai_book_this_dept": "حجز موعد في هذا القسم",
     "ai_retry": "حاول مرة أخرى",
     "ai_skip": "تخطي الذكاء الاصطناعي والاختيار مباشرة",
-    "pwa_install": "تثبيت التطبيق"
+    "pwa_install": "تثبيت التطبيق",
+    "est_wait": "وقت الانتظار",
+    "minutes": "دقائق",
+    "queue_pos": "في الطابور"
   },
   zh: {
     dashboard: "仪表板",
@@ -2946,6 +2967,9 @@ export const dictionaries = {
     "ai_book_this_dept": "预约该科室",
     "ai_retry": "重试",
     "ai_skip": "跳过AI，直接选择科室",
-    "pwa_install": "安装应用"
+    "pwa_install": "安装应用",
+    "est_wait": "预计等待",
+    "minutes": "分钟",
+    "queue_pos": "排队人数"
   }
 };

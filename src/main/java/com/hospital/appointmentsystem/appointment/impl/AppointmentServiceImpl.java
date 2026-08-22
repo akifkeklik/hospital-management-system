@@ -2,6 +2,7 @@ package com.hospital.appointmentsystem.appointment.impl;
 
 import com.hospital.appointmentsystem.appointment.api.AppointmentDto;
 import com.hospital.appointmentsystem.appointment.api.AppointmentService;
+import com.hospital.appointmentsystem.appointment.api.WaitTimeDto;
 import com.hospital.appointmentsystem.doctor.impl.Doctor;
 import com.hospital.appointmentsystem.doctor.impl.DoctorRepository;
 import com.hospital.appointmentsystem.exception.BusinessRuleException;
@@ -324,5 +325,51 @@ public class AppointmentServiceImpl implements AppointmentService {
         dto.setDepartmentName(appointment.getDoctor().getDepartment().getName());
 
         return dto;
+    }
+
+    @Override
+    public WaitTimeDto getEstimatedWaitTime(Long appointmentId) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+            .orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", appointmentId));
+        
+        // Aynı doktorun o günkü randevularını al
+        LocalDate appointmentDate = appointment.getAppointmentDate().toLocalDate();
+        LocalDateTime dayStart = appointmentDate.atStartOfDay();
+        LocalDateTime dayEnd = appointmentDate.atTime(23, 59);
+        
+        List<Appointment> sameDayAppointments = appointmentRepository
+            .findByDoctorIdAndStatusAndAppointmentDateBetween(
+                appointment.getDoctor().getId(), AppointmentStatus.SCHEDULED, dayStart, dayEnd);
+        
+        // Randevu saatine göre sırala
+        sameDayAppointments.sort(java.util.Comparator.comparing(Appointment::getAppointmentDate));
+        
+        // Bu randevudan önceki randevu sayısını hesapla
+        int queuePosition = 0;
+        for (Appointment a : sameDayAppointments) {
+            if (a.getAppointmentDate().isBefore(appointment.getAppointmentDate())) {
+                queuePosition++;
+            }
+        }
+        
+        // Ortalama muayene süresi: 15 dakika
+        int avgExamMinutes = 15;
+        int estimatedMinutes = queuePosition * avgExamMinutes;
+        
+        // Şu an geçmiş olan süreyi çıkar
+        LocalDateTime now = LocalDateTime.now();
+        if (now.toLocalDate().equals(appointmentDate) && now.isBefore(appointment.getAppointmentDate())) {
+            long minutesUntilAppointment = java.time.Duration.between(now, appointment.getAppointmentDate()).toMinutes();
+            estimatedMinutes = (int) Math.max(minutesUntilAppointment, 0);
+        }
+        
+        // Yoğunluk seviyesi
+        String busyLevel;
+        int totalAppointments = sameDayAppointments.size();
+        if (totalAppointments <= 5) busyLevel = "LOW";
+        else if (totalAppointments <= 12) busyLevel = "MEDIUM";
+        else busyLevel = "HIGH";
+        
+        return new WaitTimeDto(estimatedMinutes, busyLevel, queuePosition + 1);
     }
 }

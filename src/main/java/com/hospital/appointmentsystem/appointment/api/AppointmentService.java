@@ -33,4 +33,7 @@ public interface AppointmentService {
     AppointmentDto updateAppointmentStatus(Long id, String status);
 
     void deleteAppointment(Long id);
+
+    /** Belirli bir randevu için tahmini bekleme süresi ve yoğunluk bilgisini getir */
+    WaitTimeDto getEstimatedWaitTime(Long appointmentId);
 }
