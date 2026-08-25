@@ -338,12 +338,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         // Duplicate key constraint'lerini daha spesifik mesajla karşıla
         String rootCause = extractRootCauseMessage(ex);
-        if (rootCause.contains("duplicate key value")
+        if (rootCause.contains("active_slot_id")) {
+            message = "Seçilen randevu saati az önce başka bir hasta tarafından rezerve edildi. Lütfen farklı bir saat seçiniz.";
+        } else if (rootCause.contains("duplicate key value")
                 || rootCause.contains("Duplicate entry")
                 || rootCause.contains("unique constraint")
                 || rootCause.contains("Unique index")) {
-            message = "Girdiğiniz bilgilere ait sistemde kayıtlı başka bir kullanıcı zaten var "
-                    + "(Mükerrer TC veya E-posta). Lütfen kontrol edip tekrar deneyiniz.";
+            message = "Girdiğiniz bilgilere ait sistemde kayıtlı başka bir kayıt zaten var "
+                    + "(Mükerrer TC, E-posta veya Randevu). Lütfen kontrol edip tekrar deneyiniz.";
         }
 
         ApiErrorResponse errorResponse = new ApiErrorResponse(

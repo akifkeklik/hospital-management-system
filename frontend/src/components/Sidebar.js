@@ -3,44 +3,46 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSettings } from '../context/SettingsContext';
-import { AuthService, DepartmentService } from '../services/api';
+import { DepartmentService } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import styles from './Sidebar.module.css';
 
 export default function Sidebar() {
   const pathname = usePathname();
   const { t } = useSettings();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [userRole, setUserRole] = useState(null);
+
   const [departments, setDepartments] = useState([]);
   const [polyclinics, setPolyclinics] = useState([]);
   const [hoveredMenu, setHoveredMenu] = useState(null);
   const [hoveredDepartment, setHoveredDepartment] = useState(null);
   const collapseTimer = useRef(null);
 
-  useEffect(() => {
-    const fetchRole = async () => {
-      try {
-        const user = await AuthService.getMe();
-        if (user && user.role) {
-          let roleStr = user.role.startsWith('ROLE_') ? user.role.replace('ROLE_', '') : user.role;
-          if (roleStr === 'HEKIM' || roleStr === 'HEKİM') roleStr = 'DOCTOR';
-          if (roleStr === 'HASTA') roleStr = 'PATIENT';
-          setUserRole(roleStr);
+  const { user, role } = useAuth();
+  
+  // Format the role for the sidebar logic
+  let formattedRole = null;
+  if (role) {
+    formattedRole = role.startsWith('ROLE_') ? role.replace('ROLE_', '') : role;
+    if (formattedRole === 'HEKIM' || formattedRole === 'HEKİM') formattedRole = 'DOCTOR';
+    if (formattedRole === 'HASTA') formattedRole = 'PATIENT';
+  }
 
-          // Sadece ADMIN ise Poliklinikleri de çek
-          if (roleStr === 'ADMIN') {
-             try {
-                const polyData = await import('../services/api').then(m => m.PolyclinicService.getAll());
-                setPolyclinics(polyData || []);
-             } catch (err) {
-                console.error("Could not fetch polyclinics for sidebar", err);
-             }
-          }
-        }
-      } catch (err) {
-        console.error("Could not fetch user role for sidebar", err);
+  useEffect(() => {
+    const fetchPolyclinics = async () => {
+      if (formattedRole === 'ADMIN') {
+         try {
+            const polyData = await import('../services/api').then(m => m.PolyclinicService.getAll());
+            setPolyclinics(polyData || []);
+         } catch (err) {
+            console.error("Could not fetch polyclinics for sidebar", err);
+         }
       }
     };
+    fetchPolyclinics();
+  }, [formattedRole]);
+
+  useEffect(() => {
     const fetchDepartments = async () => {
       try {
         const deptData = await DepartmentService.getAll(0, 100);
@@ -49,7 +51,6 @@ export default function Sidebar() {
         console.error("Could not fetch departments for sidebar", err);
       }
     };
-    fetchRole();
     fetchDepartments();
   }, []);
 
@@ -117,7 +118,7 @@ export default function Sidebar() {
     }
   ];
 
-  const navItems = userRole ? allNavItems.filter(item => item.roles.includes(userRole)) : [];
+  const navItems = formattedRole ? allNavItems.filter(item => item.roles.includes(formattedRole)) : [];
 
   return (
     <aside 

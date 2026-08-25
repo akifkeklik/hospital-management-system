@@ -5,12 +5,13 @@ import { AuthService } from '../services/api';
 import { useSettings } from '../context/SettingsContext';
 import Link from 'next/link';
 import { usePwaInstall } from '../hooks/usePwaInstall';
+import { useAuth } from '../context/AuthContext';
 
 export default function DoctorHeader() {
   const router = useRouter();
   const { t } = useSettings();
   const { isInstallable, installApp } = usePwaInstall();
-  const [userProfile, setUserProfile] = useState(null);
+  const { user: userProfile } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -25,23 +26,20 @@ export default function DoctorHeader() {
     setTheme(savedTheme);
     document.documentElement.setAttribute('data-theme', savedTheme);
 
-    const fetchProfile = async (retryCount = 0) => {
+    const fetchNotifications = async (retryCount = 0) => {
+      if (!userProfile?.id) return;
       try {
-        const data = await AuthService.getMe();
-        setUserProfile(data);
-        if (data && data.id) {
-          const notifs = await import('../services/api').then(m => m.NotificationService.getByPatient(data.id));
-          setNotifications(notifs.slice(0, 5));
-          setUnreadCount(notifs.filter(n => !n.read).length);
-        }
+        const notifs = await import('../services/api').then(m => m.NotificationService.getByDoctor(userProfile.id));
+        setNotifications(notifs.slice(0, 5));
+        setUnreadCount(notifs.filter(n => !n.read).length);
       } catch (error) {
-        console.error("Profil bilgisi alınamadı:", error);
+        console.error("Bildirimler alınamadı:", error);
         if (retryCount < 2) {
-          setTimeout(() => fetchProfile(retryCount + 1), 3000);
+          setTimeout(() => fetchNotifications(retryCount + 1), 3000);
         }
       }
     };
-    fetchProfile();
+    fetchNotifications();
 
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -53,7 +51,7 @@ export default function DoctorHeader() {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [userProfile?.id]);
 
   const handleLogout = () => {
     AuthService.logout();

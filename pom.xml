@@ -139,6 +139,13 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- 🛡️ BUCKET4J (Rate Limiting) -->
+        <dependency>
+            <groupId>com.bucket4j</groupId>
+            <artifactId>bucket4j-core</artifactId>
+            <version>8.10.1</version>
+        </dependency>
+
         <!--
             🧪 SPRING BOOT STARTER TEST
             Ne yapar? → Birim test (unit test) yazmamızı sağlar.
@@ -150,6 +157,21 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Observability: Actuator & Prometheus -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
     </dependencies>
 
     <!--

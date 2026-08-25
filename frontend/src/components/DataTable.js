@@ -1,5 +1,6 @@
 import { useSettings } from '../context/SettingsContext';
 import styles from './DataTable.module.css';
+import Pagination from './Pagination';
 
 export default function DataTable({ columns, data, onEdit, onDelete, actions, page = 0, totalPages = 0, onPageChange }) {
   const { t } = useSettings();
@@ -47,25 +48,11 @@ export default function DataTable({ columns, data, onEdit, onDelete, actions, pa
         </tbody>
       </table>
       
-      {totalPages > 0 && (
-        <div className={styles.pagination}>
-          <button 
-            className={styles.pageBtn} 
-            disabled={page === 0} 
-            onClick={() => onPageChange(page - 1)}
-          >
-            {t('previous')}
-          </button>
-          <span className={styles.pageInfo}>{t('page')} {page + 1} / {totalPages}</span>
-          <button 
-            className={styles.pageBtn} 
-            disabled={page >= totalPages - 1} 
-            onClick={() => onPageChange(page + 1)}
-          >
-            {t('next')}
-          </button>
-        </div>
-      )}
+      <Pagination 
+        page={page} 
+        totalPages={totalPages} 
+        onPageChange={onPageChange} 
+      />
     </div>
   );
 }

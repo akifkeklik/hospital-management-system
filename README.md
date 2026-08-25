@@ -46,6 +46,16 @@ A modern, robust, and secure Hospital Information Management System (HIMS) built
 ### Backend Setup
 1. Navigate to the root directory.
 2. Update the database credentials in `src/main/resources/application.properties`.
+   *(Note: For production, configure the following Environment Variables)*
+   ```env
+   DB_URL=jdbc:mysql://localhost:3306/hospitaldb
+   DB_USERNAME=root
+   DB_PASSWORD=your_secure_password
+   JWT_SECRET=your_32_byte_secure_secret_key
+   CORS_ALLOWED_ORIGINS=https://your-frontend-domain.com
+   RATE_LIMIT_AUTH_CAPACITY=10
+   RATE_LIMIT_AUTH_MINUTES=1
+   ```
 3. Run the application:
 ```bash
 mvn spring-boot:run

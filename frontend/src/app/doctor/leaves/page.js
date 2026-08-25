@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { DoctorLeaveService, AuthService } from '../../../services/api';
 import { toast } from '../../../components/Toast';
 import { useSettings } from '../../../context/SettingsContext';
+import { useAuth } from '../../../context/AuthContext';
 import styles from '../../shared.module.css';
 
 export default function DoctorLeavesRequestPage() {
@@ -12,6 +13,7 @@ export default function DoctorLeavesRequestPage() {
   const [loading, setLoading] = useState(true);
   const [doctorId, setDoctorId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { user: me } = useAuth();
 
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -19,13 +21,14 @@ export default function DoctorLeavesRequestPage() {
 
   useEffect(() => {
     setMounted(true);
-    checkAuthAndFetch();
-  }, []);
+    if (me) {
+      checkAuthAndFetch();
+    }
+  }, [me]);
 
   const checkAuthAndFetch = async () => {
     setLoading(true);
     try {
-      const me = await AuthService.getMe();
       if (me && (me.role === 'DOCTOR' || me.role === 'ROLE_DOCTOR' || me.role === 'HEKIM' || me.role === 'ROLE_HEKIM')) {
         // Find doctorId by username or via some other API. For now, since we don't have getDoctorByUserId:
         // Actually we do have /admin/doctors but we might need /doctors/me. 

@@ -1,15 +1,20 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { AppointmentService, AuthService, ExaminationService } from '../../services/api';
 import Modal from '../../components/Modal';
+import Pagination from '../../components/Pagination';
 import { useSettings } from '../../context/SettingsContext';
+import { useAuth } from '../../context/AuthContext';
+import { useApi } from '../../hooks/useApi';
 import styles from '../shared.module.css';
 
 export default function PatientRecordsPage() {
   const { t, language } = useSettings();
   const [appointments, setAppointments] = useState([]);
   const [mounted, setMounted] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const { user: me } = useAuth();
 
   const [isExamModalOpen, setIsExamModalOpen] = useState(false);
   const [selectedAppt, setSelectedAppt] = useState(null);
@@ -18,26 +23,24 @@ export default function PatientRecordsPage() {
 
   useEffect(() => {
     setMounted(true);
-    fetchData();
   }, []);
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const me = await AuthService.getMe();
-      if (me.role === 'ROLE_PATIENT') {
-        const myAppts = await AppointmentService.getByPatient(me.referenceId);
-        // Sadece tamamlanmış randevuları göster (Tahlil ve Muayene geçmişi için)
-        const completed = myAppts.filter(app => app.status === 'COMPLETED')
-                                 .sort((a,b) => new Date(b.appointmentDate) - new Date(a.appointmentDate));
-        setAppointments(completed);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
+  const fetchRecords = useCallback(async (signal, currentPage) => {
+    if (me && me.role === 'ROLE_PATIENT') {
+      const myApptsResponse = await AppointmentService.getByPatient(me.referenceId, currentPage, 100, { status: 'COMPLETED' }, { signal });
+      const myAppts = myApptsResponse.items || [];
+      setTotalPages(myApptsResponse.totalPages || 0);
+      // Backend'den COMPLETED olanlar geliyor, sadece sırala
+      const completed = myAppts.sort((a,b) => new Date(b.appointmentDate) - new Date(a.appointmentDate));
+      setAppointments(completed);
     }
-  };
+  }, [me]);
+
+  const { loading, execute } = useApi(fetchRecords);
+
+  useEffect(() => {
+    execute(page).catch(err => console.error("Error fetching data:", err));
+  }, [page, execute]);
 
   const openDetails = async (app) => {
     setSelectedAppt(app);
@@ -87,6 +90,12 @@ export default function PatientRecordsPage() {
             ))}
           </div>
         )}
+        
+        <Pagination 
+          page={page} 
+          totalPages={totalPages} 
+          onPageChange={setPage} 
+        />
       </div>
 
       <Modal isOpen={isExamModalOpen} onClose={() => setIsExamModalOpen(false)} title={t('examination_details')}>

@@ -1,15 +1,19 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { AppointmentService, AuthService, ExaminationService } from '../../../services/api';
 import Modal from '../../../components/Modal';
+import Pagination from '../../../components/Pagination';
 import { toast } from '../../../components/Toast';
+import { useApi } from '../../../hooks/useApi';
+import { useAuth } from '../../../context/AuthContext';
 import styles from '../../shared.module.css';
 
 export default function DoctorQueuePage() {
   const [appointments, setAppointments] = useState([]);
   const [mounted, setMounted] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [doctorInfo, setDoctorInfo] = useState(null);
+  const { user: doctorInfo } = useAuth();
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   const [isExamModalOpen, setIsExamModalOpen] = useState(false);
   const [selectedAppt, setSelectedAppt] = useState(null);
@@ -22,36 +26,42 @@ export default function DoctorQueuePage() {
 
   useEffect(() => {
     setMounted(true);
-    fetchData();
   }, []);
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const me = await AuthService.getMe();
-      setDoctorInfo(me);
-      if (me.role === 'ROLE_DOCTOR' || me.role === 'DOCTOR' || me.role === 'HEKIM' || me.role === 'ROLE_HEKIM') {
-        const myAppts = await AppointmentService.getByDoctorId(me.referenceId);
-        // Sadece BUGÜNÜN randevularını ve geçerli statüdekileri al
-        const today = new Date().toISOString().split('T')[0];
-        const activeAppts = myAppts.filter(app => {
-           const apptDate = app.appointmentDate.split('T')[0];
-           return apptDate === today && ['SCHEDULED', 'ARRIVED', 'IN_EXAMINATION'].includes(app.status);
-        }).sort((a,b) => new Date(a.appointmentDate) - new Date(b.appointmentDate));
-        
-        setAppointments(activeAppts);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
+  const fetchQueue = useCallback(async (signal, currentPage) => {
+    const me = doctorInfo;
+    if (me && (me.role === 'ROLE_DOCTOR' || me.role === 'DOCTOR' || me.role === 'HEKIM' || me.role === 'ROLE_HEKIM')) {
+      const start = new Date();
+      start.setHours(0, 0, 0, 0);
+      const end = new Date();
+      end.setHours(23, 59, 59, 999);
+      
+      const filters = {
+        status: 'SCHEDULED,ARRIVED,IN_EXAMINATION',
+        startDate: start.toISOString().split('.')[0],
+        endDate: end.toISOString().split('.')[0]
+      };
+
+      const myApptsResponse = await AppointmentService.getByDoctor(me.referenceId, currentPage, 100, filters, { signal });
+      const myAppts = myApptsResponse.items || [];
+      setTotalPages(myApptsResponse.totalPages || 0);
+      
+      const activeAppts = myAppts.sort((a,b) => new Date(a.appointmentDate) - new Date(b.appointmentDate));
+      
+      setAppointments(activeAppts);
     }
-  };
+  }, [doctorInfo]);
+
+  const { loading, execute } = useApi(fetchQueue);
+
+  useEffect(() => {
+    execute(page).catch(err => console.error("Error fetching data:", err));
+  }, [page, execute]);
 
   const handleStatusChange = async (id, newStatus) => {
     try {
       await AppointmentService.updateStatus(id, newStatus);
-      fetchData();
+      execute(page).catch(err => console.error(err));
     } catch (error) {
       toast.error(tErr(error.message));
     }
@@ -178,6 +188,12 @@ export default function DoctorQueuePage() {
             ))}
           </div>
         )}
+        
+        <Pagination 
+          page={page} 
+          totalPages={totalPages} 
+          onPageChange={setPage} 
+        />
       </div>
 
       {/* MUAYENE MODALI */}

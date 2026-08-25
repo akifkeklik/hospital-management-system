@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "doctor_leaves")
+@Table(name = "doctor_leaves", indexes = {
+    @Index(name = "IDX_DOCTOR_LEAVE_DOC_DATES", columnList = "doctor_id, start_date, end_date")
+})
 public class DoctorLeave {
 
     @Id

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { NotificationService, AuthService } from '../../services/api';
 import { toast } from '../../components/Toast';
 import { useSettings } from '../../context/SettingsContext';
+import { useAuth } from '../../context/AuthContext';
 import styles from '../shared.module.css';
 
 export default function PatientNotificationsPage() {
@@ -13,16 +14,18 @@ export default function PatientNotificationsPage() {
   const [userRole, setUserRole] = useState(null);
   const [broadcastMessage, setBroadcastMessage] = useState('');
   const [broadcasting, setBroadcasting] = useState(false);
+  const { user: me } = useAuth();
 
   useEffect(() => {
     setMounted(true);
-    checkAuthAndFetch();
-  }, []);
+    if (me) {
+      checkAuthAndFetch();
+    }
+  }, [me]);
 
   const checkAuthAndFetch = async () => {
     setLoading(true);
     try {
-      const me = await AuthService.getMe();
       if (me) {
         setUserRole(me.role);
           let myNotifications = [];

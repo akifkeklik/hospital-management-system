@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import org.springframework.data.jpa.domain.Specification;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -117,23 +118,21 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public List<AppointmentDto> getAppointmentsByPatientId(Long patientId) {
+    public Page<AppointmentDto> getAppointmentsByPatientId(Long patientId, List<AppointmentStatus> statuses, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
         if (!patientRepository.existsById(patientId)) {
             throw new ResourceNotFoundException("Patient", "id", patientId);
         }
-        return appointmentRepository.findByPatientId(patientId).stream()
-                .map(this::mapToDto)
-                .collect(Collectors.toList());
+        Specification<Appointment> spec = AppointmentSpecification.filterBy(patientId, null, statuses, startDate, endDate);
+        return appointmentRepository.findAll(spec, pageable).map(this::mapToDto);
     }
 
     @Override
-    public List<AppointmentDto> getAppointmentsByDoctorId(Long doctorId) {
+    public Page<AppointmentDto> getAppointmentsByDoctorId(Long doctorId, List<AppointmentStatus> statuses, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
         if (!doctorRepository.existsById(doctorId)) {
             throw new ResourceNotFoundException("Doctor", "id", doctorId);
         }
-        return appointmentRepository.findByDoctorId(doctorId).stream()
-                .map(this::mapToDto)
-                .collect(Collectors.toList());
+        Specification<Appointment> spec = AppointmentSpecification.filterBy(null, doctorId, statuses, startDate, endDate);
+        return appointmentRepository.findAll(spec, pageable).map(this::mapToDto);
     }
 
     @Override

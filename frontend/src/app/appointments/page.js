@@ -30,12 +30,12 @@ export default function AppointmentsPage() {
     try {
       const [appts, pats, docs, depts, polys] = await Promise.all([
         AppointmentService.getAll(page),
-        PatientService.getAll(0, 1000),
-        DoctorService.getAll(0, 1000),
-        DepartmentService.getAll(0, 1000),
+        PatientService.getAll(0, 100),
+        DoctorService.getAll(0, 100),
+        DepartmentService.getAll(0, 100),
         PolyclinicService.getAll()
       ]);
-      setAppointments(appts.content || []);
+      setAppointments(appts.items || []);
       setTotalPages(appts.totalPages || 0);
       setPatients(pats.content || []);
       setDoctors(docs.content || []);

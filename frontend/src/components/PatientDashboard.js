@@ -6,71 +6,76 @@ import { AppointmentService, AuthService } from '../services/api';
 import { useSettings } from '../context/SettingsContext';
 import ConfirmModal from './ConfirmModal';
 import EmptyState from './EmptyState';
-import { toast } from './Toast';
 import LoadingScreen from './LoadingScreen';
 import { useSpeech } from '../hooks/useSpeech';
 import HospitalMap from './HospitalMap';
+import Pagination from './Pagination';
+import { getTimeFilterParams } from '../utils/dateFilters';
+import { useApi } from '../hooks/useApi';
+import { useAuth } from '../context/AuthContext';
 import styles from './PatientDashboard.module.css';
 
 export default function PatientDashboard() {
   const { t, tErr } = useSettings();
   const { speak, isSpeaking, stop } = useSpeech();
   const router = useRouter();
-  const [appointments, setAppointments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [userProfile, setUserProfile] = useState(null);
+  const [page, setPage] = useState(0);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
   const [quickSearch, setQuickSearch] = useState('');
   const [timeFilter, setTimeFilter] = useState('all');
-  const [waitTimes, setWaitTimes] = useState({});
   const [mapDept, setMapDept] = useState(null);
+  const { user: userProfile } = useAuth();
 
-  const fetchData = async (retryCount = 0) => {
-    try {
-      const profile = await AuthService.getMe();
-      setUserProfile(profile);
-
-      // Hastanın kendi randevularını çek
-      const userAppointments = await AppointmentService.getByPatient(profile.id);
-      
-      // Sadece gelecek olanları ve "SCHEDULED" olanları filtrele
-      const scheduled = userAppointments.filter(app => app.status === 'SCHEDULED');
-      
-      // Tarihe göre sırala (yaklaşan en üstte)
-      scheduled.sort((a, b) => new Date(a.appointmentDate) - new Date(b.appointmentDate));
-      
-      setAppointments(scheduled);
-
-      // Sadece bugünkü randevular için bekleme süresini çek
-      const now = new Date();
-      const newWaitTimes = {};
-      for (const app of scheduled) {
-        const appDate = new Date(app.appointmentDate);
-        if (appDate.getDate() === now.getDate() && appDate.getMonth() === now.getMonth() && appDate.getFullYear() === now.getFullYear()) {
-          try {
-            const wt = await AppointmentService.getWaitEstimate(app.id);
-            newWaitTimes[app.id] = wt;
-          } catch (e) {
-            console.error("Wait time fetch error:", e);
+  const fetchDashboardData = useCallback(async (signal, currentPage, currentTimeFilter) => {
+    const attempt = async (retryCount = 0) => {
+      try {
+        // Hastanın kendi randevularını çek (Filtreler backend'e gidiyor)
+        const filters = { status: 'SCHEDULED', ...getTimeFilterParams(currentTimeFilter) };
+        const userAppointmentsResponse = await AppointmentService.getByPatient(userProfile.id, currentPage, 100, filters, { signal });
+        const userAppointments = userAppointmentsResponse.items || [];
+        const totalPages = userAppointmentsResponse.totalPages || 0;
+        
+        // Tarihe göre sırala (yaklaşan en üstte)
+        userAppointments.sort((a, b) => new Date(a.appointmentDate) - new Date(b.appointmentDate));
+        
+        // Sadece bugünkü randevular için bekleme süresini çek
+        const now = new Date();
+        const newWaitTimes = {};
+        for (const app of userAppointments) {
+          const appDate = new Date(app.appointmentDate);
+          if (appDate.getDate() === now.getDate() && appDate.getMonth() === now.getMonth() && appDate.getFullYear() === now.getFullYear()) {
+            try {
+              const wt = await AppointmentService.getWaitEstimate(app.id, { signal });
+              newWaitTimes[app.id] = wt;
+            } catch (e) {
+              if (e.name === 'AbortError') throw e;
+              console.error("Wait time fetch error:", e);
+            }
           }
         }
+        return { userAppointments, totalPages, waitTimes: newWaitTimes };
+      } catch (error) {
+        if (error.name === 'AbortError') throw error;
+        console.error("Hasta verileri alınamadı:", error);
+        if (retryCount < 2) {
+          await new Promise(r => setTimeout(r, 3000));
+          return attempt(retryCount + 1);
+        }
+        throw error;
       }
-      setWaitTimes(newWaitTimes);
-    } catch (error) {
-      console.error("Hasta verileri alınamadı:", error);
-      if (retryCount < 2) {
-        setTimeout(() => fetchData(retryCount + 1), 3000);
-        return; // Retrying, don't set loading false yet
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+    return attempt(0);
+  }, [userProfile]);
+
+  const { data, loading, execute } = useApi(fetchDashboardData, { userAppointments: [], totalPages: 0, waitTimes: {} });
+
+  const appointments = data?.userAppointments || [];
+  const totalPages = data?.totalPages || 0;
+  const waitTimes = data?.waitTimes || {};
 
   useEffect(() => {
-    fetchData();
-    // eslint-disable-next-line
-  }, []);
+    execute(page, timeFilter).catch(() => {});
+  }, [page, timeFilter, execute]);
 
   const handleCancelClick = (id) => {
     setConfirmModal({ isOpen: true, id });
@@ -80,7 +85,7 @@ export default function PatientDashboard() {
     try {
       await AppointmentService.updateStatus(confirmModal.id, 'CANCELLED');
       toast.success(t('appointment_cancelled'));
-      fetchData();
+      execute(page, timeFilter);
     } catch (error) {
       toast.error(t('cancel_failed') + ': ' + error.message);
     } finally {
@@ -103,23 +108,6 @@ export default function PatientDashboard() {
       router.push(`/book-appointment?search=${encodeURIComponent(quickSearch.trim())}`);
     }
   };
-
-  const filterByTime = (app) => {
-    if (timeFilter === 'all') return true;
-    const appDate = new Date(app.appointmentDate);
-    const now = new Date();
-    const diffMs = appDate - now;
-    const diffDays = diffMs / (1000 * 60 * 60 * 24);
-    
-    if (timeFilter === 'today') return diffDays >= 0 && diffDays < 1;
-    if (timeFilter === 'week') return diffDays >= 0 && diffDays <= 7;
-    if (timeFilter === 'month') return diffDays >= 0 && diffDays <= 30;
-    if (timeFilter === '3months') return diffDays >= 0 && diffDays <= 90;
-    if (timeFilter === '6months') return diffDays >= 0 && diffDays <= 180;
-    return true;
-  };
-
-  const filteredAppointments = appointments.filter(filterByTime);
 
   return (
     <div className={styles.container}>
@@ -168,7 +156,10 @@ export default function PatientDashboard() {
           <h2 className={styles.sectionTitle}>{t('upcoming_appointments')}</h2>
           <select 
             value={timeFilter} 
-            onChange={(e) => setTimeFilter(e.target.value)}
+            onChange={(e) => {
+              setTimeFilter(e.target.value);
+              setPage(0);
+            }}
             className={styles.timeFilter}
           >
             <option value="all">{t('filter_all_time')}</option>
@@ -182,7 +173,7 @@ export default function PatientDashboard() {
         
         {loading ? (
           <LoadingScreen />
-        ) : filteredAppointments.length === 0 ? (
+        ) : appointments.length === 0 ? (
           <EmptyState 
             title={t('empty_state_title')} 
             description={t('empty_state_desc')} 
@@ -190,7 +181,7 @@ export default function PatientDashboard() {
           />
         ) : (
           <div className={styles.appointmentsGrid}>
-            {filteredAppointments.map(app => (
+            {appointments.map(app => (
               <div key={app.id} className={styles.appointmentCard}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
@@ -233,6 +224,12 @@ export default function PatientDashboard() {
             ))}
           </div>
         )}
+        
+        <Pagination 
+          page={page} 
+          totalPages={totalPages} 
+          onPageChange={setPage} 
+        />
       </div>
 
       <ConfirmModal

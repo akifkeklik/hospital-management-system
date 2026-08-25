@@ -27,7 +27,7 @@ export default function DoctorsPage() {
 
   const fetchData = async () => {
     try {
-      const depts = await DepartmentService.getAll(0, 1000);
+      const depts = await DepartmentService.getAll(0, 100);
       setDepartments(depts.content || []);
     } catch (error) {
       console.error('Bölümler yüklenirken hata:', error);
@@ -42,7 +42,7 @@ export default function DoctorsPage() {
     }
 
     try {
-      const docs = await DoctorService.getAll(0, 1000);
+      const docs = await DoctorService.getAll(0, 100);
       setAllDoctors(docs.content || []);
     } catch (error) {
       console.error('Doktorlar yüklenirken hata:', error);

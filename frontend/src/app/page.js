@@ -75,10 +75,10 @@ export default function Dashboard() {
     async function fetchStats() {
       try {
         const [depts, pats, docs, appts] = await Promise.all([
-          DepartmentService.getAll(0, 1000),
-          PatientService.getAll(0, 1000),
-          DoctorService.getAll(0, 1000),
-          AppointmentService.getAll(0, 1000)
+          DepartmentService.getAll(0, 100),
+          PatientService.getAll(0, 100),
+          DoctorService.getAll(0, 100),
+          AppointmentService.getAll(0, 100)
         ]);
         
         setStats({

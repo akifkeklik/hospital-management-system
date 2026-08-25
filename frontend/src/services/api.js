@@ -113,13 +113,24 @@ export const DoctorService = {
   delete: (id) => fetchAPI(`/doctors/${id}`, { method: 'DELETE' }),
 };
 
+// Helper to build query strings
+const buildQueryString = (params) => {
+  const query = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null && value !== '') {
+      query.append(key, value);
+    }
+  }
+  return query.toString();
+};
+
 // ── RANDEVU (APPOINTMENT) API ──
 export const AppointmentService = {
-  getAll: (page = 0, size = 5) => fetchAPI(`/appointments?page=${page}&size=${size}`),
-  getById: (id) => fetchAPI(`/appointments/${id}`),
-  getByPatient: (patientId) => fetchAPI(`/appointments/patient/${patientId}`),
-  getByDoctor: (doctorId) => fetchAPI(`/appointments/doctor/${doctorId}`),
-  getWaitEstimate: (appointmentId) => fetchAPI(`/appointments/${appointmentId}/wait-estimate`),
+  getAll: (page = 0, size = 5, options = {}) => fetchAPI(`/appointments?page=${page}&size=${size}`, options).then(normalizePagination),
+  getById: (id, options = {}) => fetchAPI(`/appointments/${id}`, options),
+  getByPatient: (patientId, page = 0, size = 100, filters = {}, options = {}) => fetchAPI(`/appointments/patient/${patientId}?${buildQueryString({ page, size, ...filters })}`, options).then(normalizePagination),
+  getByDoctor: (doctorId, page = 0, size = 100, filters = {}, options = {}) => fetchAPI(`/appointments/doctor/${doctorId}?${buildQueryString({ page, size, ...filters })}`, options).then(normalizePagination),
+  getWaitEstimate: (appointmentId, options = {}) => fetchAPI(`/appointments/${appointmentId}/wait-estimate`, options),
   create: (data) => fetchAPI('/appointments', { method: 'POST', body: JSON.stringify(data) }),
   update: (id, data) => fetchAPI(`/appointments/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   updateStatus: (id, status) => fetchAPI(`/appointments/${id}/status`, { 
@@ -152,7 +163,7 @@ export const AuthService = {
     method: 'POST',
     body: JSON.stringify({ tcIdentityNumber, newPassword })
   }),
-  getMe: () => fetchAPI('/auth/me'),
+  getMe: (options = {}) => fetchAPI('/auth/me', options),
   getToken: () => {
     if (typeof window === 'undefined') return null;
     return localStorage.getItem('token') || sessionStorage.getItem('token');
@@ -250,3 +261,23 @@ export const ExaminationService = {
   getPrescriptions: (appointmentId) => fetchAPI(`/examinations/appointments/${appointmentId}/prescriptions`),
   deletePrescription: (id) => fetchAPI(`/examinations/prescriptions/${id}`, { method: 'DELETE' })
 };
+
+// Normalizes standard Pageable responses
+const normalizePagination = (res) => {
+  if (res && res.content !== undefined) {
+    return {
+      items: res.content,
+      page: res.page?.number || 0,
+      totalPages: res.page?.totalPages || (res.totalPages !== undefined ? res.totalPages : 1),
+      totalElements: res.page?.totalElements || res.totalElements || res.content.length
+    };
+  }
+  // Fallback for list endpoints
+  return {
+    items: res || [],
+    page: 0,
+    totalPages: 1,
+    totalElements: res ? res.length : 0
+  };
+};
+

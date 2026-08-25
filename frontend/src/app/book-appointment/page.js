@@ -1,8 +1,9 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { AppointmentService, DepartmentService, DoctorService, AuthService } from '../../services/api';
+import { AppointmentService, DepartmentService, DoctorService } from '../../services/api';
 import { toast } from '../../components/Toast';
+import { useAuth } from '../../context/AuthContext';
 import { useSettings } from '../../context/SettingsContext';
 import SymptomAnalyzer from '../../components/SymptomAnalyzer';
 import HospitalMap from '../../components/HospitalMap';
@@ -13,7 +14,7 @@ export default function BookAppointment() {
   const { t, tErr } = useSettings();
   const [step, setStep] = useState(0); // 0 = AI Asistan, 1-5 = mevcut adımlar
   const [loading, setLoading] = useState(false);
-  const [userProfile, setUserProfile] = useState(null);
+  const { user: userProfile } = useAuth();
 
   // Data states
   const [departments, setDepartments] = useState([]);
@@ -31,9 +32,6 @@ export default function BookAppointment() {
   useEffect(() => {
     async function init() {
       try {
-        const profile = await AuthService.getMe();
-        setUserProfile(profile);
-        
         const depts = await DepartmentService.getAll(0, 100);
         setDepartments(depts.content || []);
       } catch (error) {

@@ -69,7 +69,7 @@ public class HospitalAppointmentApplication {
                     adminPassword = java.util.UUID.randomUUID().toString().substring(0, 8);
                 }
                 userService.registerUser("admin", "admin@hospital.com", adminPassword, "ROLE_ADMIN", null);
-                System.out.println("✅ Varsayılan Sistem Yöneticisi (Admin) oluşturuldu. Kullanıcı: admin | Şifre: " + adminPassword);
+                System.out.println("✅ Varsayılan Sistem Yöneticisi (Admin) oluşturuldu. Kullanıcı: admin | Şifre: [PROTECTED]");
             }
 
             // 2. Varsayılan Verilerin Yüklenmesi (SADECE BİR KERE ÇALIŞIR)

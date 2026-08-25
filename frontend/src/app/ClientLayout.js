@@ -1,60 +1,17 @@
 'use client';
-import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import PatientHeader from '../components/PatientHeader';
 import DoctorHeader from '../components/DoctorHeader';
 import { SettingsProvider } from '../context/SettingsContext';
 import ToastContainer from '../components/Toast';
-
-import { parseJwt } from '../utils/jwt';
+import { useAuth } from '../context/AuthContext';
 
 export default function ClientLayout({ children }) {
   const pathname = usePathname();
-  const router = useRouter();
   const isAuthPage = pathname === '/login' || pathname === '/register' || pathname === '/forgot-password';
-  const [mounted, setMounted] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [role, setRole] = useState(null);
-
-  useEffect(() => {
-    setMounted(true);
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-    
-    if (!token && !isAuthPage) {
-      router.replace('/login');
-      return;
-    }
-    
-    if (token) {
-      const decoded = parseJwt(token);
-      
-      // Token geçersiz veya süresi dolmuşsa temizle ve login'e yönlendir
-      if (!decoded || (decoded.exp && decoded.exp * 1000 < Date.now())) {
-        localStorage.removeItem('token');
-        sessionStorage.removeItem('token');
-        setIsAuthenticated(false);
-        setRole(null);
-        if (!isAuthPage) {
-          router.replace('/login');
-        }
-        return;
-      }
-      
-      if (decoded.role) {
-        setRole(decoded.role);
-      }
-      setIsAuthenticated(true);
-    } else {
-      // Token yok ama auth sayfasındayız - state'i sıfırla
-      setIsAuthenticated(false);
-      setRole(null);
-    }
-  }, [pathname, isAuthPage, router]);
-
-  // Next.js hydration uyumsuzluklarını önlemek için mount olana kadar boş dönebiliriz.
-  if (!mounted) return null;
+  const { role } = useAuth();
 
   // Eğer sayfa login veya register ise Sidebar ve Header'ı KESİNLİKLE GİZLE!
   if (isAuthPage) {
@@ -65,9 +22,6 @@ export default function ClientLayout({ children }) {
       </SettingsProvider>
     );
   }
-
-  // Token yoksa (henüz redirect olmadıysa) arayüzü çizme ki ekran saniyelik gözükmesin
-  if (!isAuthenticated && !isAuthPage) return null;
 
   // Hasta veya Doktor ise özel (Sidebar'sız) layout
   if (role === 'ROLE_PATIENT' || role === 'ROLE_DOCTOR') {

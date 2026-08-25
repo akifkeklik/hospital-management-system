@@ -48,7 +48,9 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Version;
 
 @Entity
-@Table(name = "appointments")
+@Table(name = "appointments", indexes = {
+    @Index(name = "IDX_APPOINTMENT_DOC_STAT_DATE", columnList = "doctor_id, status, appointment_date")
+})
 @SQLDelete(sql = "UPDATE appointments SET is_active = false WHERE id=?")
 @SQLRestriction("is_active = true")
 @EntityListeners(AuditingEntityListener.class)
@@ -67,7 +69,7 @@ public class Appointment {
     // Birçok randevu, bir hastaya ait olabilir
     // (Bir hasta birden fazla randevu alabilir)
     // ──────────────────────────────────────────────────────────
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
 
@@ -76,7 +78,7 @@ public class Appointment {
     // Birçok randevu, bir doktora ait olabilir
     // (Bir doktorun birden fazla randevusu olabilir)
     // ──────────────────────────────────────────────────────────
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "doctor_id", nullable = false)
     private Doctor doctor;
 
@@ -237,5 +239,35 @@ public class Appointment {
 
     public void setUpdatedBy(String updatedBy) {
         this.updatedBy = updatedBy;
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  ⭐ CONCURRENCY PROTECTION (DOUBLE BOOKING PREVENTER)
+    // ══════════════════════════════════════════════════════════
+    
+    @Column(name = "active_slot_id", unique = true, length = 100)
+    private String activeSlotId;
+    
+    public String getActiveSlotId() {
+        return activeSlotId;
+    }
+    
+    @PrePersist
+    @PreUpdate
+    private void updateActiveSlotId() {
+        if (this.isActive != null && this.isActive && this.doctor != null && this.appointmentDate != null) {
+            if (this.status == AppointmentStatus.SCHEDULED || 
+                this.status == AppointmentStatus.ARRIVED || 
+                this.status == AppointmentStatus.IN_EXAMINATION) {
+                // Ensure strict formatting (e.g., 2026-08-23T14:30) to avoid seconds discrepancy
+                java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+                this.activeSlotId = this.doctor.getId() + "_" + this.appointmentDate.format(formatter);
+            } else {
+                // COMPLETED, CANCELLED, NO_SHOW free up the slot uniqueness constraint
+                this.activeSlotId = null;
+            }
+        } else {
+            this.activeSlotId = null;
+        }
     }
 }

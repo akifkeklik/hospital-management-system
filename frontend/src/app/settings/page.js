@@ -2,13 +2,14 @@
 import { useSettings } from '../../context/SettingsContext';
 import styles from './page.module.css';
 import { useEffect, useState } from 'react';
-import { AuthService, SystemSettingService } from '../../services/api';
+import { SystemSettingService } from '../../services/api';
 import { toast } from '../../components/Toast';
+import { useAuth } from '../../context/AuthContext';
 
 export default function SettingsPage() {
   const { language, changeLanguage, themeColor, applyThemeColor, t, THEMES, LANGUAGES } = useSettings();
   const [mounted, setMounted] = useState(false);
-  const [userProfile, setUserProfile] = useState(null);
+  const { user: userProfile } = useAuth();
   
   // Real System Settings State
   const [apptDuration, setApptDuration] = useState('15');
@@ -20,20 +21,17 @@ export default function SettingsPage() {
 
   useEffect(() => {
     setMounted(true);
-    AuthService.getMe().then(data => {
-      setUserProfile(data);
-      if (data && data.role === 'ROLE_ADMIN') {
-        SystemSettingService.getSettings().then(settings => {
-          setApptDuration(settings.appointmentDuration.toString());
-          setStartTime(settings.workStartTime);
-          setEndTime(settings.workEndTime);
-          setLunchBreakStart(settings.lunchBreakStart || '12:00');
-          setLunchBreakEnd(settings.lunchBreakEnd || '13:00');
-          setMaintenanceMode(settings.maintenanceMode);
-        }).catch(err => console.error("Error fetching settings:", err));
-      }
-    }).catch(() => {});
-  }, []);
+    if (userProfile && userProfile.role === 'ROLE_ADMIN') {
+      SystemSettingService.getSettings().then(settings => {
+        setApptDuration(settings.appointmentDuration.toString());
+        setStartTime(settings.workStartTime);
+        setEndTime(settings.workEndTime);
+        setLunchBreakStart(settings.lunchBreakStart || '12:00');
+        setLunchBreakEnd(settings.lunchBreakEnd || '13:00');
+        setMaintenanceMode(settings.maintenanceMode);
+      }).catch(err => console.error("Error fetching settings:", err));
+    }
+  }, [userProfile]);
 
   const handleSaveSystemSettings = async () => {
     try {

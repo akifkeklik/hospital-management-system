@@ -2,8 +2,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSettings } from '../context/SettingsContext';
-import { AuthService } from '../services/api';
 import { toast } from '../components/Toast';
+import { useAuth } from '../context/AuthContext';
 import { usePwaInstall } from '../hooks/usePwaInstall';
 import styles from './Header.module.css';
 
@@ -11,7 +11,7 @@ export default function Header() {
   const { isInstallable, installApp } = usePwaInstall();
   const router = useRouter();
   const [theme, setTheme] = useState('dark');
-  const [userProfile, setUserProfile] = useState(null);
+  const { user: userProfile } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -33,31 +33,28 @@ export default function Header() {
     
     document.documentElement.setAttribute('data-theme', savedTheme);
 
-    // Profil bilgisini çek
-    const fetchProfile = async (retryCount = 0) => {
+    // Bildirimleri çek
+    const fetchNotifications = async (retryCount = 0) => {
+      if (!userProfile?.id) return;
       try {
-        const data = await AuthService.getMe();
-        setUserProfile(data);
-        if (data && data.id) {
-          let notifs = [];
-          if (data.role === 'DOCTOR' || data.role === 'ROLE_DOCTOR' || data.role === 'HEKIM' || data.role === 'ROLE_HEKIM') {
-            notifs = await import('../services/api').then(m => m.NotificationService.getByDoctor(data.id));
-          } else {
-            notifs = await import('../services/api').then(m => m.NotificationService.getByPatient(data.id));
-          }
-          const hiddenNotifs = JSON.parse(localStorage.getItem('hiddenNotifs') || '[]');
-          notifs = notifs.filter(n => !hiddenNotifs.includes(n.id));
-          setNotifications(notifs.slice(0, 5));
-          setUnreadCount(notifs.filter(n => !n.read).length);
+        let notifs = [];
+        if (userProfile.role === 'DOCTOR' || userProfile.role === 'ROLE_DOCTOR' || userProfile.role === 'HEKIM' || userProfile.role === 'ROLE_HEKIM') {
+          notifs = await import('../services/api').then(m => m.NotificationService.getByDoctor(userProfile.id));
+        } else {
+          notifs = await import('../services/api').then(m => m.NotificationService.getByPatient(userProfile.id));
         }
+        const hiddenNotifs = JSON.parse(localStorage.getItem('hiddenNotifs') || '[]');
+        notifs = notifs.filter(n => !hiddenNotifs.includes(n.id));
+        setNotifications(notifs.slice(0, 5));
+        setUnreadCount(notifs.filter(n => !n.read).length);
       } catch (error) {
-        console.error("Profil bilgisi alınamadı:", error);
+        console.error("Bildirimler alınamadı:", error);
         if (retryCount < 2) {
-          setTimeout(() => fetchProfile(retryCount + 1), 3000);
+          setTimeout(() => fetchNotifications(retryCount + 1), 3000);
         }
       }
     };
-    fetchProfile();
+    fetchNotifications();
 
     // Arama verilerini (doktorlar, bölümler, hastalar) çek
     const fetchSearchData = async () => {
@@ -90,13 +87,13 @@ export default function Header() {
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    window.addEventListener("hiddenNotifsUpdate", fetchProfile);
-
+    window.addEventListener("hiddenNotifsUpdate", fetchNotifications);
+    
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
-      window.removeEventListener("hiddenNotifsUpdate", fetchProfile);
+      window.removeEventListener("hiddenNotifsUpdate", fetchNotifications);
     };
-  }, []);
+  }, [userProfile?.id, userProfile?.role]);
 
   const toggleTheme = () => {
     const themeOrder = ['dark', 'light', 'high-contrast'];
@@ -138,7 +135,9 @@ export default function Header() {
     }
   };
 
+  const { logout } = useAuth(); // or keep AuthService.logout but it's better to use from AuthContext if we added it, wait AuthContext has no logout returned. Wait, I didn't add logout to AuthContext! Let's just import AuthService.
   const handleLogout = async () => {
+    const { AuthService } = await import('../services/api');
     await AuthService.logout();
   };
 

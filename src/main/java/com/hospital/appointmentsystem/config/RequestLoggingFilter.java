@@ -42,8 +42,12 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
         } finally {
             long duration = System.currentTimeMillis() - startTime;
 
-            // Log outgoing response
-            log.info("<-- {} {}\nStatus={}\nDuration={}ms", request.getMethod(), request.getRequestURI(), response.getStatus(), duration);
+            if (duration > 1000) {
+                log.warn("<-- {} {}\nStatus={}\nDuration={}ms [SLOW REQUEST]", request.getMethod(), request.getRequestURI(), response.getStatus(), duration);
+            } else {
+                // Log outgoing response
+                log.info("<-- {} {}\nStatus={}\nDuration={}ms", request.getMethod(), request.getRequestURI(), response.getStatus(), duration);
+            }
 
             // Important: Clean up MDC to prevent memory leaks and data bleeding between threads
             MDC.remove("traceId");

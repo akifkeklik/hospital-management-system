@@ -14,8 +14,10 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
+import com.hospital.appointmentsystem.appointment.impl.AppointmentStatus;
 
 /**
  * 🌐 Appointment Controller — Randevu REST API Endpoint'leri
@@ -71,13 +73,15 @@ public class AppointmentController {
     // GET /api/appointments/patient/{patientId} — Hastanın randevuları
     @PreAuthorize("hasAnyRole('ADMIN', 'PATIENT', 'DOCTOR')")
     @GetMapping("/patient/{patientId}")
-    public ResponseEntity<List<AppointmentResponse>> getAppointmentsByPatient(
-            @PathVariable Long patientId) {
+    public ResponseEntity<Page<AppointmentResponse>> getAppointmentsByPatient(
+            @PathVariable Long patientId, 
+            @RequestParam(required = false) List<AppointmentStatus> status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            Pageable pageable) {
 
-        List<AppointmentDto> dtos = appointmentService.getAppointmentsByPatientId(patientId);
-        List<AppointmentResponse> responses = dtos.stream()
-                .map(this::mapDtoToResponse)
-                .collect(Collectors.toList());
+        Page<AppointmentDto> dtos = appointmentService.getAppointmentsByPatientId(patientId, status, startDate, endDate, pageable);
+        Page<AppointmentResponse> responses = dtos.map(this::mapDtoToResponse);
 
         return ResponseEntity.ok(responses);
     }
@@ -85,13 +89,15 @@ public class AppointmentController {
     // GET /api/appointments/doctor/{doctorId} — Doktorun randevuları
     @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     @GetMapping("/doctor/{doctorId}")
-    public ResponseEntity<List<AppointmentResponse>> getAppointmentsByDoctor(
-            @PathVariable Long doctorId) {
+    public ResponseEntity<Page<AppointmentResponse>> getAppointmentsByDoctor(
+            @PathVariable Long doctorId, 
+            @RequestParam(required = false) List<AppointmentStatus> status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            Pageable pageable) {
 
-        List<AppointmentDto> dtos = appointmentService.getAppointmentsByDoctorId(doctorId);
-        List<AppointmentResponse> responses = dtos.stream()
-                .map(this::mapDtoToResponse)
-                .collect(Collectors.toList());
+        Page<AppointmentDto> dtos = appointmentService.getAppointmentsByDoctorId(doctorId, status, startDate, endDate, pageable);
+        Page<AppointmentResponse> responses = dtos.map(this::mapDtoToResponse);
 
         return ResponseEntity.ok(responses);
     }

@@ -49,7 +49,7 @@ function PatientsContent() {
 
   const fetchPatients = async () => {
     try {
-      const data = await PatientService.getAll(0, 1000);
+      const data = await PatientService.getAll(0, 100);
       setAllPatients(data.content || data);
     } catch (error) {
       toast.error(t('error_loading_patients'));

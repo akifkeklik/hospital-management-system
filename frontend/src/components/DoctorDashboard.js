@@ -5,44 +5,47 @@ import { useSettings } from '../context/SettingsContext';
 import ConfirmModal from './ConfirmModal';
 import EmptyState from './EmptyState';
 import LoadingScreen from './LoadingScreen';
+import Pagination from './Pagination';
+import { getTimeFilterParams } from '../utils/dateFilters';
+import { useApi } from '../hooks/useApi';
+import { useAuth } from '../context/AuthContext';
 import styles from './DoctorDashboard.module.css'; // Özel stil
 
 export default function DoctorDashboard() {
   const { t } = useSettings();
-  const [appointments, setAppointments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [profile, setProfile] = useState(null);
   const [timeFilter, setTimeFilter] = useState('all'); // all, today, week, month, 3months, 6months
+  const [page, setPage] = useState(0);
+  const { user: userProfile } = useAuth();
+
+  const fetchDashboardData = useCallback(async (signal, currentPage, currentTimeFilter) => {
+
+    if (userProfile && (userProfile.id || userProfile.referenceId)) {
+        // Randevuları doctorId'ye göre çekeceğiz
+        const doctorId = userProfile.referenceId || userProfile.id;
+        const filters = getTimeFilterParams(currentTimeFilter);
+        const dataResponse = await AppointmentService.getByDoctor(doctorId, currentPage, 100, filters, { signal });
+        const myAppointments = dataResponse.items || [];
+        
+        return {
+            profile: userProfile,
+            appointments: myAppointments,
+            totalPages: dataResponse.totalPages || 0
+        };
+    }
+    return { appointments: [], totalPages: 0 };
+  }, [userProfile]);
+
+  const { data, loading, error, execute } = useApi(fetchDashboardData, { appointments: [], totalPages: 0 });
+
+  const profile = userProfile;
+  const appointments = data?.appointments || [];
+  const totalPages = data?.totalPages || 0;
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const userProfile = await AuthService.getMe();
-        setProfile(userProfile);
-
-        if (userProfile && userProfile.id) {
-            // Randevuları doctorId'ye göre çekeceğiz ama API'de getByDoctor() var mı?
-            // AppointmentController.java'da GET /api/appointments/doctor/{doctorId} var mı?
-            // Var olduğunu farz ediyoruz. Eğer yoksa, AppointmentService.getAll ve filtreleme yapalım.
-            // Fakat backend'i kontrol etmemiz lazım.
-            const data = await AppointmentService.getAll(0, 100);
-            
-            // Eğer backend'de role-based veya doctor spesifik endpoint yoksa, manuel filtre:
-            // Sadece bu doktorun randevuları
-            const myAppointments = data.content ? data.content.filter(a => a.doctorName === (userProfile.firstName + " " + userProfile.lastName) || a.doctorId === userProfile.id) : [];
-            setAppointments(myAppointments);
-        }
-      } catch (err) {
-        console.error(err);
-        setError(t('error_loading_data'));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDashboardData();
-  }, []);
+    execute(page, timeFilter).catch(err => {
+      console.error(err);
+    });
+  }, [page, timeFilter, execute]);
 
   if (loading) {
     return <LoadingScreen fullScreen={true} />;
@@ -52,7 +55,7 @@ export default function DoctorDashboard() {
     return (
       <div className={styles.errorState}>
         <div className={styles.errorIcon}>⚠️</div>
-        <h3>{error}</h3>
+        <h3>{t('error_loading_data')}</h3>
       </div>
     );
   }
@@ -85,7 +88,10 @@ export default function DoctorDashboard() {
               </span>
               <select 
                 value={timeFilter} 
-                onChange={(e) => setTimeFilter(e.target.value)}
+                onChange={(e) => {
+                  setTimeFilter(e.target.value);
+                  setPage(0);
+                }}
                 style={{ padding: '0.6rem 2rem 0.6rem 1rem', borderRadius: '10px', border: '1px solid var(--border)', backgroundColor: 'var(--surface)', color: 'var(--text-main)', fontSize: '0.9rem', fontWeight: '500', cursor: 'pointer', outline: 'none', appearance: 'none', backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%236b7280\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpolyline points=\'6 9 12 15 18 9\'%3E%3C/polyline%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '16px', minWidth: '160px', width: 'auto', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}
               >
                 <option value="all">{t('filter_all_time')}</option>
@@ -99,40 +105,14 @@ export default function DoctorDashboard() {
           </div>
           
           <div className={styles.cardBody} style={{ padding: '1.5rem', flex: 1, overflowY: 'auto' }}>
-            {appointments.filter(app => {
-              if (timeFilter === 'all') return true;
-              const appDate = new Date(app.appointmentDate);
-              const now = new Date();
-              const diffMs = appDate - now;
-              const diffDays = diffMs / (1000 * 60 * 60 * 24);
-              
-              if (timeFilter === 'today') return diffDays >= 0 && diffDays < 1;
-              if (timeFilter === 'week') return diffDays >= 0 && diffDays <= 7;
-              if (timeFilter === 'month') return diffDays >= 0 && diffDays <= 30;
-              if (timeFilter === '3months') return diffDays >= 0 && diffDays <= 90;
-              if (timeFilter === '6months') return diffDays >= 0 && diffDays <= 180;
-              return true;
-            }).length === 0 ? (
+            {appointments.length === 0 ? (
               <EmptyState 
                 title={t('empty_state_title')} 
                 description={t('empty_state_desc')} 
               />
             ) : (
               <div className={styles.appointmentList} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {appointments.filter(app => {
-                  if (timeFilter === 'all') return true;
-                  const appDate = new Date(app.appointmentDate);
-                  const now = new Date();
-                  const diffMs = appDate - now;
-                  const diffDays = diffMs / (1000 * 60 * 60 * 24);
-                  
-                  if (timeFilter === 'today') return diffDays >= 0 && diffDays < 1;
-                  if (timeFilter === 'week') return diffDays >= 0 && diffDays <= 7;
-                  if (timeFilter === 'month') return diffDays >= 0 && diffDays <= 30;
-                  if (timeFilter === '3months') return diffDays >= 0 && diffDays <= 90;
-                  if (timeFilter === '6months') return diffDays >= 0 && diffDays <= 180;
-                  return true;
-                }).map((app) => {
+                {appointments.map((app) => {
                   const dateObj = new Date(app.appointmentDate);
                   const formattedDate = dateObj.toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' });
                   let formattedTime = app.appointmentTime;
@@ -179,6 +159,11 @@ export default function DoctorDashboard() {
                 })}
               </div>
             )}
+            <Pagination 
+              page={page} 
+              totalPages={totalPages} 
+              onPageChange={setPage} 
+            />
           </div>
         </div>
 

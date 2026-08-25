@@ -12,8 +12,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
+
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class DoctorLeaveServiceImpl implements DoctorLeaveService {
 
     private final DoctorLeaveRepository repository;
@@ -54,8 +58,10 @@ public class DoctorLeaveServiceImpl implements DoctorLeaveService {
 
         if ("APPROVED".equals(status)) {
             // Find scheduled appointments and cancel them
-            List<AppointmentDto> doctorAppointments = appointmentService.getAppointmentsByDoctorId(leave.getDoctorId());
-            for (AppointmentDto app : doctorAppointments) {
+            // Sadece bekleyen randevuları al
+            Page<AppointmentDto> appointmentsPage = appointmentService.getAppointmentsByDoctorId(leave.getDoctorId(), null, null, null, Pageable.unpaged());
+            List<AppointmentDto> appointments = appointmentsPage.getContent();
+            for (AppointmentDto app : appointments) {
                 if ("SCHEDULED".equals(app.getStatus())) {
                     LocalDateTime appDate = app.getAppointmentDate();
                     if (!appDate.toLocalDate().isBefore(leave.getStartDate()) && !appDate.toLocalDate().isAfter(leave.getEndDate())) {

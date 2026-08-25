@@ -99,11 +99,11 @@ public class Doctor {
     //
     // nullable = false → Her doktor bir bölüme bağlı OLMALI
     // ──────────────────────────────────────────────────────────
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id", nullable = false)
     private Department department;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "polyclinic_id", nullable = true)
     private Polyclinic polyclinic;
 
