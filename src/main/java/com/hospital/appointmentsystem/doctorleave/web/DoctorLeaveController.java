@@ -19,19 +19,19 @@ public class DoctorLeaveController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<DoctorLeaveDto>> getAllLeaves() {
         return ResponseEntity.ok(doctorLeaveService.getAllLeaves());
     }
 
     @GetMapping("/doctor/{doctorId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
+    @PreAuthorize("hasRole('ADMIN') or @securityService.isDoctorOwner(#doctorId)")
     public ResponseEntity<List<DoctorLeaveDto>> getLeavesByDoctorId(@PathVariable Long doctorId) {
         return ResponseEntity.ok(doctorLeaveService.getLeavesByDoctorId(doctorId));
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
+    @PreAuthorize("hasRole('ADMIN') or @securityService.isDoctorOwner(#dto.doctorId)")
     public ResponseEntity<DoctorLeaveDto> createLeave(@RequestBody DoctorLeaveDto dto) {
         return ResponseEntity.ok(doctorLeaveService.createLeave(dto));
     }
@@ -44,7 +44,7 @@ public class DoctorLeaveController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or @securityService.isLeaveOwner(#id)")
     public ResponseEntity<Void> deleteLeave(@PathVariable Long id) {
         doctorLeaveService.deleteLeave(id);
         return ResponseEntity.ok().build();

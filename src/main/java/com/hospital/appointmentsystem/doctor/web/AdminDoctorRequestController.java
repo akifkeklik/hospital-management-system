@@ -14,6 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/doctor-requests")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminDoctorRequestController {
 
     private final DoctorRegistrationRequestRepository repository;

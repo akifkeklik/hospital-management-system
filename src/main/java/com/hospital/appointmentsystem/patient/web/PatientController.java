@@ -4,6 +4,7 @@ import com.hospital.appointmentsystem.patient.api.PatientDto;
 import com.hospital.appointmentsystem.patient.api.PatientService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
@@ -29,6 +30,7 @@ public class PatientController {
     }
 
     // POST /api/patients — Yeni hasta oluştur
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<PatientResponse> createPatient(
             @Valid @RequestBody PatientRequest request) {
@@ -41,6 +43,7 @@ public class PatientController {
     }
 
     // GET /api/patients/{id} — ID ile hasta getir
+    @PreAuthorize("hasRole('ADMIN') or @securityService.isPatientOwner(#id)")
     @GetMapping("/{id}")
     public ResponseEntity<PatientResponse> getPatientById(@PathVariable Long id) {
 
@@ -51,6 +54,7 @@ public class PatientController {
     }
 
     // GET /api/patients — Tüm hastaları listele
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<Page<PatientResponse>> getAllPatients(Pageable pageable) {
 
@@ -61,6 +65,7 @@ public class PatientController {
     }
 
     // PUT /api/patients/{id} — Hasta güncelle
+    @PreAuthorize("hasRole('ADMIN') or @securityService.isPatientOwner(#id)")
     @PutMapping("/{id}")
     public ResponseEntity<PatientResponse> updatePatient(
             @PathVariable Long id,
@@ -74,6 +79,7 @@ public class PatientController {
     }
 
     // DELETE /api/patients/{id} — Hasta sil
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePatient(@PathVariable Long id) {
 

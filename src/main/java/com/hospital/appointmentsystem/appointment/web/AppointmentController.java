@@ -36,7 +36,7 @@ public class AppointmentController {
     }
 
     // POST /api/appointments — Yeni randevu oluştur
-    @PreAuthorize("hasAnyRole('ADMIN','PATIENT')")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('PATIENT') and @securityService.isPatientOwner(#request.patientId))")
     @PostMapping
     public ResponseEntity<AppointmentResponse> createAppointment(
             @Valid @RequestBody AppointmentRequest request) {
@@ -49,7 +49,7 @@ public class AppointmentController {
     }
 
     // GET /api/appointments/{id} — ID ile randevu getir
-    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'PATIENT')")
+    @PreAuthorize("hasRole('ADMIN') or @securityService.isPatientOfAppointment(#id) or @securityService.isDoctorOfAppointment(#id)")
     @GetMapping("/{id}")
     public ResponseEntity<AppointmentResponse> getAppointmentById(@PathVariable Long id) {
 
@@ -71,7 +71,7 @@ public class AppointmentController {
     }
 
     // GET /api/appointments/patient/{patientId} — Hastanın randevuları
-    @PreAuthorize("hasAnyRole('ADMIN', 'PATIENT', 'DOCTOR')")
+    @PreAuthorize("hasRole('ADMIN') or @securityService.isPatientOwner(#patientId)")
     @GetMapping("/patient/{patientId}")
     public ResponseEntity<Page<AppointmentResponse>> getAppointmentsByPatient(
             @PathVariable Long patientId, 
@@ -87,7 +87,7 @@ public class AppointmentController {
     }
 
     // GET /api/appointments/doctor/{doctorId} — Doktorun randevuları
-    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
+    @PreAuthorize("hasRole('ADMIN') or @securityService.isDoctorOwner(#doctorId)")
     @GetMapping("/doctor/{doctorId}")
     public ResponseEntity<Page<AppointmentResponse>> getAppointmentsByDoctor(
             @PathVariable Long doctorId, 
@@ -128,7 +128,7 @@ public class AppointmentController {
     }
 
     // PATCH /api/appointments/{id}/status — Sadece durum güncelle
-    @PreAuthorize("hasAnyRole('ADMIN','DOCTOR')")
+    @PreAuthorize("hasRole('ADMIN') or @securityService.isDoctorOfAppointment(#id) or @securityService.isPatientOfAppointment(#id)")
     @PatchMapping("/{id}/status")
     public ResponseEntity<AppointmentResponse> updateStatus(
             @PathVariable Long id,
@@ -151,7 +151,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/{id}/wait-estimate")
-    @PreAuthorize("hasRole('PATIENT') or hasRole('DOCTOR') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or @securityService.isPatientOfAppointment(#id) or @securityService.isDoctorOfAppointment(#id)")
     public ResponseEntity<WaitTimeDto> getWaitEstimate(@PathVariable Long id) {
         WaitTimeDto estimate = appointmentService.getEstimatedWaitTime(id);
         return ResponseEntity.ok(estimate);

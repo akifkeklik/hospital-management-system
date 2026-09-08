@@ -4,6 +4,7 @@ import com.hospital.appointmentsystem.department.api.DepartmentDto;
 import com.hospital.appointmentsystem.department.api.DepartmentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
@@ -86,6 +87,7 @@ public class DepartmentController {
     //   - Durum kodu (201 Created, 200 OK, 404 Not Found...)
     //   - Yanıt gövdesi (Response objesi)
     // ──────────────────────────────────────────────────────────
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<DepartmentResponse> createDepartment(
             @Valid @RequestBody DepartmentRequest request) {
@@ -142,6 +144,7 @@ public class DepartmentController {
     // @PutMapping → PUT metodu ile gelen istekleri karşılar
     // Hem URL'den id alır, hem body'den yeni verileri alır
     // ──────────────────────────────────────────────────────────
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<DepartmentResponse> updateDepartment(
             @PathVariable Long id,
@@ -160,6 +163,7 @@ public class DepartmentController {
     // @DeleteMapping → DELETE metodu ile gelen istekleri karşılar
     // HTTP 204 (No Content) → "Silindi, döndürülecek veri yok"
     // ──────────────────────────────────────────────────────────
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDepartment(@PathVariable Long id) {
 

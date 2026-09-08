@@ -399,7 +399,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * @return 400 Bad Request
      */
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiErrorResponse> handleIllegalArgument(
+    public ResponseEntity<ApiErrorResponse> handleIllegalArgumentException(
             IllegalArgumentException ex, HttpServletRequest request) {
 
         String traceId = generateTraceId();

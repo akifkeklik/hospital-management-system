@@ -18,7 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+import org.springframework.test.context.ActiveProfiles;
+
 @SpringBootTest
+@ActiveProfiles("test")
 @TestPropertySource(properties = {
     "spring.jpa.properties.hibernate.session_factory.statement_inspector=com.hospital.appointmentsystem.HibernateQueryInterceptor"
 })

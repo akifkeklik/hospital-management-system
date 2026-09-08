@@ -7,6 +7,9 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -17,11 +20,25 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
+    private static final Logger log = LoggerFactory.getLogger(JwtUtil.class);
+
     @Value("${jwt.secret}")
     private String secretKeyString;
 
     @Value("${jwt.expiration}")
     private long jwtTokenValidity;
+
+    @PostConstruct
+    public void init() {
+        if (secretKeyString == null || secretKeyString.trim().isEmpty() || secretKeyString.length() < 32) {
+            log.error("=========================================================");
+            log.error("CRITICAL SECURITY VULNERABILITY: INVALID JWT SECRET!");
+            log.error("The secret must be provided and at least 256 bits (32 characters).");
+            log.error("Please set the JWT_SECRET environment variable.");
+            log.error("=========================================================");
+            throw new IllegalArgumentException("JWT Secret is missing or too short. It must be at least 32 characters long.");
+        }
+    }
 
     private SecretKey getSecretKey() {
         return Keys.hmacShaKeyFor(secretKeyString.getBytes());

@@ -60,19 +60,24 @@ export default function Header() {
     const fetchSearchData = async () => {
       try {
         const { DoctorService, DepartmentService, PatientService } = await import('../services/api');
-        const [docs, depts, patients] = await Promise.all([
+        const isAdmin = userProfile?.role === 'ROLE_ADMIN' || userProfile?.role === 'ADMIN';
+        const promises = [
           DoctorService.getAll(0, 500),
           DepartmentService.getAll(0, 100),
-          PatientService.getAll(0, 500)
-        ]);
-        setAllDoctors(docs.content || []);
-        setAllDepartments(depts.content || []);
-        setAllPatients(patients.content || []);
+        ];
+        if (isAdmin) {
+          promises.push(PatientService.getAll(0, 500));
+        }
+        const results = await Promise.all(promises);
+        setAllDoctors(results[0].content || []);
+        setAllDepartments(results[1].content || []);
+        setAllPatients(isAdmin ? (results[2].content || []) : []);
       } catch (error) {
         console.error("Arama verisi alınamadı:", error);
       }
     };
     fetchSearchData();
+
 
     // Dışarı tıklayınca dropdown kapansın
     const handleClickOutside = (event) => {

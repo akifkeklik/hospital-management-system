@@ -13,6 +13,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.mockito.Mockito;
+import static org.mockito.ArgumentMatchers.anyLong;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -40,6 +43,9 @@ public class SecurityEndpointsTest {
 
     @MockBean
     private org.springframework.security.core.userdetails.UserDetailsService userDetailsService;
+
+    @MockBean(name = "securityService")
+    private SecurityService securityService;
 
     // --- Mock the initData bean to prevent it from running and crashing during WebMvcTest ---
     @MockBean(name = "initData")
@@ -76,6 +82,10 @@ public class SecurityEndpointsTest {
                 .thenReturn(org.springframework.data.domain.Page.empty());
         org.mockito.Mockito.when(departmentService.getAllDepartments(org.mockito.ArgumentMatchers.any()))
                 .thenReturn(org.springframework.data.domain.Page.empty());
+
+        // Default SecurityService mocks
+        Mockito.when(securityService.isPatientOwner(anyLong())).thenReturn(false);
+        Mockito.when(securityService.isDoctorOwner(anyLong())).thenReturn(false);
     }
 
     // ==========================================
@@ -114,16 +124,19 @@ public class SecurityEndpointsTest {
     @Test
     @WithMockUser(roles = "PATIENT")
     void patientCanAccessPatientEndpoint_ShouldReturn200() throws Exception {
-        // GET /api/appointments/patient/{id} requires ADMIN, PATIENT, or DOCTOR
+        Mockito.when(securityService.isPatientOwner(1L)).thenReturn(true);
+        // GET /api/appointments/patient/{id} requires ADMIN or isPatientOwner
         mockMvc.perform(get("/api/appointments/patient/1")
                 .contentType(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser(roles = "DOCTOR")
     void doctorCanAccessDoctorEndpoint_ShouldReturn200() throws Exception {
-        // GET /api/appointments/doctor/{id} requires ADMIN or DOCTOR
+        Mockito.when(securityService.isDoctorOwner(1L)).thenReturn(true);
+        // GET /api/appointments/doctor/{id} requires ADMIN or isDoctorOwner
         mockMvc.perform(get("/api/appointments/doctor/1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
