@@ -2,27 +2,30 @@
 
 # 🏥 Hospital Management System
 
-### **Enterprise-Grade Healthcare Platform**
+### **Enterprise-Grade Healthcare Management Platform**
 
-*A full-stack hospital management system featuring AI-powered diagnostics, real-time appointment scheduling, multi-role dashboards, and production-ready cloud deployment.*
+*A full-stack healthcare platform for managing patients, doctors, appointments, examinations, departments, notifications, and AI-assisted symptom analysis — built with Spring Boot, Next.js, PostgreSQL, and a security-focused architecture.*
 
 [![Build and Test](https://github.com/akifkeklik/hospital-management-system/actions/workflows/build.yml/badge.svg)](https://github.com/akifkeklik/hospital-management-system/actions/workflows/build.yml)
-[![Java](https://img.shields.io/badge/Java-17-ED8B00?style=flat&logo=openjdk&logoColor=white)](https://openjdk.org/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.5-6DB33F?style=flat&logo=spring-boot&logoColor=white)](https://spring.io/projects/spring-boot)
-[![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=flat&logo=next.js&logoColor=white)](https://nextjs.org/)
-[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat&logo=react&logoColor=black)](https://react.dev/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![MySQL](https://img.shields.io/badge/MySQL-8-4479A1?style=flat&logo=mysql&logoColor=white)](https://www.mysql.com/)
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Java](https://img.shields.io/badge/Java-17-ED8B00?style=flat\&logo=openjdk\&logoColor=white)](https://openjdk.org/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.5-6DB33F?style=flat\&logo=spring-boot)](https://spring.io/projects/spring-boot)
+[![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=flat\&logo=next.js\&logoColor=white)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat\&logo=react\&logoColor=black)](https://react.dev/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat\&logo=postgresql\&logoColor=white)](https://www.postgresql.org/)
+[![MySQL](https://img.shields.io/badge/MySQL-8-4479A1?style=flat\&logo=mysql\&logoColor=white)](https://www.mysql.com/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat\&logo=docker\&logoColor=white)](https://www.docker.com/)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat)](LICENSE)
 
 <br/>
 
-[**Live Demo**](#-deployment) · [**API Docs**](#-api-reference) · [**Getting Started**](#-quick-start) · [**Architecture**](#-architecture)
+**Status: Production Hardening**
 
 <br/>
 
-<img src="https://img.shields.io/badge/Status-Production%20Ready-brightgreen?style=for-the-badge" alt="Production Ready"/>
+[**Architecture**](#-architecture) ·
+[**Getting Started**](#-quick-start) ·
+[**API Reference**](#-api-reference) ·
+[**Deployment**](#-deployment)
 
 </div>
 
@@ -30,101 +33,158 @@
 
 ## 📑 Table of Contents
 
-- [Overview](#-overview)
-- [Key Features](#-key-features)
-- [Architecture](#-architecture)
-- [Tech Stack](#-tech-stack)
-- [Quick Start](#-quick-start)
-- [Project Structure](#-project-structure)
-- [API Reference](#-api-reference)
-- [Security](#-security)
-- [AI Integration](#-ai-powered-features)
-- [Database](#-database)
-- [Testing](#-testing)
-- [Deployment](#-deployment)
-- [CI/CD](#-cicd-pipeline)
-- [Environment Variables](#-environment-variables)
-- [Contributing](#-contributing)
-- [License](#-license)
+* [Overview](#-overview)
+* [Project Status](#-project-status)
+* [Key Features](#-key-features)
+* [Architecture](#-architecture)
+* [Request Lifecycle](#-request-lifecycle)
+* [Tech Stack](#-tech-stack)
+* [Quick Start](#-quick-start)
+* [Project Structure](#-project-structure)
+* [API Reference](#-api-reference)
+* [Security](#-security)
+* [AI-Assisted Features](#-ai-assisted-features)
+* [Database](#-database)
+* [Caching](#-caching)
+* [Observability](#-observability)
+* [Testing](#-testing)
+* [Deployment](#-deployment)
+* [CI/CD](#-cicd-pipeline)
+* [Environment Variables](#-environment-variables)
+* [Architecture Decisions](#-architecture-decisions)
+* [Contributing](#-contributing)
+* [License](#-license)
 
 ---
 
 ## 🌟 Overview
 
-**Hospital Management System** is a comprehensive, enterprise-grade healthcare platform designed to digitize and streamline hospital operations. Built with a modern microservice-inspired architecture, it enables seamless management of patients, doctors, appointments, examinations, departments, and more — all backed by AI-powered diagnostic recommendations.
+**Hospital Management System** is a full-stack healthcare management platform designed to digitize and streamline core hospital workflows.
 
-> **Why this project?**  
-> Healthcare facilities need robust, scalable, and secure software. This system provides a full production-ready solution — from patient registration to AI-assisted symptom analysis — with role-based access, real-time notifications, and multi-language support.
+The platform provides role-based access for **administrators, doctors, and patients**, while supporting appointment scheduling, patient management, examinations, doctor availability, notifications, departments, polyclinics, and AI-assisted symptom analysis.
+
+The system is built around a modular Spring Boot backend and a modern Next.js frontend, with PostgreSQL as the target production database and Flyway-based schema versioning.
+
+> **Project goal:** Build a maintainable, secure, observable, and deployable healthcare platform while applying real-world backend engineering practices such as layered architecture, RBAC, database migrations, rate limiting, automated testing, structured logging, caching, and CI/CD.
 
 ---
 
-## ✨ Key Features
+## 🚦 Project Status
+
+The project is actively being hardened toward production deployment.
+
+| Area                               | Status         |
+| ---------------------------------- | -------------- |
+| Backend architecture               | ✅ Implemented  |
+| Frontend application               | ✅ Implemented  |
+| Authentication                     | ✅ Implemented  |
+| Role-based authorization           | ✅ Implemented  |
+| Appointment management             | ✅ Implemented  |
+| Patient management                 | ✅ Implemented  |
+| Doctor management                  | ✅ Implemented  |
+| Examination workflows              | ✅ Implemented  |
+| Database migrations                | ✅ Implemented  |
+| Security hardening                 | ✅ Implemented  |
+| Rate limiting                      | ✅ Implemented  |
+| Request tracing                    | ✅ Implemented  |
+| Application metrics                | ✅ Implemented  |
+| Automated tests                    | ✅ Implemented  |
+| CI pipeline                        | ✅ Implemented  |
+| Production PostgreSQL architecture | 🚧 Hardening   |
+| Production deployment              | 🚧 In progress |
+| Production observability           | 🚧 In progress |
+
+> The repository documentation is intentionally aligned with the current engineering state rather than claiming production readiness before the final deployment and verification process is complete.
+
+---
+
+# ✨ Key Features
 
 <table>
 <tr>
 <td width="50%">
 
 ### 🗓️ Appointment Management
-- Real-time appointment booking & scheduling
-- Doctor availability & time-slot management
-- Appointment status tracking (Scheduled → Completed)
-- Conflict detection & double-booking prevention
-- Patient appointment history
+
+* Appointment booking and scheduling
+* Doctor availability management
+* Time-slot generation
+* Appointment status tracking
+* Conflict and double-booking prevention
+* Patient appointment history
+* Doctor appointment views
 
 </td>
 <td width="50%">
 
-### 🤖 AI-Powered Diagnostics
-- **Google Gemini** integration for symptom analysis
-- Intelligent department routing based on symptoms
-- AI-generated preliminary diagnostic suggestions
-- Graceful fallback to rule-based engine when API is unavailable
-- Privacy-first: no patient data stored externally
+### 🤖 AI-Assisted Symptom Analysis
+
+* Google Gemini integration
+* Natural-language symptom analysis
+* Department recommendation
+* Preliminary AI-generated suggestions
+* Rule-based fallback mode
+* Graceful degradation when AI services are unavailable
 
 </td>
 </tr>
+
 <tr>
 <td width="50%">
 
 ### 👨‍⚕️ Multi-Role Dashboards
-- **Admin Panel** — Full system control, user management, analytics
-- **Doctor Dashboard** — Patient queue, examination tools, schedule
-- **Patient Portal** — Book appointments, view records, AI symptom checker
-- Role-specific navigation, views & permissions
+
+* **Admin** — system administration and management
+* **Doctor** — appointments, patients and examinations
+* **Patient** — appointments, records and symptom analysis
+* Role-aware navigation
+* Role-based endpoint authorization
 
 </td>
 <td width="50%">
 
-### 🔐 Enterprise Security
-- JWT-based stateless authentication
-- Role-based access control (RBAC): `ADMIN`, `DOCTOR`, `PATIENT`
-- Password hashing with BCrypt
-- Rate limiting on auth endpoints (Bucket4J)
-- CORS configuration for cross-origin requests
-- Request logging with MDC trace IDs
+### 🔐 Security
+
+* JWT-based stateless authentication
+* Spring Security
+* Role-based access control
+* BCrypt password hashing
+* Authentication rate limiting
+* CORS configuration
+* Request validation
+* MDC-based request tracing
+* Centralized exception handling
 
 </td>
 </tr>
+
 <tr>
 <td width="50%">
 
-### 🏥 Clinical Features
-- Patient examination records & medical history
-- Doctor leave management & scheduling
-- Department & polyclinic organization
-- Prescription tracking in examinations
-- Patient notification system
+### 🏥 Clinical Workflows
+
+* Patient records
+* Examination records
+* Medical history
+* Prescription tracking
+* Doctor leave management
+* Department organization
+* Polyclinic management
+* Patient notifications
 
 </td>
 <td width="50%">
 
-### 🌍 Internationalization & UX
-- Multi-language support (TR / EN)
-- Responsive design for all devices
-- Real-time toast notifications
-- Hospital map component
-- OCR scanning via Tesseract.js
-- Interactive data charts (Recharts)
+### 🌍 Frontend & UX
+
+* Next.js App Router
+* Responsive UI
+* Turkish / English localization
+* Interactive dashboards
+* Data visualization
+* Hospital map
+* OCR support with Tesseract.js
+* Real-time user notifications
 
 </td>
 </tr>
@@ -132,152 +192,257 @@
 
 ---
 
-## 🏗 Architecture
+# 🏗 Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                        CLIENT (Browser)                             │
-│                   Next.js 16 + React 19 SPA                        │
-│         ┌──────────┬──────────┬─────────────────────┐              │
-│         │  Admin   │  Doctor  │     Patient          │              │
-│         │  Panel   │ Dashboard│     Portal           │              │
-│         └────┬─────┴────┬─────┴─────────┬───────────┘              │
-└──────────────┼──────────┼───────────────┼──────────────────────────┘
-               │   REST API (JSON)        │
-               ▼          ▼               ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                    SPRING BOOT 3.3.5 BACKEND                        │
-│                                                                     │
-│  ┌─────────────┐  ┌──────────────┐  ┌────────────────────┐        │
-│  │  Security    │  │  Web Layer   │  │  AI Service        │        │
-│  │  ─────────── │  │  ──────────  │  │  ────────────────  │        │
-│  │  JWT Auth    │  │  Controllers │  │  Gemini API Client │        │
-│  │  RBAC        │  │  DTOs        │  │  Symptom Analyzer  │        │
-│  │  Rate Limit  │  │  Validation  │  │  Dept. Router      │        │
-│  └──────┬──────┘  └──────┬───────┘  └──────┬─────────────┘        │
-│         │                │                  │                       │
-│  ┌──────▼────────────────▼──────────────────▼─────────────┐        │
-│  │                  Service Layer                          │        │
-│  │  Appointment · Doctor · Patient · Examination           │        │
-│  │  Department · Polyclinic · Notification · DoctorLeave   │        │
-│  └─────────────────────┬──────────────────────────────────┘        │
-│                        │                                            │
-│  ┌─────────────────────▼──────────────────────────────────┐        │
-│  │              Data Access Layer (Spring Data JPA)        │        │
-│  │              Flyway Migrations · Hibernate ORM          │        │
-│  └─────────────────────┬──────────────────────────────────┘        │
-└────────────────────────┼───────────────────────────────────────────┘
-                         │
-              ┌──────────▼──────────┐
-              │  MySQL 8 / Postgres │
-              │  (Dual DB Support)  │
-              └─────────────────────┘
+The application follows a **modular monolithic architecture** with clear domain boundaries.
+
+The backend is deployed as a single Spring Boot application while internally separating business domains into independent modules.
+
+```text
+                         ┌─────────────────────────┐
+                         │        CLIENTS          │
+                         │                         │
+                         │     Web Browser         │
+                         └────────────┬────────────┘
+                                      │
+                                      │ HTTPS / REST
+                                      ▼
+                         ┌─────────────────────────┐
+                         │       NEXT.JS 16        │
+                         │       React 19          │
+                         │                         │
+                         │  Admin / Doctor /       │
+                         │  Patient Interfaces     │
+                         └────────────┬────────────┘
+                                      │
+                                      │ REST / JSON
+                                      ▼
+┌──────────────────────────────────────────────────────────────────────┐
+│                         SPRING BOOT BACKEND                         │
+│                                                                      │
+│  ┌──────────────┐ ┌──────────────┐ ┌──────────────────────────────┐ │
+│  │ Security     │ │ Web Layer    │ │ AI Module                   │ │
+│  │              │ │              │ │                              │ │
+│  │ JWT          │ │ Controllers  │ │ Gemini Integration            │ │
+│  │ RBAC         │ │ DTOs         │ │ Symptom Analysis             │ │
+│  │ Rate Limit   │ │ Validation   │ │ Department Recommendation     │ │
+│  └──────┬───────┘ └──────┬───────┘ └──────────────┬───────────────┘ │
+│         │                 │                        │                 │
+│         └─────────────────┼────────────────────────┘                 │
+│                           ▼                                          │
+│                  ┌─────────────────────┐                             │
+│                  │   SERVICE LAYER     │                             │
+│                  │                     │                             │
+│                  │ Appointment         │                             │
+│                  │ Doctor              │                             │
+│                  │ Patient             │                             │
+│                  │ Examination         │                             │
+│                  │ Department          │                             │
+│                  │ Polyclinic          │                             │
+│                  │ Notification        │                             │
+│                  │ Doctor Leave        │                             │
+│                  │ User                │                             │
+│                  └──────────┬──────────┘                             │
+│                             │                                        │
+│                             ▼                                        │
+│                  ┌─────────────────────┐                             │
+│                  │ DATA ACCESS LAYER   │                             │
+│                  │                     │                             │
+│                  │ Spring Data JPA     │                             │
+│                  │ Hibernate ORM       │                             │
+│                  │ Flyway              │                             │
+│                  └──────────┬──────────┘                             │
+└─────────────────────────────┼────────────────────────────────────────┘
+                              │
+                              ▼
+                    ┌─────────────────────┐
+                    │     PostgreSQL      │
+                    │ Production Database │
+                    └─────────────────────┘
 ```
 
 ### Modular Package Design
 
-Each domain module follows a **clean, layered architecture**:
+Each major domain follows a consistent layered structure:
 
-```
+```text
 module/
-├── api/          # DTOs, interfaces, contracts
-├── impl/         # Service implementations, repositories, entities
+├── api/          # DTOs, contracts and interfaces
+├── impl/         # Services, repositories and domain implementation
 └── web/          # REST controllers
 ```
 
----
-
-## 🛠 Tech Stack
-
-### Backend
-| Technology | Version | Purpose |
-|---|---|---|
-| **Java** | 17 (LTS) | Core language |
-| **Spring Boot** | 3.3.5 | Application framework |
-| **Spring Security** | 6.x | Authentication & authorization |
-| **Spring Data JPA** | 3.x | Data access & ORM |
-| **Hibernate** | 6.x | JPA implementation |
-| **Flyway** | 10.x | Database version control & migrations |
-| **JJWT** | 0.11.5 | JSON Web Token handling |
-| **Bucket4J** | 8.10.1 | Rate limiting |
-| **Micrometer + Prometheus** | — | Metrics & observability |
-| **Spring Boot Actuator** | — | Health checks & monitoring |
-| **Maven** | 3.9+ | Build & dependency management |
-
-### Frontend
-| Technology | Version | Purpose |
-|---|---|---|
-| **Next.js** | 16 | React meta-framework (App Router) |
-| **React** | 19 | UI library |
-| **Recharts** | 3.9 | Data visualization & charts |
-| **Tesseract.js** | 7.0 | OCR / document scanning |
-| **CSS Modules** | — | Scoped component styling |
-
-### Infrastructure
-| Technology | Purpose |
-|---|---|
-| **Docker** | Multi-stage containerized builds |
-| **GitHub Actions** | CI/CD pipeline |
-| **MySQL 8** | Primary database (local / production) |
-| **PostgreSQL 16** | Cloud database (Render deployment) |
-| **Render** | Cloud hosting platform |
+This keeps domain logic organized while avoiding unnecessary distributed-system complexity.
 
 ---
 
-## 🚀 Quick Start
+# 🔄 Request Lifecycle
 
-### Prerequisites
+A typical authenticated API request flows through the following layers:
+
+```text
+HTTP Request
+     │
+     ▼
+CORS / Web Configuration
+     │
+     ▼
+Rate Limiting
+     │
+     ▼
+JWT Authentication Filter
+     │
+     ▼
+Spring Security Authorization
+     │
+     ▼
+Controller
+     │
+     ▼
+DTO Validation
+     │
+     ▼
+Service Layer
+     │
+     ├──────────────► Cache
+     │
+     ▼
+Repository / JPA
+     │
+     ▼
+PostgreSQL
+     │
+     ▼
+Service Response
+     │
+     ▼
+Controller
+     │
+     ▼
+HTTP Response
+```
+
+Cross-cutting concerns such as logging, tracing, exception handling, security, and validation are handled independently from the core domain logic.
+
+---
+
+# 🛠 Tech Stack
+
+## Backend
+
+| Technology               | Version | Purpose                        |
+| ------------------------ | ------: | ------------------------------ |
+| **Java**                 |  17 LTS | Core language                  |
+| **Spring Boot**          |   3.3.5 | Application framework          |
+| **Spring Security**      |     6.x | Authentication & authorization |
+| **Spring Data JPA**      |     3.x | Data access                    |
+| **Hibernate**            |     6.x | ORM                            |
+| **Flyway**               |    10.x | Database migrations            |
+| **JJWT**                 |  0.11.5 | JWT handling                   |
+| **Bucket4J**             |  8.10.1 | Rate limiting                  |
+| **Micrometer**           |       — | Metrics                        |
+| **Prometheus**           |       — | Metrics collection             |
+| **Spring Boot Actuator** |       — | Health and monitoring          |
+| **Maven**                |    3.9+ | Build management               |
+
+## Frontend
+
+| Technology       | Version | Purpose                   |
+| ---------------- | ------: | ------------------------- |
+| **Next.js**      |      16 | Web application framework |
+| **React**        |      19 | UI library                |
+| **Recharts**     |     3.9 | Data visualization        |
+| **Tesseract.js** |     7.0 | OCR                       |
+| **CSS Modules**  |       — | Component styling         |
+
+## Infrastructure
+
+| Technology         | Purpose                                    |
+| ------------------ | ------------------------------------------ |
+| **Docker**         | Containerization                           |
+| **GitHub Actions** | CI/CD                                      |
+| **PostgreSQL 16**  | Production database                        |
+| **MySQL 8**        | Local development / compatibility          |
+| **Cloud Hosting**  | Container-compatible production deployment |
+
+---
+
+# 🚀 Quick Start
+
+## Prerequisites
 
 | Requirement | Version |
-|---|---|
-| Java JDK | 17+ |
-| Maven | 3.9+ |
-| Node.js | 18+ |
-| MySQL | 8.0+ |
-| Git | 2.x+ |
+| ----------- | ------- |
+| Java JDK    | 17+     |
+| Maven       | 3.9+    |
+| Node.js     | 18+     |
+| MySQL       | 8.0+    |
+| Git         | 2.x+    |
 
-### 1️⃣ Clone the Repository
+---
+
+## 1️⃣ Clone the Repository
 
 ```bash
 git clone https://github.com/akifkeklik/hospital-management-system.git
 cd hospital-management-system
 ```
 
-### 2️⃣ Database Setup
+---
+
+## 2️⃣ Database Setup
+
+For local development, the application can use MySQL.
 
 ```sql
--- Create the database
 CREATE DATABASE IF NOT EXISTS hospitaldb;
 ```
 
-### 3️⃣ Configure Environment
+Production deployments should use PostgreSQL.
 
-Create a `.env` file or set these environment variables:
+---
+
+## 3️⃣ Configure Environment Variables
+
+Set the required environment variables:
 
 ```bash
-# Required
-export JWT_SECRET="your-256-bit-secret-key-here-min-32-chars"
+export JWT_SECRET="your-256-bit-secret-key"
+```
 
-# Optional (defaults shown)
+Example local database configuration:
+
+```bash
 export DB_URL="jdbc:mysql://localhost:3306/hospitaldb?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true"
+export DB_DRIVER="com.mysql.cj.jdbc.Driver"
 export DB_USERNAME="root"
-export DB_PASSWORD="12345678"
+export DB_PASSWORD="your-password"
+```
 
-# AI Features (optional — runs in demo mode without)
+Optional AI configuration:
+
+```bash
 export GEMINI_API_KEY="your-gemini-api-key"
 ```
 
-### 4️⃣ Start the Backend
+---
+
+## 4️⃣ Start the Backend
 
 ```bash
-# Build and run
 mvn clean install
 mvn spring-boot:run
 ```
 
-The backend will start at **`http://localhost:8080`**
+Backend:
 
-### 5️⃣ Start the Frontend
+```text
+http://localhost:8080
+```
+
+---
+
+## 5️⃣ Start the Frontend
 
 ```bash
 cd frontend
@@ -285,446 +450,665 @@ npm install
 npm run dev
 ```
 
-The frontend will start at **`http://localhost:3000`**
+Frontend:
 
-### 🐳 Docker (Alternative)
+```text
+http://localhost:3000
+```
+
+---
+
+## 🐳 Docker
+
+Build the application:
 
 ```bash
-# Build the image
 docker build -t hospital-management-system .
+```
 
-# Run with environment variables
+Run it:
+
+```bash
 docker run -p 8080:8080 \
   -e JWT_SECRET="your-secret-key" \
-  -e DB_URL="jdbc:mysql://host.docker.internal:3306/hospitaldb" \
-  -e DB_USERNAME="root" \
-  -e DB_PASSWORD="12345678" \
+  -e DB_URL="jdbc:postgresql://host:5432/hospitaldb" \
+  -e DB_DRIVER="org.postgresql.Driver" \
+  -e DB_USERNAME="prod_user" \
+  -e DB_PASSWORD="prod_password" \
   hospital-management-system
 ```
 
 ---
 
-## 📁 Project Structure
+# 📁 Project Structure
 
-```
+```text
 hospital-management-system/
 │
-├── 📂 .github/workflows/         # CI/CD pipeline configuration
-│   └── build.yml                 # GitHub Actions (build + test)
+├── .github/
+│   └── workflows/
+│       └── build.yml
 │
-├── 📂 docs/                      # Project documentation
+├── docs/
 │   ├── PROJECT_MASTER_PLAN.md
 │   ├── FRONTEND-UX-MAP.md
 │   └── DATABASE-MIGRATION-*.md
 │
-├── 📂 frontend/                  # Next.js 16 Frontend
+├── frontend/
 │   └── src/
-│       ├── app/                  # App Router pages
-│       │   ├── admin/            # Admin panel pages
-│       │   ├── doctor/           # Doctor dashboard
-│       │   ├── appointments/     # Appointment management
-│       │   ├── book-appointment/ # Booking flow
-│       │   ├── departments/      # Department listing
-│       │   ├── patients/         # Patient management
-│       │   ├── patient-records/  # Medical records
+│       ├── app/
+│       │   ├── admin/
+│       │   ├── doctor/
+│       │   ├── appointments/
+│       │   ├── book-appointment/
+│       │   ├── departments/
+│       │   ├── patients/
+│       │   ├── patient-records/
 │       │   ├── patient-notifications/
-│       │   ├── settings/         # System settings
-│       │   ├── login/            # Authentication
-│       │   ├── register/         # Registration
-│       │   └── forgot-password/  # Password recovery
-│       ├── components/           # Reusable UI components
-│       │   ├── Header.js         # Navigation header
-│       │   ├── Sidebar.js        # Side navigation
-│       │   ├── DoctorDashboard.js
-│       │   ├── PatientDashboard.js
-│       │   ├── SymptomAnalyzer.js # AI symptom checker
-│       │   ├── HospitalMap.js    # Interactive map
-│       │   ├── Scanner.js        # OCR scanner
-│       │   ├── DashboardCharts.js
-│       │   └── ...
-│       ├── context/              # React Context providers
-│       ├── hooks/                # Custom React hooks
-│       ├── services/             # API service layer
-│       ├── locales/              # i18n translations (TR/EN)
-│       └── utils/                # Utility functions
+│       │   ├── settings/
+│       │   ├── login/
+│       │   ├── register/
+│       │   └── forgot-password/
+│       │
+│       ├── components/
+│       ├── context/
+│       ├── hooks/
+│       ├── services/
+│       ├── locales/
+│       └── utils/
 │
-├── 📂 src/main/java/com/hospital/appointmentsystem/
-│   ├── 🚀 HospitalAppointmentApplication.java   # Entry point
+├── src/
+│   ├── main/
+│   │   ├── java/com/hospital/appointmentsystem/
+│   │   │
+│   │   ├── ai/
+│   │   ├── appointment/
+│   │   ├── doctor/
+│   │   ├── patient/
+│   │   ├── examination/
+│   │   ├── department/
+│   │   ├── polyclinic/
+│   │   ├── notification/
+│   │   ├── doctorleave/
+│   │   ├── user/
+│   │   ├── setting/
+│   │   │
+│   │   ├── security/
+│   │   ├── config/
+│   │   └── exception/
 │   │
-│   ├── 📂 ai/                   # AI Module
-│   │   ├── AiController.java
-│   │   ├── AiService.java       # Gemini integration
-│   │   └── AiDtos.java
-│   │
-│   ├── 📂 appointment/          # Appointment Module
-│   │   ├── api/                  # DTOs & interfaces
-│   │   ├── impl/                 # Service & repository
-│   │   └── web/                  # REST controllers
-│   │
-│   ├── 📂 doctor/               # Doctor Module
-│   ├── 📂 patient/              # Patient Module
-│   ├── 📂 examination/          # Examination Module
-│   ├── 📂 department/           # Department Module
-│   ├── 📂 polyclinic/           # Polyclinic Module
-│   ├── 📂 notification/         # Notification Module
-│   ├── 📂 doctorleave/          # Doctor Leave Module
-│   ├── 📂 user/                 # User Management Module
-│   ├── 📂 setting/              # System Settings Module
-│   │
-│   ├── 📂 security/             # Security & Auth
-│   │   ├── SecurityConfig.java  # Spring Security config
-│   │   ├── JwtUtil.java         # JWT token utilities
-│   │   ├── JwtAuthFilter.java   # JWT authentication filter
-│   │   ├── AuthController.java  # Login/Register endpoints
-│   │   ├── RateLimitFilter.java # Brute-force protection
-│   │   └── SecurityService.java # Authorization service
-│   │
-│   ├── 📂 config/               # Application Configuration
-│   │   ├── WebConfig.java       # CORS & web settings
-│   │   ├── CacheConfig.java     # Caching configuration
-│   │   └── RequestLoggingFilter.java
-│   │
-│   └── 📂 exception/            # Global exception handling
-│
-├── 📂 src/main/resources/
-│   ├── application.properties    # App configuration
-│   └── db/migration/            # Flyway migrations
-│       ├── mysql/V1__init_schema.sql
-│       └── postgresql/V1__init_schema.sql
-│
-├── 📂 src/test/                  # Test suite
-│   ├── java/.../
-│   │   ├── NPlusOneBaselineTest.java
-│   │   ├── DatabaseIndexAnalyzer.java
-│   │   ├── DatabaseIndexVerifier.java
-│   │   ├── appointment/         # Appointment tests
-│   │   ├── doctorleave/         # Doctor leave tests
-│   │   ├── security/            # Security tests
-│   │   └── observability/       # Metrics tests
 │   └── resources/
-│       └── application-test.properties
+│       ├── application.properties
+│       └── db/migration/
+│           ├── mysql/
+│           └── postgresql/
 │
-├── Dockerfile                    # Multi-stage Docker build
-├── pom.xml                       # Maven configuration
-└── README.md                     # You are here!
+├── src/test/
+├── Dockerfile
+├── pom.xml
+└── README.md
 ```
 
 ---
 
-## 📡 API Reference
+# 📡 API Reference
 
-### Authentication
+The API is organized around the main healthcare domains.
 
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| `POST` | `/api/auth/register` | Register new user | Public |
-| `POST` | `/api/auth/login` | Login & get JWT token | Public |
-| `POST` | `/api/auth/forgot-password` | Request password reset | Public |
-| `GET` | `/api/auth/me` | Get current user info | 🔒 |
+## Authentication
 
-### Appointments
+| Method | Endpoint                    | Description       | Auth   |
+| ------ | --------------------------- | ----------------- | ------ |
+| `POST` | `/api/auth/register`        | Register user     | Public |
+| `POST` | `/api/auth/login`           | Authenticate user | Public |
+| `POST` | `/api/auth/forgot-password` | Password recovery | Public |
+| `GET`  | `/api/auth/me`              | Current user      | 🔒     |
 
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| `GET` | `/api/appointments` | List appointments | 🔒 |
-| `POST` | `/api/appointments` | Create appointment | 🔒 Patient |
-| `PUT` | `/api/appointments/{id}` | Update appointment | 🔒 |
-| `DELETE` | `/api/appointments/{id}` | Cancel appointment | 🔒 |
-| `GET` | `/api/appointments/doctor/{id}` | Doctor's appointments | 🔒 Doctor |
-| `GET` | `/api/appointments/patient/{id}` | Patient's appointments | 🔒 Patient |
+## Appointments
 
-### Doctors
+| Method   | Endpoint                         | Description          | Auth       |
+| -------- | -------------------------------- | -------------------- | ---------- |
+| `GET`    | `/api/appointments`              | List appointments    | 🔒         |
+| `POST`   | `/api/appointments`              | Create appointment   | 🔒 Patient |
+| `PUT`    | `/api/appointments/{id}`         | Update appointment   | 🔒         |
+| `DELETE` | `/api/appointments/{id}`         | Cancel appointment   | 🔒         |
+| `GET`    | `/api/appointments/doctor/{id}`  | Doctor appointments  | 🔒 Doctor  |
+| `GET`    | `/api/appointments/patient/{id}` | Patient appointments | 🔒 Patient |
 
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| `GET` | `/api/doctors` | List all doctors | 🔒 |
-| `GET` | `/api/doctors/{id}` | Get doctor details | 🔒 |
-| `GET` | `/api/doctors/{id}/available-slots` | Get available time slots | 🔒 |
+## Doctors
 
-### Patients
+| Method | Endpoint                            | Description     | Auth |
+| ------ | ----------------------------------- | --------------- | ---- |
+| `GET`  | `/api/doctors`                      | List doctors    | 🔒   |
+| `GET`  | `/api/doctors/{id}`                 | Doctor details  | 🔒   |
+| `GET`  | `/api/doctors/{id}/available-slots` | Available slots | 🔒   |
 
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| `GET` | `/api/patients` | List all patients | 🔒 Admin |
-| `GET` | `/api/patients/{id}` | Get patient details | 🔒 |
-| `PUT` | `/api/patients/{id}` | Update patient info | 🔒 |
+## Patients
 
-### Examinations
+| Method | Endpoint             | Description     | Auth     |
+| ------ | -------------------- | --------------- | -------- |
+| `GET`  | `/api/patients`      | List patients   | 🔒 Admin |
+| `GET`  | `/api/patients/{id}` | Patient details | 🔒       |
+| `PUT`  | `/api/patients/{id}` | Update patient  | 🔒       |
 
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| `GET` | `/api/examinations` | List examinations | 🔒 |
-| `POST` | `/api/examinations` | Create examination record | 🔒 Doctor |
-| `GET` | `/api/examinations/patient/{id}` | Patient's exam history | 🔒 |
+## Examinations
 
-### Departments & Polyclinics
+| Method | Endpoint                         | Description        | Auth      |
+| ------ | -------------------------------- | ------------------ | --------- |
+| `GET`  | `/api/examinations`              | List examinations  | 🔒        |
+| `POST` | `/api/examinations`              | Create examination | 🔒 Doctor |
+| `GET`  | `/api/examinations/patient/{id}` | Patient history    | 🔒        |
 
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| `GET` | `/api/departments` | List departments | 🔒 |
-| `GET` | `/api/polyclinics` | List polyclinics | 🔒 |
+## Departments & Polyclinics
 
-### AI Features
+| Method | Endpoint           | Description      | Auth |
+| ------ | ------------------ | ---------------- | ---- |
+| `GET`  | `/api/departments` | List departments | 🔒   |
+| `GET`  | `/api/polyclinics` | List polyclinics | 🔒   |
 
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| `POST` | `/api/ai/analyze-symptoms` | AI symptom analysis | 🔒 |
+## AI
 
-### System
+| Method | Endpoint                   | Description      | Auth |
+| ------ | -------------------------- | ---------------- | ---- |
+| `POST` | `/api/ai/analyze-symptoms` | Analyze symptoms | 🔒   |
 
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| `GET` | `/actuator/health` | Health check | Public |
-| `GET` | `/actuator/prometheus` | Prometheus metrics | Public |
+## System
 
----
+| Method | Endpoint               | Description        | Auth   |
+| ------ | ---------------------- | ------------------ | ------ |
+| `GET`  | `/actuator/health`     | Application health | Public |
+| `GET`  | `/actuator/prometheus` | Prometheus metrics | Public |
 
-## 🔐 Security
-
-### Authentication Flow
-
-```
-┌──────────┐     POST /api/auth/login      ┌──────────────┐
-│  Client   │ ────────────────────────────▶ │  Auth Server  │
-│           │                               │               │
-│           │     200 OK + JWT Token         │  ✓ Validate   │
-│           │ ◀──────────────────────────── │  ✓ BCrypt     │
-│           │                               │  ✓ Generate   │
-│           │     GET /api/... + Bearer      │               │
-│           │ ────────────────────────────▶ │  ✓ Verify JWT │
-│           │                               │  ✓ Check Role │
-│           │     200 OK + Response          │  ✓ Authorize  │
-│           │ ◀──────────────────────────── │               │
-└──────────┘                               └──────────────┘
-```
-
-### Security Layers
-
-| Layer | Implementation | Description |
-|---|---|---|
-| **Authentication** | JWT (JJWT 0.11.5) | Stateless token-based auth, 10-hour expiry |
-| **Authorization** | Spring Security RBAC | Role-based endpoint protection |
-| **Password Storage** | BCrypt | Industry-standard hashing |
-| **Rate Limiting** | Bucket4J | Configurable rate limits on auth endpoints |
-| **Request Tracing** | MDC + Logging Filter | Unique trace ID per request |
-| **CORS** | Spring WebConfig | Configurable allowed origins |
-| **Input Validation** | Bean Validation (JSR 380) | Request body & parameter validation |
+> Endpoint availability and authorization should always be verified against the current backend implementation.
 
 ---
 
-## 🤖 AI-Powered Features
+# 🔐 Security
 
-The system integrates **Google Gemini 2.0 Flash** for intelligent healthcare assistance:
+Security is implemented as a layered architecture rather than a single authentication mechanism.
 
-### Symptom Analyzer
-- Patients describe symptoms in natural language
-- AI analyzes and suggests potential conditions
-- Automatic department routing recommendation
-- Confidence scoring for each suggestion
+## Authentication Flow
 
-### Dual-Mode Operation
+```text
+┌──────────────┐
+│    Client    │
+└──────┬───────┘
+       │
+       │ POST /api/auth/login
+       ▼
+┌────────────────────┐
+│ Authentication     │
+│                    │
+│ ✓ Validate input   │
+│ ✓ Verify password  │
+│ ✓ BCrypt check     │
+│ ✓ Generate JWT     │
+└─────────┬──────────┘
+          │
+          │ JWT
+          ▼
+┌────────────────────┐
+│ Authenticated API  │
+│ Request            │
+└─────────┬──────────┘
+          │
+          ▼
+┌────────────────────┐
+│ JWT Filter         │
+│                    │
+│ ✓ Verify token     │
+│ ✓ Extract identity │
+│ ✓ Set security ctx │
+└─────────┬──────────┘
+          │
+          ▼
+┌────────────────────┐
+│ Authorization      │
+│                    │
+│ ✓ Role checks      │
+│ ✓ Endpoint rules   │
+└─────────┬──────────┘
+          │
+          ▼
+       Response
 ```
-┌─────────────────────────────────────────┐
-│          GEMINI_API_KEY set?            │
-│                                         │
-│    YES ──▶ 🤖 AI Mode                  │
-│            Full Gemini analysis         │
-│            Natural language processing  │
-│                                         │
-│    NO  ──▶ 📋 Demo Mode               │
-│            Rule-based symptom matching  │
-│            Keyword → department mapping │
-└─────────────────────────────────────────┘
-```
 
-> **Privacy Note**: Patient symptoms are sent to the Gemini API for analysis but are not stored externally. All patient records remain in your database.
+## Security Layers
+
+| Layer              | Implementation              |
+| ------------------ | --------------------------- |
+| Authentication     | JWT                         |
+| Authorization      | Spring Security RBAC        |
+| Password Storage   | BCrypt                      |
+| Rate Limiting      | Bucket4J                    |
+| Request Tracing    | MDC                         |
+| CORS               | Spring Web Configuration    |
+| Input Validation   | Bean Validation             |
+| Exception Handling | Centralized exception layer |
+
+### Supported Roles
+
+```text
+ADMIN
+DOCTOR
+PATIENT
+```
 
 ---
 
-## 🗄 Database
+# 🤖 AI-Assisted Features
 
-### Dual Database Support
+The platform can integrate with Google's Gemini API for AI-assisted symptom analysis.
 
-The system supports both **MySQL** and **PostgreSQL** with automatic dialect detection:
+## Symptom Analysis
 
-| Environment | Database | Driver |
-|---|---|---|
-| Local Development | MySQL 8 | `com.mysql.cj.jdbc.Driver` |
-| Cloud (Render) | PostgreSQL 16 | `org.postgresql.Driver` |
+Users can describe symptoms using natural language.
 
-### Schema Migration
+The AI module can provide:
 
-Database versioning is managed by **Flyway** with vendor-specific migration scripts:
+* Symptom interpretation
+* Possible condition categories
+* Department recommendation
+* Preliminary suggestions
+* Confidence information where supported
 
+### Dual-Mode Architecture
+
+```text
+                 ┌──────────────────────┐
+                 │ GEMINI_API_KEY set?  │
+                 └──────────┬───────────┘
+                            │
+                 ┌──────────┴───────────┐
+                 │                      │
+                YES                    NO
+                 │                      │
+                 ▼                      ▼
+          ┌──────────────┐       ┌──────────────┐
+          │ Gemini Mode  │       │ Fallback Mode │
+          │              │       │              │
+          │ AI analysis  │       │ Rule-based   │
+          │ NLP          │       │ matching     │
+          │ Suggestions  │       │ Department   │
+          └──────────────┘       └──────────────┘
 ```
+
+> **Important:** AI output is intended for assistance and routing purposes only. It is **not a medical diagnosis** and should not replace evaluation by a qualified healthcare professional.
+
+### Data Handling
+
+Patient records remain stored in the application's configured database.
+
+When Gemini integration is enabled, symptom input may be transmitted to the configured AI provider for processing. The application does not intentionally persist AI requests as an external patient record.
+
+---
+
+# 🗄 Database
+
+## Production Database
+
+**PostgreSQL 16** is the target production database.
+
+## Local Development
+
+**MySQL 8** is supported for local development and database compatibility.
+
+| Environment       | Database      |
+| ----------------- | ------------- |
+| Local Development | MySQL 8       |
+| Production        | PostgreSQL 16 |
+
+## Migration Strategy
+
+Database schema changes are version-controlled through Flyway.
+
+```text
 src/main/resources/db/migration/
+
 ├── mysql/
-│   └── V1__init_schema.sql       # MySQL-specific DDL
+│   └── V1__init_schema.sql
+│
 └── postgresql/
-    └── V1__init_schema.sql       # PostgreSQL-specific DDL
+    └── V1__init_schema.sql
 ```
 
-Flyway automatically detects the active database vendor and applies the correct migration scripts.
+The migration structure allows vendor-specific SQL while keeping database evolution version-controlled.
 
-### Key Entities
+## Key Domain Entities
 
-```
-┌──────────┐    ┌─────────────┐    ┌──────────────┐
-│   User    │    │   Doctor    │    │   Patient    │
-│──────────│    │─────────────│    │──────────────│
-│ id       │◀──│ user_id     │    │ user_id      │──▶ User
-│ email    │    │ department  │    │ blood_type   │
-│ password │    │ polyclinic  │    │ birth_date   │
-│ role     │    │ title       │    │ phone        │
-└──────────┘    └──────┬──────┘    └──────┬───────┘
-                       │                   │
-                       ▼                   ▼
-              ┌────────────────┐  ┌───────────────┐
-              │  Appointment   │  │  Examination  │
-              │────────────────│  │───────────────│
-              │ doctor_id      │  │ appointment   │
-              │ patient_id     │  │ diagnosis     │
-              │ date / time    │  │ prescription  │
-              │ status         │  │ notes         │
-              └────────────────┘  └───────────────┘
+```text
+                   ┌──────────────┐
+                   │     User     │
+                   └──────┬───────┘
+                          │
+              ┌───────────┴───────────┐
+              ▼                       ▼
+       ┌─────────────┐         ┌─────────────┐
+       │   Doctor    │         │   Patient   │
+       └──────┬──────┘         └──────┬──────┘
+              │                       │
+              └──────────┬────────────┘
+                         ▼
+                 ┌──────────────┐
+                 │ Appointment  │
+                 └──────┬───────┘
+                        │
+                        ▼
+                 ┌──────────────┐
+                 │ Examination  │
+                 └──────────────┘
 ```
 
 ---
 
-## 🧪 Testing
+# ⚡ Caching
 
-### Test Infrastructure
+The backend includes application-level caching for read-heavy operations where appropriate.
 
-| Type | Framework | Coverage |
-|---|---|---|
-| Unit Tests | JUnit 5 + Mockito | Service layer |
-| Integration Tests | Spring Boot Test | API endpoints |
-| Security Tests | Spring Security Test | Auth & RBAC |
-| Performance Tests | Custom analyzers | N+1 query detection, DB index verification |
-| Test Database | H2 (in-memory) | Isolated test environment |
+The current caching approach is designed to:
 
-### Running Tests
+* Reduce repeated database reads
+* Improve response latency
+* Avoid unnecessary infrastructure dependencies
+* Preserve application-level data consistency
+
+Caching is implemented through Spring's caching abstraction.
+
+The cache strategy can later be replaced or extended with an external cache such as Redis if production workload requirements justify it.
+
+---
+
+# 📊 Observability
+
+The application includes several observability capabilities.
+
+## Health
+
+Spring Boot Actuator provides application health information.
+
+```text
+GET /actuator/health
+```
+
+## Metrics
+
+Micrometer exposes application metrics for Prometheus-compatible monitoring.
+
+```text
+GET /actuator/prometheus
+```
+
+## Request Tracing
+
+Requests are assigned trace identifiers through MDC-based request logging.
+
+This enables correlation of:
+
+```text
+Request
+   ↓
+Controller
+   ↓
+Service
+   ↓
+Repository
+   ↓
+Error / Response
+```
+
+within application logs.
+
+## Logging
+
+The backend uses structured request logging and centralized exception handling to improve debugging and operational visibility.
+
+---
+
+# 🧪 Testing
+
+Testing is organized across multiple layers.
+
+| Type              | Technology           | Purpose                        |
+| ----------------- | -------------------- | ------------------------------ |
+| Unit Tests        | JUnit 5 + Mockito    | Business logic                 |
+| Integration Tests | Spring Boot Test     | Application integration        |
+| Security Tests    | Spring Security Test | Authentication / authorization |
+| Performance Tests | Custom analyzers     | Query and index analysis       |
+| Test Database     | H2                   | Isolated test execution        |
+
+## Running Tests
+
+Run all tests:
 
 ```bash
-# Run all tests
 mvn test
+```
 
-# Run with verbose output
+Run with SQL logging:
+
+```bash
 mvn test -Dspring.jpa.show-sql=true
+```
 
-# Run specific test class
+Run a specific test:
+
+```bash
 mvn test -Dtest=AppointmentServiceTest
 ```
 
-### Performance Testing
+## Performance Analysis
 
-The project includes custom database performance analyzers:
+The project contains custom tooling for database performance analysis:
 
-- **`NPlusOneBaselineTest`** — Detects N+1 query problems
-- **`DatabaseIndexAnalyzer`** — Analyzes index usage efficiency
-- **`DatabaseIndexVerifier`** — Verifies required indexes exist
+* `NPlusOneBaselineTest`
+* `DatabaseIndexAnalyzer`
+* `DatabaseIndexVerifier`
+
+These tools help identify inefficient query patterns and verify required database indexes.
 
 ---
 
-## ☁️ Deployment
+# ☁️ Deployment
 
-### Render (Cloud)
+The application is designed to be **cloud-provider independent**.
 
-The application is configured for one-click deployment on **Render**:
+The production architecture consists of:
 
-1. Connect your GitHub repository
-2. Set environment variables (see [Environment Variables](#-environment-variables))
-3. Render auto-detects the `Dockerfile` and builds
-4. PostgreSQL addon for the database
+```text
+┌─────────────────────┐
+│       Vercel        │
+│     Next.js App     │
+└──────────┬──────────┘
+           │ HTTPS
+           ▼
+┌─────────────────────┐
+│   Spring Boot API   │
+│      Container      │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│     PostgreSQL      │
+│   Production DB     │
+└─────────────────────┘
+```
 
-### Docker Production Build
+The backend can be deployed to any infrastructure capable of running the application container.
+
+### Production Requirements
+
+* Java 17 compatible runtime
+* PostgreSQL 16
+* Secure environment variable management
+* HTTPS
+* Correct CORS configuration
+* Strong JWT secret
+* Database migration execution
+* Health monitoring
+* Application logging
+* Resource and connection limits
+
+> The deployment configuration is intentionally kept separate from the application architecture so the system is not coupled to a single cloud provider.
+
+---
+
+# 🔄 CI/CD Pipeline
+
+GitHub Actions provides continuous integration.
+
+```text
+Push / Pull Request
+        │
+        ▼
+┌───────────────────────┐
+│ GitHub Actions        │
+└───────────┬───────────┘
+            │
+       ┌────┴─────┐
+       ▼          ▼
+┌────────────┐ ┌──────────────┐
+│  Backend   │ │   Frontend   │
+│            │ │              │
+│ JDK 17     │ │ Node.js      │
+│ Maven      │ │ npm          │
+│ Tests      │ │ Build        │
+└────────────┘ └──────────────┘
+       │          │
+       └────┬─────┘
+            ▼
+      Build Result
+```
+
+The pipeline validates the backend and frontend before changes are considered ready for deployment.
+
+---
+
+# ⚙️ Environment Variables
+
+| Variable                   | Required | Default                 | Description                 |
+| -------------------------- | -------- | ----------------------- | --------------------------- |
+| `JWT_SECRET`               | ✅        | —                       | Secret used for JWT signing |
+| `DB_URL`                   | ❌        | Local MySQL URL         | JDBC connection URL         |
+| `DB_DRIVER`                | ❌        | MySQL driver            | Database driver             |
+| `DB_USERNAME`              | ❌        | `root`                  | Database username           |
+| `DB_PASSWORD`              | ❌        | —                       | Database password           |
+| `DDL_AUTO`                 | ❌        | `validate`              | Hibernate schema strategy   |
+| `SHOW_SQL`                 | ❌        | `false`                 | Enable SQL logging          |
+| `GEMINI_API_KEY`           | ❌        | —                       | Gemini API key              |
+| `GEMINI_API_URL`           | ❌        | Configured endpoint     | Gemini API endpoint         |
+| `CORS_ALLOWED_ORIGINS`     | ❌        | `http://localhost:3000` | Allowed frontend origins    |
+| `RATE_LIMIT_AUTH_CAPACITY` | ❌        | `10`                    | Auth request capacity       |
+| `RATE_LIMIT_AUTH_MINUTES`  | ❌        | `1`                     | Rate-limit window           |
+
+### Production Security
+
+Production secrets should **never** be committed to Git.
+
+Use the secret management facilities provided by the deployment environment.
+
+---
+
+# 🧠 Architecture Decisions
+
+## Why Spring Boot?
+
+Spring Boot provides mature support for:
+
+* REST APIs
+* Security
+* Dependency injection
+* Database access
+* Validation
+* Observability
+* Production operations
+
+## Why a Modular Monolith?
+
+The project benefits from strong domain boundaries without introducing unnecessary distributed-system complexity.
+
+This gives the system:
+
+* Clear module ownership
+* Easier local development
+* Simpler deployment
+* Lower operational complexity
+* A migration path toward services if future scale requires it
+
+## Why PostgreSQL?
+
+PostgreSQL is the production database because it provides:
+
+* Strong transactional guarantees
+* Mature indexing
+* Reliable relational modeling
+* Excellent Spring ecosystem support
+* Strong production deployment support
+
+## Why Flyway?
+
+Database changes should be version-controlled alongside application code.
+
+Flyway provides:
+
+* Repeatable deployment
+* Migration history
+* Controlled schema evolution
+* Environment consistency
+
+## Why JWT?
+
+JWT enables stateless authentication suitable for a separately deployed frontend and backend architecture.
+
+## Why Docker?
+
+Containerization provides a consistent runtime between development, CI, and production environments.
+
+---
+
+# 🤝 Contributing
+
+Contributions are welcome.
+
+## Development Flow
 
 ```bash
-# Multi-stage build (build + runtime)
-docker build -t hospital-system:latest .
-
-# Run production container
-docker run -d \
-  --name hospital-system \
-  -p 8080:8080 \
-  -e JWT_SECRET="production-secret-key" \
-  -e DB_URL="jdbc:postgresql://db-host:5432/hospitaldb" \
-  -e DB_DRIVER="org.postgresql.Driver" \
-  -e DB_USERNAME="prod_user" \
-  -e DB_PASSWORD="prod_password" \
-  hospital-system:latest
+git checkout -b feature/amazing-feature
 ```
 
----
+Make your changes, run tests, then commit:
 
-## ⚙️ CI/CD Pipeline
-
-The project uses **GitHub Actions** for continuous integration:
-
-```yaml
-Triggers: push/PR → main, master
-│
-├── 🔨 Backend Build
-│   ├── Setup JDK 17 (Temurin)
-│   ├── Cache Maven dependencies
-│   └── mvn clean package
-│
-└── 🎨 Frontend Build
-    ├── Setup Node.js 18
-    ├── Cache npm dependencies
-    ├── npm ci / npm install
-    └── npm run build
+```bash
+git commit -m "feat: add amazing feature"
 ```
 
----
+Push the branch:
 
-## 🔧 Environment Variables
+```bash
+git push origin feature/amazing-feature
+```
 
-| Variable | Required | Default | Description |
-|---|---|---|---|
-| `JWT_SECRET` | ✅ | — | 256-bit secret key for JWT signing |
-| `DB_URL` | ❌ | `jdbc:mysql://localhost:3306/hospitaldb...` | JDBC connection URL |
-| `DB_DRIVER` | ❌ | `com.mysql.cj.jdbc.Driver` | Database driver class |
-| `DB_USERNAME` | ❌ | `root` | Database username |
-| `DB_PASSWORD` | ❌ | `12345678` | Database password |
-| `DDL_AUTO` | ❌ | `validate` | Hibernate DDL strategy |
-| `SHOW_SQL` | ❌ | `false` | Log SQL queries to console |
-| `GEMINI_API_KEY` | ❌ | — | Google Gemini API key for AI features |
-| `GEMINI_API_URL` | ❌ | `https://generativelanguage.googleapis.com/...` | Gemini API endpoint |
-| `CORS_ALLOWED_ORIGINS` | ❌ | `http://localhost:3000` | Allowed CORS origins |
-| `RATE_LIMIT_AUTH_CAPACITY` | ❌ | `10` | Max auth requests per window |
-| `RATE_LIMIT_AUTH_MINUTES` | ❌ | `1` | Rate limit window (minutes) |
+Then open a Pull Request.
 
----
+## Commit Convention
 
-## 🤝 Contributing
+The project follows Conventional Commits.
 
-Contributions are welcome! Here's how to get started:
-
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** your changes (`git commit -m 'feat: add amazing feature'`)
-4. **Push** to the branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
-
-### Commit Convention
-
-This project follows [Conventional Commits](https://www.conventionalcommits.org/):
-
-| Prefix | Description |
-|---|---|
-| `feat:` | New feature |
-| `fix:` | Bug fix |
-| `docs:` | Documentation |
+| Prefix      | Description      |
+| ----------- | ---------------- |
+| `feat:`     | New feature      |
+| `fix:`      | Bug fix          |
+| `docs:`     | Documentation    |
 | `refactor:` | Code refactoring |
-| `test:` | Adding or updating tests |
-| `chore:` | Maintenance tasks |
+| `test:`     | Tests            |
+| `chore:`    | Maintenance      |
 
 ---
 
-## 📄 License
+# 📄 License
 
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **MIT License**.
+
+See the [LICENSE](LICENSE) file for details.
 
 ---
 
@@ -734,10 +1118,10 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 
 <br/>
 
-<sub>⭐ Star this repository if you found it helpful!</sub>
+<sub>⭐ Star this repository if you found it useful!</sub>
 
 <br/>
 
-[![GitHub](https://img.shields.io/badge/GitHub-akifkeklik-181717?style=for-the-badge&logo=github)](https://github.com/akifkeklik)
+[![GitHub](https://img.shields.io/badge/GitHub-akifkeklik-181717?style=for-the-badge\&logo=github)](https://github.com/akifkeklik)
 
 </div>
