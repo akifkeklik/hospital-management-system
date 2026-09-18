@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { DepartmentService, PatientService, DoctorService, AppointmentService, NotificationService } from '../services/api';
+import { DepartmentService, PatientService, DoctorService, AppointmentService, NotificationService, DashboardStatsService, AuthService } from '../services/api';
 import DashboardCharts from '../components/DashboardCharts';
 import PatientDashboard from '../components/PatientDashboard';
 import DoctorDashboard from '../components/DoctorDashboard';
@@ -11,13 +11,6 @@ import Modal from '../components/Modal';
 import { toast } from '../components/Toast';
 import LoadingScreen from '../components/LoadingScreen';
 
-function parseJwt(token) {
-  try {
-    return JSON.parse(atob(token.split('.')[1]));
-  } catch (e) {
-    return null;
-  }
-}
 
 export default function Dashboard() {
   const { t } = useSettings();
@@ -28,9 +21,8 @@ export default function Dashboard() {
     appointments: 0
   });
   const [chartData, setChartData] = useState({
-    departments: [],
-    doctors: [],
-    appointments: []
+    doctorDistribution: {},
+    appointmentsByDate: {}
   });
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState(null);
@@ -59,39 +51,34 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-    if (token) {
-      const decoded = parseJwt(token);
-      if (decoded && decoded.role) {
-        setRole(decoded.role);
-        if (decoded.role === 'ROLE_PATIENT' || decoded.role === 'ROLE_DOCTOR' || decoded.role === 'HEKIM' || decoded.role === 'ROLE_HEKIM' || decoded.role === 'HASTA' || decoded.role === 'ROLE_HASTA') {
-          // Hasta veya Doktor ise genel istatistik çekmeye gerek yok, kendi dashboard'ları var
-          setLoading(false);
-          return;
-        }
-      }
-    }
-
-    async function fetchStats() {
+    async function init() {
       try {
-        const [depts, pats, docs, appts] = await Promise.all([
-          DepartmentService.getAll(0, 100),
-          PatientService.getAll(0, 100),
-          DoctorService.getAll(0, 100),
-          AppointmentService.getAll(0, 100)
-        ]);
+        const userData = await AuthService.getMe();
+        if (userData && userData.role) {
+          setRole(userData.role);
+          if (userData.role === 'ROLE_PATIENT' || userData.role === 'ROLE_DOCTOR' || userData.role === 'HEKIM' || userData.role === 'ROLE_HEKIM' || userData.role === 'HASTA' || userData.role === 'ROLE_HASTA') {
+            // Hasta veya Doktor ise genel istatistik çekmeye gerek yok, kendi dashboard'ları var
+            setLoading(false);
+            return;
+          }
+        }
+      } catch (err) {
+        // Token yok veya geçersiz
+      }
+
+      try {
+        const dashboardStats = await DashboardStatsService.getDashboardStats();
         
         setStats({
-          departments: depts.totalElements || 0,
-          patients: pats.totalElements || 0,
-          doctors: docs.totalElements || 0,
-          appointments: appts.totalElements || 0
+          departments: dashboardStats.totalDepartments || 0,
+          patients: dashboardStats.totalPatients || 0,
+          doctors: dashboardStats.totalDoctors || 0,
+          appointments: dashboardStats.totalAppointments || 0
         });
 
         setChartData({
-          departments: depts.content || [],
-          doctors: docs.content || [],
-          appointments: appts.content || []
+          doctorDistribution: dashboardStats.doctorDistribution || {},
+          appointmentsByDate: dashboardStats.appointmentsByDate || {}
         });
       } catch (error) {
         console.error("Dashboard istatistikleri alınamadı", error);
@@ -100,7 +87,7 @@ export default function Dashboard() {
       }
     }
     
-    fetchStats();
+    init();
   }, []);
 
   if (role === 'ROLE_PATIENT' || role === 'PATIENT' || role === 'HASTA' || role === 'ROLE_HASTA') {
@@ -168,9 +155,8 @@ export default function Dashboard() {
 
       {!loading && (
         <DashboardCharts 
-          departments={chartData.departments}
-          doctors={chartData.doctors}
-          appointments={chartData.appointments}
+          doctorDistribution={chartData.doctorDistribution}
+          appointmentsByDate={chartData.appointmentsByDate}
         />
       )}
 

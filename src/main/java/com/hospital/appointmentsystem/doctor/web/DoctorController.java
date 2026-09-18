@@ -63,6 +63,18 @@ public class DoctorController {
         return ResponseEntity.ok(responses);
     }
 
+    // GET /api/doctors/search — Doktorlarda ara
+    @GetMapping("/search")
+    public ResponseEntity<Page<DoctorResponse>> searchDoctors(
+            @RequestParam String query,
+            Pageable pageable) {
+
+        Page<DoctorDto> dtos = doctorService.searchDoctors(query, pageable);
+        Page<DoctorResponse> responses = dtos.map(this::mapDtoToResponse);
+
+        return ResponseEntity.ok(responses);
+    }
+
     // ──────────────────────────────────────────────────────────
     // ⭐ YENİ: Bölüme göre doktor listele
     // GET /api/doctors/department/1 → ID=1 bölümündeki doktorlar

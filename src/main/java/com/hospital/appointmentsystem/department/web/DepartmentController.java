@@ -138,6 +138,18 @@ public class DepartmentController {
         return ResponseEntity.ok(responses);
     }
 
+    // GET /api/departments/search — Bölümlerde ara
+    @GetMapping("/search")
+    public ResponseEntity<Page<DepartmentResponse>> searchDepartments(
+            @RequestParam String query,
+            Pageable pageable) {
+
+        Page<DepartmentDto> dtos = departmentService.searchDepartments(query, pageable);
+        Page<DepartmentResponse> responses = dtos.map(this::mapDtoToResponse);
+
+        return ResponseEntity.ok(responses);
+    }
+
     // ──────────────────────────────────────────────────────────
     // 📌 PUT /api/departments/{id} — Bölüm Güncelle
     //

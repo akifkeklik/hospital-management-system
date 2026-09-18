@@ -22,6 +22,12 @@ import com.hospital.appointmentsystem.doctor.impl.DoctorRegistrationRequestRepos
 @RequestMapping("/api/auth")
 public class AuthController {
 
+    @org.springframework.beans.factory.annotation.Value("${cookie.secure:true}")
+    private boolean cookieSecure;
+
+    @org.springframework.beans.factory.annotation.Value("${cookie.sameSite:None}")
+    private String cookieSameSite;
+
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
@@ -47,7 +53,7 @@ public class AuthController {
     }
 
     public record AuthRequest(String username, String password) {}
-    public record AuthResponse(String token, boolean needsPasswordChange) {}
+    public record AuthResponse(boolean needsPasswordChange, String role) {}
     public record RegisterRequest(String tcIdentityNumber, String firstName, String lastName, String email, String phoneNumber, String password) {}
     public record DoctorRegisterRequest(String tcIdentityNumber, String firstName, String lastName, String email, String phoneNumber, Long departmentId, String specialization) {}
     public record ResetPasswordRequest(String tcIdentityNumber, String email, String newPassword) {}
@@ -73,25 +79,25 @@ public class AuthController {
 
         org.springframework.http.ResponseCookie jwtCookie = org.springframework.http.ResponseCookie.from("jwt", jwt)
                 .httpOnly(true)
-                .secure(true) // Production'da (HTTPS ve Cross-Origin) true ZORUNLUDUR
+                .secure(cookieSecure)
                 .path("/")
                 .maxAge(10 * 60 * 60) // 10 saat
-                .sameSite("None") // Cross-Domain (Vercel -> Render) için None ZORUNLUDUR
+                .sameSite(cookieSameSite)
                 .build();
 
         return ResponseEntity.ok()
                 .header(org.springframework.http.HttpHeaders.SET_COOKIE, jwtCookie.toString())
-                .body(new AuthResponse(jwt, user.getNeedsPasswordChange() != null ? user.getNeedsPasswordChange() : false));
+                .body(new AuthResponse(user.getNeedsPasswordChange() != null ? user.getNeedsPasswordChange() : false, user.getRole()));
     }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout() {
         org.springframework.http.ResponseCookie deleteCookie = org.springframework.http.ResponseCookie.from("jwt", "")
                 .httpOnly(true)
-                .secure(true) // Production'da true
+                .secure(cookieSecure)
                 .path("/")
                 .maxAge(0) // Silinmesi için 0 verilir
-                .sameSite("None")
+                .sameSite(cookieSameSite)
                 .build();
 
         return ResponseEntity.ok()
@@ -150,25 +156,20 @@ public class AuthController {
 
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
-        if (request.newPassword() == null || request.newPassword().length() < 6) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Hata: Yeni şifreniz en az 6 karakter olmalıdır."));
-        }
-        
-        boolean success = userService.resetPassword(request.tcIdentityNumber(), request.email(), request.newPassword());
-        
-        if (success) {
-            return ResponseEntity.ok(new MessageResponse("Şifreniz başarıyla sıfırlandı. Yeni şifrenizle giriş yapabilirsiniz."));
-        } else {
-            return ResponseEntity.badRequest().body(new MessageResponse("Hata: Girdiğiniz TC Kimlik Numarası veya E-Posta adresi sistemimizle eşleşmiyor."));
-        }
+        // SECURITY FIX: Doğrudan TC ve Email ile şifre değiştirmek hesap ele geçirme (Account Takeover) zafiyetidir.
+        // OTP veya Token tabanlı güvenli bir email delivery altyapısı kurulana kadar bu endpoint kısıtlanmıştır.
+        return ResponseEntity.badRequest().body(new MessageResponse("Hata: Şifre sıfırlama altyapısı (OTP/Token) henüz kurulmadığı için güvenlik nedeniyle devre dışı bırakılmıştır. Lütfen sistem yöneticisi ile iletişime geçin."));
     }
 
-    public record ForceChangePasswordRequest(String tcIdentityNumber, String newPassword) {}
+    public record ForceChangePasswordRequest(String tcIdentityNumber, String oldPassword, String newPassword) {}
 
     @PostMapping("/force-change-password")
     public ResponseEntity<?> forceChangePassword(@RequestBody ForceChangePasswordRequest request) {
         if (request.newPassword() == null || request.newPassword().length() < 6) {
             return ResponseEntity.badRequest().body(new MessageResponse("Hata: Yeni şifreniz en az 6 karakter olmalıdır."));
+        }
+        if (request.oldPassword() == null || request.oldPassword().isEmpty()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Hata: Mevcut/Geçici şifrenizi girmelisiniz."));
         }
         
         User user = userRepository.findByUsername(request.tcIdentityNumber()).orElse(null);
@@ -176,11 +177,11 @@ public class AuthController {
             return ResponseEntity.badRequest().body(new MessageResponse("Hata: Bu kullanıcı için şifre sıfırlama zorunluluğu bulunmuyor veya kullanıcı geçersiz."));
         }
         
-        boolean success = userService.changePassword(request.tcIdentityNumber(), request.newPassword());
+        boolean success = userService.changePasswordWithOld(request.tcIdentityNumber(), request.oldPassword(), request.newPassword());
         if (success) {
             return ResponseEntity.ok(new MessageResponse("Şifreniz başarıyla güncellendi! Lütfen yeni şifrenizle giriş yapın."));
         } else {
-            return ResponseEntity.badRequest().body(new MessageResponse("Hata: Şifre değiştirilemedi."));
+            return ResponseEntity.status(401).body(new MessageResponse("Hata: Mevcut/Geçici şifreniz hatalı."));
         }
     }
 

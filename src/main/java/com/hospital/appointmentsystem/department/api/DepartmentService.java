@@ -75,4 +75,6 @@ public interface DepartmentService {
      * @param id Silinecek bölümün ID'si
      */
     void deleteDepartment(Long id);
+
+    Page<DepartmentDto> searchDepartments(String query, Pageable pageable);
 }

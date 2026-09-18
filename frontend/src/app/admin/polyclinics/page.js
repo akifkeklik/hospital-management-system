@@ -1,5 +1,6 @@
 'use client';
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, Suspense, useCallback } from 'react';
+import { useApi } from '../../../hooks/useApi';
 import { useSearchParams } from 'next/navigation';
 import { PolyclinicService, DepartmentService } from '../../../services/api';
 import { toast } from '../../../components/Toast';
@@ -20,40 +21,41 @@ function PolyclinicsContent() {
   const filterDeptId = searchParams.get('departmentId');
   const highlightId = searchParams.get('highlight');
 
-  const [polyclinics, setPolyclinics] = useState([]);
-  const [departments, setDepartments] = useState([]);
   const [mounted, setMounted] = useState(false);
-  const [loading, setLoading] = useState(true);
+
+  const fetchPolyclinicsApi = useCallback(async (signal) => {
+    const [polyData, deptData] = await Promise.all([
+      PolyclinicService.getAll({ signal }),
+      DepartmentService.getAll(0, 100, { signal })
+    ]);
+    return {
+      polyclinics: polyData || [],
+      departments: deptData.content || deptData || []
+    };
+  }, []);
+
+  const { data: apiData, loading, execute } = useApi(fetchPolyclinicsApi, null);
+
+  const polyclinics = apiData ? apiData.polyclinics : [];
+  const departments = apiData ? apiData.departments : [];
 
   const [name, setName] = useState('');
   const [roomNumber, setRoomNumber] = useState('');
   const [departmentId, setDepartmentId] = useState('');
-  
+
   const [page, setPage] = useState(1);
   const itemsPerPage = 4;
-  
 
+  const fetchData = useCallback(() => {
+    execute().catch(error => {
+      console.error("Error fetching data:", error);
+    });
+  }, [execute]);
 
   useEffect(() => {
     setMounted(true);
     fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const [polyData, deptData] = await Promise.all([
-        PolyclinicService.getAll(),
-        DepartmentService.getAll(0, 100)
-      ]);
-      setPolyclinics(polyData);
-      setDepartments(deptData.content || deptData);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [fetchData]);
 
   const handleAddPolyclinic = async (e) => {
     e.preventDefault();
@@ -91,7 +93,7 @@ function PolyclinicsContent() {
     return dept ? dept.name : (t('unknown_department') || 'Bilinmeyen Bölüm');
   };
 
-  const filteredPolyclinics = filterDeptId 
+  const filteredPolyclinics = filterDeptId
     ? polyclinics.filter(p => p.departmentId === parseInt(filterDeptId))
     : polyclinics;
 
@@ -108,13 +110,13 @@ function PolyclinicsContent() {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 2.5fr', gap: '1.5rem' }}>
-        
+
         {/* Ekleme Formu */}
-        <div style={{ 
-          backgroundColor: 'var(--surface)', 
-          padding: '1.2rem', 
-          borderRadius: '12px', 
-          boxShadow: '0 4px 20px rgba(0,0,0,0.05)', 
+        <div style={{
+          backgroundColor: 'var(--surface)',
+          padding: '1.2rem',
+          borderRadius: '12px',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
           border: '1px solid rgba(var(--primary-rgb), 0.1)',
           height: 'fit-content'
         }}>
@@ -128,9 +130,9 @@ function PolyclinicsContent() {
           <form onSubmit={handleAddPolyclinic} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
             <div>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-muted)' }}>{t('linked_department')}</label>
-              <select 
-                required 
-                value={departmentId} 
+              <select
+                required
+                value={departmentId}
                 onChange={(e) => setDepartmentId(e.target.value)}
                 style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)', outline: 'none' }}
               >
@@ -143,34 +145,34 @@ function PolyclinicsContent() {
 
             <div>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-muted)' }}>{t('polyclinic_name')}</label>
-              <input 
-                type="text" 
-                placeholder={t('placeholder_polyclinic_name') || "Örn: Dahiliye Polikliniği 1"} 
-                required 
-                value={name} 
-                onChange={(e) => setName(e.target.value)} 
+              <input
+                type="text"
+                placeholder={t('placeholder_polyclinic_name') || "Örn: Dahiliye Polikliniği 1"}
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)', outline: 'none' }}
               />
             </div>
 
             <div>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-muted)' }}>{t('room_number')}</label>
-              <input 
-                type="text" 
-                placeholder={t('placeholder_room_number') || "Örn: B Blok 104"} 
-                required 
-                value={roomNumber} 
-                onChange={(e) => setRoomNumber(e.target.value)} 
+              <input
+                type="text"
+                placeholder={t('placeholder_room_number') || "Örn: B Blok 104"}
+                required
+                value={roomNumber}
+                onChange={(e) => setRoomNumber(e.target.value)}
                 style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)', outline: 'none' }}
               />
             </div>
-            
-            <button type="submit" style={{ 
-              padding: '0.8rem', 
-              backgroundColor: 'var(--primary)', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '8px', 
+
+            <button type="submit" style={{
+              padding: '0.8rem',
+              backgroundColor: 'var(--primary)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
               fontWeight: '600',
               marginTop: '0.5rem',
               cursor: 'pointer',
@@ -183,11 +185,11 @@ function PolyclinicsContent() {
         </div>
 
         {/* Liste */}
-        <div style={{ 
-          backgroundColor: 'var(--surface)', 
-          padding: '0', 
-          borderRadius: '16px', 
-          boxShadow: '0 4px 20px rgba(0,0,0,0.05)', 
+        <div style={{
+          backgroundColor: 'var(--surface)',
+          padding: '0',
+          borderRadius: '16px',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
           border: '1px solid var(--border)',
           overflow: 'hidden'
         }}>
@@ -223,10 +225,10 @@ function PolyclinicsContent() {
                 </thead>
                 <tbody>
                   {paginatedPolyclinics.map((poly, idx) => (
-                    <tr 
-                      key={poly.id} 
-                      style={{ 
-                        borderBottom: idx === paginatedPolyclinics.length - 1 ? 'none' : '1px solid var(--border)', 
+                    <tr
+                      key={poly.id}
+                      style={{
+                        borderBottom: idx === paginatedPolyclinics.length - 1 ? 'none' : '1px solid var(--border)',
                         transition: 'all 0.3s',
                         backgroundColor: highlightId && parseInt(highlightId) === poly.id ? 'rgba(var(--primary-rgb), 0.1)' : 'transparent'
                       }}
@@ -238,12 +240,12 @@ function PolyclinicsContent() {
                       </td>
                       <td style={{ padding: '1rem 1.5rem', color: 'var(--text-main)', fontWeight: '500' }}>{poly.name}</td>
                       <td style={{ padding: '1rem 1.5rem' }}>
-                        <span style={{ 
+                        <span style={{
                           display: 'inline-flex', alignItems: 'center', gap: '4px',
-                          padding: '4px 10px', 
-                          backgroundColor: 'rgba(var(--primary-rgb), 0.08)', 
-                          color: 'var(--primary)', 
-                          borderRadius: '20px', 
+                          padding: '4px 10px',
+                          backgroundColor: 'rgba(var(--primary-rgb), 0.08)',
+                          color: 'var(--primary)',
+                          borderRadius: '20px',
                           fontSize: '0.85rem',
                           fontWeight: '500'
                         }}>
@@ -252,13 +254,13 @@ function PolyclinicsContent() {
                         </span>
                       </td>
                       <td style={{ padding: '1rem 1.5rem', textAlign: 'right' }}>
-                        <button 
-                          onClick={() => handleDelete(poly.id)} 
-                          style={{ 
-                            padding: '6px 12px', 
-                            backgroundColor: 'rgba(239, 68, 68, 0.1)', 
-                            color: '#ef4444', 
-                            border: '1px solid rgba(239, 68, 68, 0.2)', 
+                        <button
+                          onClick={() => handleDelete(poly.id)}
+                          style={{
+                            padding: '6px 12px',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            color: '#ef4444',
+                            border: '1px solid rgba(239, 68, 68, 0.2)',
                             borderRadius: '6px',
                             cursor: 'pointer',
                             fontSize: '0.85rem',
@@ -281,16 +283,16 @@ function PolyclinicsContent() {
           {/* Pagination Controls */}
           {filteredPolyclinics.length > 0 && (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', padding: '1rem', borderTop: '1px solid var(--border)', backgroundColor: 'rgba(var(--background-rgb), 0.3)' }}>
-              <button 
+              <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
-                style={{ 
-                  padding: '0.5rem 1rem', 
-                  backgroundColor: page === 1 ? 'var(--surface-hover)' : 'var(--surface)', 
-                  color: page === 1 ? 'var(--text-muted)' : 'var(--text-main)', 
-                  border: '1px solid var(--border)', 
-                  borderRadius: '8px', 
-                  cursor: page === 1 ? 'not-allowed' : 'pointer' 
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: page === 1 ? 'var(--surface-hover)' : 'var(--surface)',
+                  color: page === 1 ? 'var(--text-muted)' : 'var(--text-main)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '8px',
+                  cursor: page === 1 ? 'not-allowed' : 'pointer'
                 }}
               >
                 {t('previous')}
@@ -298,16 +300,16 @@ function PolyclinicsContent() {
               <span style={{ fontSize: '0.9rem', color: 'var(--text-main)', fontWeight: '500' }}>
                 {t('page')} {page} / {totalPages}
               </span>
-              <button 
+              <button
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                style={{ 
-                  padding: '0.5rem 1rem', 
-                  backgroundColor: page === totalPages ? 'var(--surface-hover)' : 'var(--surface)', 
-                  color: page === totalPages ? 'var(--text-muted)' : 'var(--text-main)', 
-                  border: '1px solid var(--border)', 
-                  borderRadius: '8px', 
-                  cursor: page === totalPages ? 'not-allowed' : 'pointer' 
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: page === totalPages ? 'var(--surface-hover)' : 'var(--surface)',
+                  color: page === totalPages ? 'var(--text-muted)' : 'var(--text-main)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '8px',
+                  cursor: page === totalPages ? 'not-allowed' : 'pointer'
                 }}
               >
                 {t('next')}

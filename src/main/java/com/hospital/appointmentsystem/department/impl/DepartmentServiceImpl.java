@@ -175,6 +175,12 @@ public class DepartmentServiceImpl implements DepartmentService {
         departmentRepository.deleteById(id);
     }
 
+    @Override
+    public Page<DepartmentDto> searchDepartments(String query, Pageable pageable) {
+        Page<Department> departments = departmentRepository.searchDepartments(query, pageable);
+        return departments.map(this::mapToDto);
+    }
+
     // ══════════════════════════════════════════════════════════
     //  🔄 DÖNÜŞÜM METOTLARI (Mapping)
     //  Entity ↔ DTO arasında dönüşüm yapar

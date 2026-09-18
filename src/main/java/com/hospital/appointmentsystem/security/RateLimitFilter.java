@@ -65,10 +65,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
     }
 
     private String getClientIP(HttpServletRequest request) {
-        String xfHeader = request.getHeader("X-Forwarded-For");
-        if (xfHeader == null || xfHeader.isEmpty() || !xfHeader.contains(request.getRemoteAddr())) {
-            return request.getRemoteAddr();
-        }
-        return xfHeader.split(",")[0];
+        // Güvenlik: Spring Boot server.forward-headers-strategy=framework 
+        // ayarı sayesinde X-Forwarded-For'u güvenli şekilde işler ve 
+        // request.getRemoteAddr() içine asıl IP'yi koyar. Manuel parçalamak spoofing'e yol açar.
+        return request.getRemoteAddr();
     }
 }

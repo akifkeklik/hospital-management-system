@@ -35,7 +35,7 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final RateLimitFilter rateLimitFilter;
 
-    @org.springframework.beans.factory.annotation.Value("${cors.allowed-origins:http://localhost:3000}")
+    @org.springframework.beans.factory.annotation.Value("${cors.allowed-origins}")
     private String allowedOrigins;
 
     public SecurityConfig(JwtAuthFilter jwtAuthFilter, RateLimitFilter rateLimitFilter) {
@@ -67,13 +67,13 @@ public class SecurityConfig {
                 CorsConfiguration config = new CorsConfiguration();
                 config.setAllowedOriginPatterns(java.util.Arrays.asList(allowedOrigins.split(",")));
                 config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-                config.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type", "Accept", "Origin", "X-Requested-With"));
+                config.setAllowedHeaders(List.of("Cache-Control", "Content-Type", "Accept", "Origin", "X-Requested-With"));
                 config.setAllowCredentials(true);
                 return config;
             }))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/departments").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/departments", "/api/departments/**", "/api/doctors", "/api/doctors/**").permitAll()
                 .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                 .requestMatchers("/actuator/prometheus").hasRole("ADMIN")
                 .requestMatchers("/api/**").authenticated()

@@ -79,4 +79,21 @@ public class UserServiceImpl implements UserService {
         }
         return false;
     }
+
+    @Override
+    @Transactional
+    public boolean changePasswordWithOld(String username, String oldPassword, String newPassword) {
+        Optional<User> optionalUser = userRepository.findByUsername(username);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+                return false;
+            }
+            user.setPassword(passwordEncoder.encode(newPassword));
+            user.setNeedsPasswordChange(false);
+            userRepository.save(user);
+            return true;
+        }
+        return false;
+    }
 }

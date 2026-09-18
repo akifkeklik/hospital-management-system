@@ -69,4 +69,7 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
     // Bu isimde bir bölüm var mı?
     // SELECT COUNT(*) > 0 FROM departments WHERE name = ?
     boolean existsByName(String name);
+
+    @org.springframework.data.jpa.repository.Query("SELECT d FROM Department d WHERE LOWER(d.name) LIKE LOWER(CONCAT('%', :query, '%'))")
+    org.springframework.data.domain.Page<Department> searchDepartments(@org.springframework.data.repository.query.Param("query") String query, org.springframework.data.domain.Pageable pageable);
 }

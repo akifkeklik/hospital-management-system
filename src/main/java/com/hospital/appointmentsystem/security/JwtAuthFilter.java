@@ -29,7 +29,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        final String authHeader = request.getHeader("Authorization");
         String username = null;
         String jwt = null;
 
@@ -41,11 +40,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     break;
                 }
             }
-        }
-
-        // 2. Cookie yoksa Authorization header'a bakıyoruz (Geriye Dönük Uyumluluk veya Mobil)
-        if (jwt == null && authHeader != null && authHeader.startsWith("Bearer ")) {
-            jwt = authHeader.substring(7);
         }
 
         if (jwt != null && !jwt.isEmpty()) {

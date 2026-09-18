@@ -68,6 +68,7 @@ public class DoctorRegistrationRequest {
     public void setSpecialization(String specialization) { this.specialization = specialization; }
     public Long getDepartmentId() { return departmentId; }
     public void setDepartmentId(Long departmentId) { this.departmentId = departmentId; }
+    @com.fasterxml.jackson.annotation.JsonIgnore
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
     public String getStatus() { return status; }

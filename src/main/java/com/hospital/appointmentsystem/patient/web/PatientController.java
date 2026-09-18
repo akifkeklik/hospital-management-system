@@ -64,6 +64,19 @@ public class PatientController {
         return ResponseEntity.ok(responses);
     }
 
+    // GET /api/patients/search — Hastalarda ara
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR')")
+    @GetMapping("/search")
+    public ResponseEntity<Page<PatientResponse>> searchPatients(
+            @RequestParam String query,
+            Pageable pageable) {
+
+        Page<PatientDto> dtos = patientService.searchPatients(query, pageable);
+        Page<PatientResponse> responses = dtos.map(this::mapDtoToResponse);
+
+        return ResponseEntity.ok(responses);
+    }
+
     // PUT /api/patients/{id} — Hasta güncelle
     @PreAuthorize("hasRole('ADMIN') or @securityService.isPatientOwner(#id)")
     @PutMapping("/{id}")

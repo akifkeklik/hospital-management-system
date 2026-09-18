@@ -18,6 +18,10 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>,
 
     @Override
     @EntityGraph(attributePaths = {"patient", "doctor", "doctor.department"})
+    Page<Appointment> findAll(Pageable pageable);
+
+    @Override
+    @EntityGraph(attributePaths = {"patient", "doctor", "doctor.department"})
     Page<Appointment> findAll(Specification<Appointment> spec, Pageable pageable);
 
     // Hastanın tüm randevularını getir
@@ -33,4 +37,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>,
 
     // Belli bir tarih aralığındaki doktor randevularını getir
     List<Appointment> findByDoctorIdAndStatusAndAppointmentDateBetween(Long doctorId, AppointmentStatus status, java.time.LocalDateTime start, java.time.LocalDateTime end);
+
+    @org.springframework.data.jpa.repository.Query("SELECT CAST(a.appointmentDate AS date), COUNT(a) FROM Appointment a WHERE a.appointmentDate >= :startDate GROUP BY CAST(a.appointmentDate AS date) ORDER BY CAST(a.appointmentDate AS date)")
+    List<Object[]> getAppointmentsByDate(@org.springframework.data.repository.query.Param("startDate") java.time.LocalDateTime startDate);
 }

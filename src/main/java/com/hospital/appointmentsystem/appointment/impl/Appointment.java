@@ -51,7 +51,7 @@ import jakarta.persistence.Version;
 @Table(name = "appointments", indexes = {
     @Index(name = "IDX_APPOINTMENT_DOC_STAT_DATE", columnList = "doctor_id, status, appointment_date")
 })
-@SQLDelete(sql = "UPDATE appointments SET is_active = false WHERE id=?")
+@SQLDelete(sql = "UPDATE appointments SET is_active = false WHERE id=? AND version=?")
 @SQLRestriction("is_active = true")
 @EntityListeners(AuditingEntityListener.class)
 public class Appointment {

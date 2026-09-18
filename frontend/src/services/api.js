@@ -1,15 +1,11 @@
 const rawUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 const API_BASE_URL = rawUrl.endsWith('/api') ? rawUrl : `${rawUrl}/api`;
 
-/**
- * 🌐 Ortak API İsteği Yapan Fonksiyon
- * 
- * Neden bunu kullanıyoruz?
- * - Her sayfada uzun uzun fetch, then, catch yazmamak için.
- * - Hataları tek bir yerden yönetmek için.
- * - JSON dönüşümlerini otomatik yapmak için.
- */
 export async function fetchAPI(endpoint, options = {}) {
+  // Runtime guard: ensure NEXT_PUBLIC_API_URL is set in production (does NOT run at build time)
+  if (typeof window !== 'undefined' && !process.env.NEXT_PUBLIC_API_URL && process.env.NODE_ENV === 'production') {
+    throw new Error('CRITICAL: NEXT_PUBLIC_API_URL must be provided in production environment variables.');
+  }
   const url = `${API_BASE_URL}${endpoint}`;
   
   const defaultHeaders = {
@@ -17,20 +13,11 @@ export async function fetchAPI(endpoint, options = {}) {
     'Accept': 'application/json'
   };
 
-  // Tarayıcıların üçüncü taraf (third-party) çerezleri engellemesi ihtimaline karşı 
-  // (Vercel ve Render farklı domainler olduğu için), her ihtimale karşı Token'ı 
-  // Authorization header üzerinden de gönderiyoruz.
-  let token = null;
-  if (typeof window !== 'undefined') {
-    token = localStorage.getItem('token') || sessionStorage.getItem('token');
-  }
-
   const config = {
     ...options,
     credentials: 'include', // Cookie'leri backend'e gönder!
     headers: {
       ...defaultHeaders,
-      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
       ...options.headers,
     },
   };
@@ -44,8 +31,6 @@ export async function fetchAPI(endpoint, options = {}) {
       // /me endpointi 500 dönerse bu geçici bir hata olabilir, token silme!
       if (response.status === 401) {
         if (typeof window !== 'undefined' && window.location.pathname !== '/login' && window.location.pathname !== '/register' && window.location.pathname !== '/forgot-password') {
-          localStorage.removeItem('token');
-          sessionStorage.removeItem('token');
           window.location.href = '/login';
           return new Promise(() => {}); // Redirect esnasında hata fırlatmayı engellemek için askıda bırak
         }
@@ -88,7 +73,8 @@ export async function fetchAPI(endpoint, options = {}) {
 
 // ── BÖLÜM (DEPARTMENT) API ──
 export const DepartmentService = {
-  getAll: (page = 0, size = 5) => fetchAPI(`/departments?page=${page}&size=${size}`),
+  getAll: (page = 0, size = 5, options = {}) => fetchAPI(`/departments?page=${page}&size=${size}`, options),
+  search: (query, page = 0, size = 5) => fetchAPI(`/departments/search?query=${encodeURIComponent(query)}&page=${page}&size=${size}`),
   getById: (id) => fetchAPI(`/departments/${id}`),
   create: (data) => fetchAPI('/departments', { method: 'POST', body: JSON.stringify(data) }),
   update: (id, data) => fetchAPI(`/departments/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
@@ -97,7 +83,8 @@ export const DepartmentService = {
 
 // ── HASTA (PATIENT) API ──
 export const PatientService = {
-  getAll: (page = 0, size = 5) => fetchAPI(`/patients?page=${page}&size=${size}`),
+  getAll: (page = 0, size = 5, options = {}) => fetchAPI(`/patients?page=${page}&size=${size}`, options),
+  search: (query, page = 0, size = 5) => fetchAPI(`/patients/search?query=${encodeURIComponent(query)}&page=${page}&size=${size}`),
   getById: (id) => fetchAPI(`/patients/${id}`),
   create: (data) => fetchAPI('/patients', { method: 'POST', body: JSON.stringify(data) }),
   update: (id, data) => fetchAPI(`/patients/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
@@ -106,8 +93,9 @@ export const PatientService = {
 
 // ── DOKTOR (DOCTOR) API ──
 export const DoctorService = {
-  getAll: (page = 0, size = 5) => fetchAPI(`/doctors?page=${page}&size=${size}`),
-  getById: (id) => fetchAPI(`/doctors/${id}`),
+  getAll: (page = 0, size = 5, options = {}) => fetchAPI(`/doctors?page=${page}&size=${size}`, options),
+  search: (query, page = 0, size = 5, options = {}) => fetchAPI(`/doctors/search?query=${encodeURIComponent(query)}&page=${page}&size=${size}`, options),
+  getById: (id, options = {}) => fetchAPI(`/doctors/${id}`, options),
   create: (data) => fetchAPI('/doctors', { method: 'POST', body: JSON.stringify(data) }),
   update: (id, data) => fetchAPI(`/doctors/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   delete: (id) => fetchAPI(`/doctors/${id}`, { method: 'DELETE' }),
@@ -164,10 +152,6 @@ export const AuthService = {
     body: JSON.stringify({ tcIdentityNumber, newPassword })
   }),
   getMe: (options = {}) => fetchAPI('/auth/me', options),
-  getToken: () => {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem('token') || sessionStorage.getItem('token');
-  },
   logout: async () => {
     if (typeof window !== 'undefined') {
       try {
@@ -175,8 +159,6 @@ export const AuthService = {
       } catch (e) {
         console.error("Logout fetch error", e);
       }
-      localStorage.removeItem('token');
-      sessionStorage.removeItem('token');
       // Geri butonu ile tekrar girişi engellemek için replace kullan
       window.location.replace('/login');
     }
@@ -211,10 +193,10 @@ export const DoctorLeaveService = {
 
 // ── NOTIFICATION API ──
 export const NotificationService = {
-  getByPatient: (patientId) => fetchAPI(`/notifications/patient/${patientId}`),
-  getUnreadCountByPatient: (patientId) => fetchAPI(`/notifications/patient/${patientId}/unread-count`),
-  getByDoctor: (doctorId) => fetchAPI(`/notifications/doctor/${doctorId}`),
-  getUnreadCountByDoctor: (doctorId) => fetchAPI(`/notifications/doctor/${doctorId}/unread-count`),
+  getByPatient: (patientId, options = {}) => fetchAPI(`/notifications/patient/${patientId}`, options),
+  getUnreadCountByPatient: (patientId, options = {}) => fetchAPI(`/notifications/patient/${patientId}/unread-count`, options),
+  getByDoctor: (doctorId, options = {}) => fetchAPI(`/notifications/doctor/${doctorId}`, options),
+  getUnreadCountByDoctor: (doctorId, options = {}) => fetchAPI(`/notifications/doctor/${doctorId}/unread-count`, options),
   broadcastToDoctors: (message) => fetchAPI('/notifications/broadcast', {
     method: 'POST',
     body: JSON.stringify(message)
@@ -228,8 +210,8 @@ export const NotificationService = {
 
 // ── POLYCLINIC API ──
 export const PolyclinicService = {
-  getAll: () => fetchAPI('/admin/polyclinics'),
-  getByDepartmentId: (departmentId) => fetchAPI(`/admin/polyclinics/department/${departmentId}`),
+  getAll: (options = {}) => fetchAPI('/admin/polyclinics', options),
+  getByDepartmentId: (departmentId, options = {}) => fetchAPI(`/admin/polyclinics/department/${departmentId}`, options),
   create: (data) => fetchAPI('/admin/polyclinics', {
     method: 'POST',
     body: JSON.stringify(data)
@@ -260,6 +242,11 @@ export const ExaminationService = {
   addPrescription: (data) => fetchAPI('/examinations/prescriptions', { method: 'POST', body: JSON.stringify(data) }),
   getPrescriptions: (appointmentId) => fetchAPI(`/examinations/appointments/${appointmentId}/prescriptions`),
   deletePrescription: (id) => fetchAPI(`/examinations/prescriptions/${id}`, { method: 'DELETE' })
+};
+
+// ── DASHBOARD STATS API ──
+export const DashboardStatsService = {
+  getDashboardStats: () => fetchAPI('/stats/dashboard')
 };
 
 // Normalizes standard Pageable responses

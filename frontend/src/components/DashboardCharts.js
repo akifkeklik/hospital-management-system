@@ -9,25 +9,16 @@ import styles from './DashboardCharts.module.css';
 
 const COLORS = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
 
-export default function DashboardCharts({ departments, doctors, appointments }) {
+export default function DashboardCharts({ doctorDistribution, appointmentsByDate }) {
   const { t } = useSettings();
   
   // 1. Veri Hazırlığı: Bölümlere Göre Doktor Sayısı
-  const doctorDistribution = departments.map(dept => {
-    // Bu bölüme ait doktorları say
-    const count = doctors.filter(doc => doc.departmentId === dept.id).length;
-    return { name: t(dept.name), value: count };
-  }).filter(item => item.value > 0); // Sadece doktoru olan bölümleri göster
+  const doctorDistArray = Object.keys(doctorDistribution || {}).map(deptName => {
+    return { name: t(deptName), value: doctorDistribution[deptName] };
+  }).filter(item => item.value > 0);
 
   // 2. Veri Hazırlığı: Günlük Randevu Yoğunluğu
-  const appointmentsByDate = {};
-  appointments.forEach(app => {
-    // Tarihin sadece YYYY-MM-DD kısmını al
-    const dateStr = app.appointmentDate ? app.appointmentDate.split('T')[0] : 'Bilinmeyen';
-    appointmentsByDate[dateStr] = (appointmentsByDate[dateStr] || 0) + 1;
-  });
-
-  const appointmentData = Object.keys(appointmentsByDate)
+  const appointmentData = Object.keys(appointmentsByDate || {})
     .sort() // Tarihe göre sırala
     .map(date => ({
       date,
@@ -40,13 +31,13 @@ export default function DashboardCharts({ departments, doctors, appointments }) 
       
       <div className={styles.chartBox}>
         <h3 className={styles.chartTitle}>{t('chart_dept_dist')}</h3>
-        {doctorDistribution.length === 0 ? (
+        {doctorDistArray.length === 0 ? (
           <p className={styles.noData}>{t('no_data')}</p>
         ) : (
           <ResponsiveContainer width="100%" height={240}>
             <PieChart>
               <Pie
-                data={doctorDistribution}
+                data={doctorDistArray}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
@@ -55,7 +46,7 @@ export default function DashboardCharts({ departments, doctors, appointments }) 
                 dataKey="value"
                 label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
               >
-                {doctorDistribution.map((entry, index) => (
+                {doctorDistArray.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>

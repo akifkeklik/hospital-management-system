@@ -1,5 +1,6 @@
 'use client';
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useCallback } from 'react';
+import { useApi } from '../../hooks/useApi';
 import { useSearchParams } from 'next/navigation';
 import { PatientService } from '../../services/api';
 import DataTable from '../../components/DataTable';
@@ -23,13 +24,12 @@ function PatientsContent() {
   const { t } = useSettings();
   const searchParams = useSearchParams();
   const [patients, setPatients] = useState([]);
-  const [allPatients, setAllPatients] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
-  const [formData, setFormData] = useState({ 
-    firstName: '', lastName: '', tcIdentityNumber: '', phoneNumber: '', email: '' 
+  const [formData, setFormData] = useState({
+    firstName: '', lastName: '', tcIdentityNumber: '', phoneNumber: '', email: ''
   });
   const [editingId, setEditingId] = useState(null);
 
@@ -47,18 +47,23 @@ function PatientsContent() {
     setPage(0);
   }, [searchTerm]);
 
-  const fetchPatients = async () => {
-    try {
-      const data = await PatientService.getAll(0, 100);
-      setAllPatients(data.content || data);
-    } catch (error) {
+  const fetchPatientsApi = useCallback(async (signal) => {
+    const data = await PatientService.getAll(0, 100, { signal });
+    return data.content || data;
+  }, []);
+
+  const { data: allPatientsRaw, loading, execute } = useApi(fetchPatientsApi, []);
+  const allPatients = allPatientsRaw || [];
+
+  const fetchPatients = useCallback(() => {
+    execute().catch(error => {
       toast.error(t('error_loading_patients'));
-    }
-  };
+    });
+  }, [execute, t]);
 
   useEffect(() => {
     fetchPatients();
-  }, []);
+  }, [fetchPatients]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -79,8 +84,8 @@ function PatientsContent() {
   };
 
   const handleEdit = (patient) => {
-    setFormData({ 
-      firstName: patient.firstName, 
+    setFormData({
+      firstName: patient.firstName,
       lastName: patient.lastName,
       tcIdentityNumber: patient.tcIdentityNumber,
       phoneNumber: patient.phoneNumber || '',
@@ -129,8 +134,8 @@ function PatientsContent() {
     <div>
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>{t('patients')}</h1>
-        <button 
-          className={styles.primaryBtn} 
+        <button
+          className={styles.primaryBtn}
           onClick={() => {
             setFormData({ tcIdentityNumber: '', firstName: '', lastName: '', phoneNumber: '', email: '' });
             setEditingId(null);
@@ -153,8 +158,8 @@ function PatientsContent() {
       }} />
 
       <div style={{ marginBottom: '1rem', marginTop: '1rem' }}>
-        <input 
-          type="text" 
+        <input
+          type="text"
           placeholder={t('search_patient_placeholder')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -162,19 +167,23 @@ function PatientsContent() {
         />
       </div>
 
-      <DataTable 
-        columns={columns} 
-        data={displayedPatients} 
-        onEdit={handleEdit} 
-        onDelete={handleDelete} 
-        page={page}
-        totalPages={calculatedTotalPages}
-        onPageChange={setPage}
-      />
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>{t('loading') || 'Yükleniyor...'}</div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={displayedPatients}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          page={page}
+          totalPages={calculatedTotalPages}
+          onPageChange={setPage}
+        />
+      )}
 
-      <Modal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         title={editingId ? (t('edit_patient')) : (t('add_patient'))}
       >
         <form onSubmit={handleSubmit}>

@@ -18,4 +18,6 @@ public interface PatientService {
     PatientDto updatePatient(Long id, PatientDto patientDto);
 
     void deletePatient(Long id);
+
+    Page<PatientDto> searchPatients(String query, Pageable pageable);
 }

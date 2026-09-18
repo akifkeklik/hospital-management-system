@@ -1,7 +1,8 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { DoctorService, DepartmentService, PolyclinicService } from '../../services/api';
+import { useApi } from '../../hooks/useApi';
 import DataTable from '../../components/DataTable';
 import Modal from '../../components/Modal';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -14,9 +15,6 @@ export default function DoctorsPage() {
   const searchParams = useSearchParams();
   const initialSearch = searchParams.get('search');
   const [searchTerm, setSearchTerm] = useState(initialSearch);
-  const [allDoctors, setAllDoctors] = useState([]);
-  const [departments, setDepartments] = useState([]);
-  const [polyclinics, setPolyclinics] = useState([]);
   const [page, setPage] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
@@ -24,35 +22,39 @@ export default function DoctorsPage() {
     firstName: '', lastName: '', specialization: '', phoneNumber: '', email: '', departmentId: '', polyclinicId: '' 
   });
   const [editingId, setEditingId] = useState(null);
+  const fetchDoctorsData = useCallback(async (signal) => {
+    const [depts, polys, docs] = await Promise.all([
+      DepartmentService.getAll(0, 100, { signal }),
+      PolyclinicService.getAll({ signal }),
+      DoctorService.getAll(0, 100, { signal })
+    ]);
+    return {
+      departments: depts.content || depts || [],
+      polyclinics: polys || [],
+      doctors: docs.content || docs || []
+    };
+  }, []);
 
-  const fetchData = async () => {
-    try {
-      const depts = await DepartmentService.getAll(0, 100);
-      setDepartments(depts.content || []);
-    } catch (error) {
-      console.error('Bölümler yüklenirken hata:', error);
-      toast.error('Bölümler yüklenemedi.');
-    }
+  const { data, loading, execute: rawFetchData } = useApi(fetchDoctorsData, {
+    departments: [],
+    polyclinics: [],
+    doctors: []
+  });
 
-    try {
-      const polys = await PolyclinicService.getAll();
-      setPolyclinics(polys || []);
-    } catch (error) {
-      console.error('Poliklinikler yüklenirken hata:', error);
-    }
+  const { departments, polyclinics, doctors: allDoctors } = data;
 
+  const fetchData = useCallback(async () => {
     try {
-      const docs = await DoctorService.getAll(0, 100);
-      setAllDoctors(docs.content || []);
-    } catch (error) {
-      console.error('Doktorlar yüklenirken hata:', error);
-      toast.error('Doktor listesi yüklenemedi.');
+      await rawFetchData();
+    } catch (err) {
+      console.error('Veriler yüklenirken hata:', err);
+      toast.error('Veriler yüklenemedi.');
     }
-  };
+  }, [rawFetchData]);
 
   useEffect(() => {
     fetchData();
-  }, []); // Run only once, pagination is local now
+  }, [fetchData]); // Run safely with useCallback dependencies
 
   useEffect(() => {
     const currentSearch = searchParams.get('search');

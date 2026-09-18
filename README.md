@@ -11,13 +11,12 @@ Built with **Spring Boot**, **Next.js**, **React**, and relational database tech
 <br/>
 
 [![Build and Test](https://github.com/akifkeklik/hospital-management-system/actions/workflows/build.yml/badge.svg)](https://github.com/akifkeklik/hospital-management-system/actions/workflows/build.yml)
-[![Java](https://img.shields.io/badge/Java-17-ED8B00?style=flat\&logo=openjdk\&logoColor=white)](https://openjdk.org/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.5-6DB33F?style=flat\&logo=spring-boot\&logoColor=white)](https://spring.io/projects/spring-boot)
-[![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=flat\&logo=next.js\&logoColor=white)](https://nextjs.org/)
-[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat\&logo=react\&logoColor=black)](https://react.dev/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat\&logo=postgresql\&logoColor=white)](https://www.postgresql.org/)
-[![MySQL](https://img.shields.io/badge/MySQL-8-4479A1?style=flat\&logo=mysql\&logoColor=white)](https://www.mysql.com/)
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat\&logo=docker\&logoColor=white)](https://www.docker.com/)
+[![Java](https://img.shields.io/badge/Java-17-ED8B00?style=flat&logo=openjdk&logoColor=white)](https://openjdk.org/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.5-6DB33F?style=flat&logo=spring-boot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=flat&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat&logo=react&logoColor=black)](https://react.dev/)
+[![MySQL](https://img.shields.io/badge/MySQL-8-4479A1?style=flat&logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat)](LICENSE)
 
 <br/>
@@ -186,48 +185,43 @@ The project currently follows a **modular monolithic architecture**.
 The backend is deployed as a single Spring Boot application while its business functionality is separated into domain modules.
 
 ```text
-                         ┌───────────────────────┐
-                         │       Browser         │
-                         └───────────┬───────────┘
-                                     │
-                                     │ HTTP / REST
-                                     ▼
-                         ┌───────────────────────┐
-                         │     Next.js 16        │
-                         │      React 19         │
-                         └───────────┬───────────┘
-                                     │
-                                     │ JSON API
-                                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    Spring Boot Backend                     │
-│                                                             │
-│  ┌──────────────┐   ┌──────────────┐   ┌────────────────┐ │
-│  │   Security   │   │ Controllers  │   │  Validation    │ │
-│  │              │   │              │   │                │ │
-│  │ JWT / RBAC   │   │ REST API     │   │ DTO Validation │ │
-│  │ Rate Limit   │   │              │   │                │ │
-│  └──────┬───────┘   └──────┬───────┘   └───────┬────────┘ │
-│         │                   │                   │          │
-│         └───────────────────┼───────────────────┘          │
-│                             ▼                              │
-│                    ┌────────────────┐                      │
-│                    │ Service Layer  │                      │
-│                    └───────┬────────┘                      │
-│                            │                               │
-│                            ▼                               │
-│                    ┌────────────────┐                      │
-│                    │ Repository /   │                      │
-│                    │ JPA / Hibernate│                      │
-│                    └───────┬────────┘                      │
-└────────────────────────────┼────────────────────────────────┘
-                             │
-                             ▼
-                    ┌──────────────────┐
-                    │ Relational DB    │
-                    │ PostgreSQL /     │
-                    │ MySQL            │
-                    └──────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                        CLIENT (Browser)                             │
+│                   Next.js 16 + React 19 SPA                        │
+│         ┌──────────┬──────────┬─────────────────────┐              │
+│         │  Admin   │  Doctor  │     Patient          │              │
+│         │  Panel   │ Dashboard│     Portal           │              │
+│         └────┬─────┴────┬─────┴─────────┬───────────┘              │
+└──────────────┼──────────┼───────────────┼──────────────────────────┘
+               │   REST API (JSON)        │
+               ▼          ▼               ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                    SPRING BOOT 3.3.5 BACKEND                        │
+│                                                                     │
+│  ┌─────────────┐  ┌──────────────┐  ┌────────────────────┐        │
+│  │  Security    │  │  Web Layer   │  │  AI Service        │        │
+│  │  ─────────── │  │  ──────────  │  │  ────────────────  │        │
+│  │  JWT Auth    │  │  Controllers │  │  Gemini API Client │        │
+│  │  RBAC        │  │  DTOs        │  │  Symptom Analyzer  │        │
+│  │  Rate Limit  │  │  Validation  │  │  Dept. Router      │        │
+│  └──────┬──────┘  └──────┬───────┘  └──────┬─────────────┘        │
+│         │                │                  │                       │
+│  ┌──────▼────────────────▼──────────────────▼─────────────┐        │
+│  │                  Service Layer                          │        │
+│  │  Appointment · Doctor · Patient · Examination           │        │
+│  │  Department · Polyclinic · Notification · DoctorLeave   │        │
+│  └─────────────────────┬──────────────────────────────────┘        │
+│                        │                                            │
+│  ┌─────────────────────▼──────────────────────────────────┐        │
+│  │              Data Access Layer (Spring Data JPA)        │        │
+│  │              Flyway Migrations · Hibernate ORM          │        │
+│  └─────────────────────┬──────────────────────────────────┘        │
+└────────────────────────┼───────────────────────────────────────────┘
+                         │
+               ┌──────────▼──────────┐
+               │       MySQL 8       │
+               │ (Database Backend)  │
+               └─────────────────────┘
 ```
 
 ---
@@ -307,8 +301,7 @@ This structure keeps controllers, business logic, and persistence concerns separ
 | -------------- | --------------------------------- |
 | Docker         | Containerization                  |
 | GitHub Actions | Continuous integration            |
-| PostgreSQL     | Production database target        |
-| MySQL          | Local development / compatibility |
+| MySQL 8        | Primary database (local / production) |
 
 ---
 
@@ -371,8 +364,7 @@ hospital-management-system/
 │   │       ├── application.properties
 │   │       └── db/
 │   │           └── migration/
-│   │               ├── mysql/
-│   │               └── postgresql/
+│   │               └── mysql/
 │   │
 │   └── test/
 │
@@ -393,8 +385,16 @@ Install the following:
 * Maven 3.9+
 * Node.js
 * npm
-* MySQL 8 for local development
+* MySQL 8
 * Git
+
+### Infrastructure
+| Technology | Purpose |
+|---|---|
+| **Docker** | Multi-stage containerized builds |
+| **GitHub Actions** | CI/CD pipeline |
+| **MySQL 8** | Primary database (local / production) |
+| **Aiven** | Cloud managed MySQL database |
 
 ---
 
@@ -645,24 +645,24 @@ The application uses relational database persistence through:
 
 ## Database Support
 
-| Environment       | Database      |
-| ----------------- | ------------- |
-| Local development | MySQL 8       |
-| Production target | PostgreSQL 16 |
+The system uses **MySQL 8** as its primary database:
 
-The project maintains database-specific Flyway migrations:
+| Environment | Database | Driver |
+|---|---|---|
+| Local Development | MySQL 8 | `com.mysql.cj.jdbc.Driver` |
+| Cloud (Aiven) | MySQL 8 | `com.mysql.cj.jdbc.Driver` |
+
+### Schema Migration
+
+Database versioning is managed by **Flyway** with vendor-specific migration scripts:
 
 ```text
 src/main/resources/db/migration/
-
-├── mysql/
-│   └── V1__init_schema.sql
-│
-└── postgresql/
-    └── V1__init_schema.sql
+└── mysql/
+    └── V1__init_schema.sql       # MySQL-specific DDL
 ```
 
-This allows the application to maintain vendor-specific SQL while keeping schema changes version-controlled.
+Flyway automatically applies the migration scripts on startup.
 
 ## Main Domain Relationships
 
@@ -761,17 +761,29 @@ mvn test -Dtest=AppointmentServiceTest
 mvn test -Dspring.jpa.show-sql=true
 ```
 
-## Database Performance Tests
+### Performance Testing
 
-The repository includes tools/tests for investigating database performance, including:
+The project includes custom database performance analyzers:
 
-```text
-NPlusOneBaselineTest
-DatabaseIndexAnalyzer
-DatabaseIndexVerifier
-```
+- **`NPlusOneBaselineTest`** — Detects N+1 query problems
+- **`DatabaseIndexAnalyzer`** — Analyzes index usage efficiency
+- **`DatabaseIndexVerifier`** — Verifies required indexes exist
 
 These are used to identify inefficient query patterns and verify expected database indexes.
+
+---
+
+## ☁️ Deployment
+
+### Aiven (Cloud MySQL)
+
+The application uses **Aiven MySQL** for production database:
+
+1. Configure Aiven MySQL service
+2. Set `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` environment variables in your deployment environment
+3. Start the application with production profile
+
+### Docker Production Build
 
 ---
 
@@ -790,8 +802,8 @@ Run:
 ```bash
 docker run -p 8080:8080 \
   -e JWT_SECRET="your-secret" \
-  -e DB_URL="jdbc:postgresql://host:5432/hospitaldb" \
-  -e DB_DRIVER="org.postgresql.Driver" \
+  -e DB_URL="jdbc:mysql://host:3306/hospitaldb" \
+  -e DB_DRIVER="com.mysql.cj.jdbc.Driver" \
   -e DB_USERNAME="your-user" \
   -e DB_PASSWORD="your-password" \
   hospital-management-system
@@ -856,7 +868,7 @@ The intended production architecture separates the frontend, backend, and databa
            │
            ▼
 ┌─────────────────────┐
-│     PostgreSQL      │
+│       MySQL 8       │
 │   Production DB     │
 └─────────────────────┘
 ```
@@ -865,7 +877,7 @@ The application is not intentionally coupled to a specific cloud provider.
 
 The production deployment process includes:
 
-1. Provision PostgreSQL
+1. Provision MySQL
 2. Configure production environment variables
 3. Deploy the Spring Boot backend
 4. Run and verify Flyway migrations

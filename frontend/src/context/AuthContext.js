@@ -3,7 +3,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { AuthService } from '../services/api';
-import { parseJwt } from '../utils/jwt';
 import LoadingScreen from '../components/LoadingScreen';
 
 const AuthContext = createContext();
@@ -22,37 +21,17 @@ export function AuthProvider({ children }) {
   const checkAuth = useCallback(async () => {
     try {
       setIsLoading(true);
-      const token = typeof window !== 'undefined' ? (localStorage.getItem('token') || sessionStorage.getItem('token')) : null;
-
-      if (!token) {
-        setIsAuthenticated(false);
-        setUser(null);
-        setRole(null);
-        return;
-      }
-
-      const decoded = parseJwt(token);
       
-      if (!decoded || (decoded.exp && decoded.exp * 1000 < Date.now())) {
-        localStorage.removeItem('token');
-        sessionStorage.removeItem('token');
-        setIsAuthenticated(false);
-        setUser(null);
-        setRole(null);
-        return;
-      }
-
-      setRole(decoded.role);
-      setIsAuthenticated(true);
-
-      // Fetch the user data if we don't have it yet, or refresh it
       try {
         const userData = await AuthService.getMe();
         setUser(userData);
+        setRole(userData.role);
+        setIsAuthenticated(true);
       } catch (err) {
-        console.error('Failed to fetch user data in AuthContext:', err);
-        // api.js handles 401 redirection, so if it's a 401, token will be cleared and redirected.
-        // We can just keep the user as null.
+        // Fetch failed (likely 401 Unauthorized), which means no active session
+        setIsAuthenticated(false);
+        setUser(null);
+        setRole(null);
       }
     } finally {
       setIsLoading(false);

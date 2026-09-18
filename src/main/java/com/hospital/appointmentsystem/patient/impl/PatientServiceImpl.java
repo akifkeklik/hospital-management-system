@@ -73,6 +73,12 @@ public class PatientServiceImpl implements PatientService {
         patientRepository.deleteById(id);
     }
 
+    @Override
+    public Page<PatientDto> searchPatients(String query, Pageable pageable) {
+        Page<Patient> patients = patientRepository.searchPatients(query, pageable);
+        return patients.map(this::mapToDto);
+    }
+
     // ── Dönüşüm Metotları ──
 
     private PatientDto mapToDto(Patient patient) {

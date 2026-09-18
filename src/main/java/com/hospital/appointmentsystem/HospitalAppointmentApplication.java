@@ -6,34 +6,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import com.hospital.appointmentsystem.user.api.UserService;
 
-/**
- * ╔══════════════════════════════════════════════════════════════════╗
- * ║  🚀 ANA UYGULAMA SINIFI — Her Şey Buradan Başlar!              ║
- * ╠══════════════════════════════════════════════════════════════════╣
- * ║                                                                  ║
- * ║  Bu sınıf Spring Boot uygulamasının GİRİŞ NOKTASIDIR.          ║
- * ║  Java'daki main() metodu gibi düşün — program buradan başlar.   ║
- * ║                                                                  ║
- * ║  @SpringBootApplication anotasyonu 3 şeyi birleştirir:          ║
- * ║                                                                  ║
- * ║  1. @Configuration                                               ║
- * ║     → "Bu sınıf yapılandırma bilgisi içerir" der               ║
- * ║                                                                  ║
- * ║  2. @EnableAutoConfiguration                                     ║
- * ║     → "pom.xml'deki bağımlılıklara bakarak otomatik             ║
- * ║        yapılandırma yap" der                                     ║
- * ║     → Örneğin: H2 bağımlılığı var → veritabanı bağlantısını    ║
- * ║       otomatik ayarla                                            ║
- * ║                                                                  ║
- * ║  3. @ComponentScan                                               ║
- * ║     → "Bu paketin altındaki tüm alt paketleri tara ve           ║
- * ║        @Controller, @Service, @Repository gibi sınıfları bul"   ║
- * ║     → Yani com.hospital.appointmentsystem altındaki              ║
- * ║       department, patient, doctor, appointment paketlerinin      ║
- * ║       hepsini otomatik bulur!                                    ║
- * ║                                                                  ║
- * ╚══════════════════════════════════════════════════════════════════╝
- */
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
@@ -41,17 +13,15 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 public class HospitalAppointmentApplication {
 
     public static void main(String[] args) {
-        // SpringApplication.run() → Spring Boot'u başlatır
-        // Bu metot:
-        //   1. Gömülü Tomcat sunucusunu başlatır (port 8080)
-        //   2. Veritabanı bağlantısını kurar
-        //   3. Tüm @Controller, @Service, @Repository sınıflarını yükler
-        //   4. JPA Entity'lerine bakarak veritabanı tablolarını oluşturur
         SpringApplication.run(HospitalAppointmentApplication.class, args);
     }
 
+
     @Bean
     public org.springframework.boot.CommandLineRunner initData(
+            @org.springframework.beans.factory.annotation.Value("${admin.password:}") String adminPassword,
+            @org.springframework.beans.factory.annotation.Value("${test.user.password:local_test_secret_2026}") String testUserPassword,
+            org.springframework.core.env.Environment env,
             JdbcTemplate jdbcTemplate, 
             UserService userService,
             com.hospital.appointmentsystem.department.impl.DepartmentRepository departmentRepository,
@@ -64,15 +34,20 @@ public class HospitalAppointmentApplication {
         return args -> {
             // 1. Varsayılan Admin Kullanıcısı Oluşturma
             if (!userService.existsByUsername("admin")) {
-                String adminPassword = System.getenv("ADMIN_PASSWORD");
                 if (adminPassword == null || adminPassword.trim().isEmpty()) {
-                    adminPassword = java.util.UUID.randomUUID().toString().substring(0, 8);
+                    throw new IllegalArgumentException("CRITICAL SECURITY ERROR: ADMIN_PASSWORD is not set! The application cannot start safely without an admin password.");
                 }
                 userService.registerUser("admin", "admin@hospital.com", adminPassword, "ROLE_ADMIN", null);
-                System.out.println("✅ Varsayılan Sistem Yöneticisi (Admin) oluşturuldu. Kullanıcı: admin | Şifre: [PROTECTED]");
+                System.out.println("✅ Varsayılan Sistem Yöneticisi (Admin) oluşturuldu.");
             }
 
             // 2. Varsayılan Verilerin Yüklenmesi (SADECE BİR KERE ÇALIŞIR)
+            boolean isDevOrLocal = env.acceptsProfiles(org.springframework.core.env.Profiles.of("dev", "default", "test"));
+            if (!isDevOrLocal) {
+                System.out.println("ℹ️ Production environment detected. Skipping dummy data seeder and test users.");
+                return;
+            }
+
             // Sistemde henüz hiç bölüm yoksa, varsayılan verileri yüklüyoruz.
             if (departmentRepository.count() == 0) {
                 System.out.println("⏳ İlk Kurulum: Varsayılan veriler yükleniyor...");
@@ -97,8 +72,7 @@ public class HospitalAppointmentApplication {
                     String deptName = defaultDepartments[i];
                     
                     // Bölüm Zaten Var mı (Admin önceden elle eklemiş olabilir)
-                    boolean exists = departmentRepository.findAll().stream()
-                        .anyMatch(d -> d.getName().equals(deptName));
+                    boolean exists = departmentRepository.existsByName(deptName);
                         
                     if (!exists) {
                         // 1. Bölümü Kaydet
@@ -202,6 +176,40 @@ public class HospitalAppointmentApplication {
                 System.out.println("✅ İlk Kurulum tamamlandı! Veriler bir daha üzerine yazılmayacak.");
             } else {
                 System.out.println("ℹ️ Sistem veritabanı zaten daha önce kurulmuş. Seeder atlandı.");
+            }
+
+            // 3. E2E Test Kullanıcıları (Idempotent)
+            System.out.println("⏳ E2E Test Kullanıcıları kontrol ediliyor...");
+            if (!userService.existsByUsername("88888888888")) {
+                com.hospital.appointmentsystem.department.impl.Department dept = departmentRepository.findAll().stream().findFirst().orElse(null);
+                com.hospital.appointmentsystem.polyclinic.impl.Polyclinic poly = polyclinicRepository.findAll().stream().findFirst().orElse(null);
+                if (dept != null && poly != null) {
+                    com.hospital.appointmentsystem.doctor.api.DoctorDto doc = new com.hospital.appointmentsystem.doctor.api.DoctorDto();
+                    doc.setFirstName("Test");
+                    doc.setLastName("Doctor");
+                    doc.setTcIdentityNumber("88888888888");
+                    doc.setSpecialization("Test Uzmanı");
+                    doc.setPhoneNumber("05551111111");
+                    doc.setEmail("testdoctor@hospital.com");
+                    doc.setDepartmentId(dept.getId());
+                    doc.setPolyclinicId(poly.getId());
+                    doc.setActive(true);
+                    doctorService.createDoctor(doc);
+                    // Update password and clear needsPasswordChange since it's a known test user
+                    userService.changePassword("88888888888", testUserPassword); 
+                    System.out.println("   + Test Doktoru oluşturuldu: 88888888888");
+                }
+            }
+            if (!userService.existsByUsername("99999999999")) {
+                com.hospital.appointmentsystem.patient.api.PatientDto pat = new com.hospital.appointmentsystem.patient.api.PatientDto();
+                pat.setFirstName("Test");
+                pat.setLastName("Patient");
+                pat.setTcIdentityNumber("99999999999");
+                pat.setPhoneNumber("05552222222");
+                pat.setEmail("testpatient@patient.com");
+                com.hospital.appointmentsystem.patient.api.PatientDto savedPat = patientService.createPatient(pat);
+                userService.registerUser("99999999999", "testpatient@patient.com", testUserPassword, "ROLE_PATIENT", savedPat.getId());
+                System.out.println("   + Test Hastası oluşturuldu: 99999999999");
             }
         };
     }

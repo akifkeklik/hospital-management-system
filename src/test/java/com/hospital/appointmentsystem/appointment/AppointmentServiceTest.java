@@ -1,6 +1,7 @@
 package com.hospital.appointmentsystem.appointment;
 
 import com.hospital.appointmentsystem.appointment.api.AppointmentDto;
+import com.hospital.appointmentsystem.appointment.api.WaitTimeDto;
 import com.hospital.appointmentsystem.appointment.impl.Appointment;
 import com.hospital.appointmentsystem.appointment.impl.AppointmentRepository;
 import com.hospital.appointmentsystem.appointment.impl.AppointmentServiceImpl;
@@ -325,5 +326,174 @@ public class AppointmentServiceTest {
 
         assertEquals("COMPLETED", result.getStatus());
         verify(appointmentRepository).save(any(Appointment.class));
+    }
+
+    // ==========================================
+    // ESTIMATED WAIT TIME TESTS
+    // ==========================================
+
+    @Test
+    void scenarioA_shouldCalculateQueuePositionCorrectly() {
+        // Arrange: Multiple SCHEDULED appointments on the same day.
+        Appointment targetAppointment = new Appointment();
+        targetAppointment.setId(10L);
+        targetAppointment.setAppointmentDate(LocalDateTime.of(FIXED_DATE, LocalTime.of(14, 0))); // 14:00
+        targetAppointment.setDoctor(mockDoctor);
+
+        when(appointmentRepository.findById(10L)).thenReturn(Optional.of(targetAppointment));
+
+        List<Appointment> sameDayAppointments = new ArrayList<>();
+        // 3 past appointments (Queue position = 3)
+        sameDayAppointments.add(createAppointmentWithDate(LocalDateTime.of(FIXED_DATE, LocalTime.of(9, 0))));
+        sameDayAppointments.add(createAppointmentWithDate(LocalDateTime.of(FIXED_DATE, LocalTime.of(10, 0))));
+        sameDayAppointments.add(createAppointmentWithDate(LocalDateTime.of(FIXED_DATE, LocalTime.of(11, 0))));
+        // 1 future appointment that is AFTER the target (should not be counted in queue)
+        sameDayAppointments.add(createAppointmentWithDate(LocalDateTime.of(FIXED_DATE, LocalTime.of(15, 0))));
+        sameDayAppointments.add(targetAppointment);
+
+        when(appointmentRepository.findByDoctorIdAndStatusAndAppointmentDateBetween(
+                eq(1L), eq(AppointmentStatus.SCHEDULED), any(), any()))
+                .thenReturn(sameDayAppointments);
+
+        // Act
+        WaitTimeDto result = appointmentService.getEstimatedWaitTime(10L);
+
+        // Assert
+        // Queue position calculation: 3 past appointments. Wait time = 3 * 15 = 45 mins.
+        // Current time is 10:00. Time until appointment is 4 hours (240 mins).
+        // Correct business rule: Math.max(240, 45) = 240 mins.
+        assertEquals(240, result.getEstimatedMinutes());
+        assertEquals(4, result.getQueuePosition()); // The response queue position is queuePosition + 1
+    }
+
+    @Test
+    void scenarioB_shouldReturnQueueTime_WhenQueueTakesLongerThanTimeUntilAppointment_FutureAppointment() {
+        // Arrange
+        // This is the regression test for the bug!
+        // Current time: 10:00 (FIXED_TIME)
+        // Appointment: 10:10 (10 minutes away)
+        // Queue: 3 prior appointments still SCHEDULED (3 * 15 = 45 minutes of work)
+        // Expected Wait Time: Math.max(10, 45) = 45 minutes
+
+        Appointment currentAppointment = new Appointment();
+        currentAppointment.setId(20L);
+        currentAppointment.setAppointmentDate(LocalDateTime.of(FIXED_DATE, LocalTime.of(10, 10)));
+        currentAppointment.setDoctor(mockDoctor);
+
+        when(appointmentRepository.findById(20L)).thenReturn(Optional.of(currentAppointment));
+
+        List<Appointment> sameDayAppointments = new ArrayList<>();
+        sameDayAppointments.add(createAppointmentWithDate(LocalDateTime.of(FIXED_DATE, LocalTime.of(9, 0))));
+        sameDayAppointments.add(createAppointmentWithDate(LocalDateTime.of(FIXED_DATE, LocalTime.of(9, 15))));
+        sameDayAppointments.add(createAppointmentWithDate(LocalDateTime.of(FIXED_DATE, LocalTime.of(9, 30))));
+        sameDayAppointments.add(currentAppointment);
+
+        when(appointmentRepository.findByDoctorIdAndStatusAndAppointmentDateBetween(
+                eq(1L), eq(AppointmentStatus.SCHEDULED), any(), any()))
+                .thenReturn(sameDayAppointments);
+
+        // Act
+        WaitTimeDto result = appointmentService.getEstimatedWaitTime(20L);
+
+        // Assert
+        // Buggy code returns 10. Corrected code returns 45.
+        assertEquals(45, result.getEstimatedMinutes(), "Wait time should consider queue length if it's longer than time until appointment");
+    }
+
+    @Test
+    void scenarioC_shouldReturnQueueTime_ForPastAppointment() {
+        // Arrange
+        // Current time: 10:00 (FIXED_TIME)
+        // Appointment: 09:30 (Past appointment)
+        // The patient is late, or the doctor is very late.
+        // Queue position: 2 (08:30, 09:00) -> 30 mins
+
+        Appointment currentAppointment = new Appointment();
+        currentAppointment.setId(30L);
+        currentAppointment.setAppointmentDate(LocalDateTime.of(FIXED_DATE, LocalTime.of(9, 30)));
+        currentAppointment.setDoctor(mockDoctor);
+
+        when(appointmentRepository.findById(30L)).thenReturn(Optional.of(currentAppointment));
+
+        List<Appointment> sameDayAppointments = new ArrayList<>();
+        sameDayAppointments.add(createAppointmentWithDate(LocalDateTime.of(FIXED_DATE, LocalTime.of(8, 30))));
+        sameDayAppointments.add(createAppointmentWithDate(LocalDateTime.of(FIXED_DATE, LocalTime.of(9, 0))));
+        sameDayAppointments.add(currentAppointment);
+
+        when(appointmentRepository.findByDoctorIdAndStatusAndAppointmentDateBetween(
+                eq(1L), eq(AppointmentStatus.SCHEDULED), any(), any()))
+                .thenReturn(sameDayAppointments);
+
+        // Act
+        WaitTimeDto result = appointmentService.getEstimatedWaitTime(30L);
+
+        // Assert
+        // Since the appointment time is in the past, now.isBefore() is false.
+        // It strictly uses queuePosition * 15.
+        assertEquals(30, result.getEstimatedMinutes());
+    }
+
+    @Test
+    void scenarioD_shouldReturnCorrectWaitTime_WhenNoPreviousAppointment() {
+        // Arrange
+        Appointment currentAppointment = new Appointment();
+        currentAppointment.setId(40L);
+        currentAppointment.setAppointmentDate(LocalDateTime.of(FIXED_DATE, LocalTime.of(10, 20))); // 20 mins away
+        currentAppointment.setDoctor(mockDoctor);
+
+        when(appointmentRepository.findById(40L)).thenReturn(Optional.of(currentAppointment));
+
+        List<Appointment> sameDayAppointments = new ArrayList<>();
+        sameDayAppointments.add(currentAppointment); // Only this appointment
+
+        when(appointmentRepository.findByDoctorIdAndStatusAndAppointmentDateBetween(
+                eq(1L), eq(AppointmentStatus.SCHEDULED), any(), any()))
+                .thenReturn(sameDayAppointments);
+
+        // Act
+        WaitTimeDto result = appointmentService.getEstimatedWaitTime(40L);
+
+        // Assert
+        // Queue position = 0 (Wait = 0).
+        // Minutes until appointment = 20.
+        // Math.max(20, 0) = 20.
+        assertEquals(20, result.getEstimatedMinutes());
+        assertEquals(1, result.getQueuePosition());
+    }
+
+    @Test
+    void scenarioE_shouldMapBusyLevelsCorrectly() {
+        // Create a method to test the busy level easily
+        assertEquals("LOW", evaluateBusyLevel(5));
+        assertEquals("MEDIUM", evaluateBusyLevel(6));
+        assertEquals("MEDIUM", evaluateBusyLevel(12));
+        assertEquals("HIGH", evaluateBusyLevel(13));
+    }
+
+    private String evaluateBusyLevel(int totalAppointments) {
+        Appointment currentAppointment = new Appointment();
+        currentAppointment.setId(100L);
+        currentAppointment.setAppointmentDate(LocalDateTime.of(FIXED_DATE, LocalTime.of(9, 0)));
+        currentAppointment.setDoctor(mockDoctor);
+
+        when(appointmentRepository.findById(100L)).thenReturn(Optional.of(currentAppointment));
+
+        List<Appointment> sameDayAppointments = new ArrayList<>();
+        for (int i = 0; i < totalAppointments; i++) {
+            sameDayAppointments.add(createAppointmentWithDate(LocalDateTime.of(FIXED_DATE, LocalTime.of(1, 0).plusMinutes(i * 10))));
+        }
+
+        when(appointmentRepository.findByDoctorIdAndStatusAndAppointmentDateBetween(
+                eq(1L), eq(AppointmentStatus.SCHEDULED), any(), any()))
+                .thenReturn(sameDayAppointments);
+
+        return appointmentService.getEstimatedWaitTime(100L).getBusyLevel();
+    }
+
+    private Appointment createAppointmentWithDate(LocalDateTime date) {
+        Appointment a = new Appointment();
+        a.setAppointmentDate(date);
+        a.setDoctor(mockDoctor);
+        return a;
     }
 }

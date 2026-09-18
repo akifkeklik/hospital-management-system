@@ -35,6 +35,7 @@ build/
 ### Custom/Misc ###
 *.log
 frontend/.env
+src/main/resources/application-dev.properties
 
 # Teknofest Tasks
 tasks/

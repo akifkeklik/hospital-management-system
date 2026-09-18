@@ -10,7 +10,7 @@ import styles from './Header.module.css';
 export default function Header() {
   const { isInstallable, installApp } = usePwaInstall();
   const router = useRouter();
-  const [theme, setTheme] = useState('dark');
+
   const { user: userProfile } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -24,14 +24,10 @@ export default function Header() {
   const dropdownRef = useRef(null);
   const notifRef = useRef(null);
   const searchRef = useRef(null);
-  const { t } = useSettings();
+  const { t, theme, toggleTheme } = useSettings();
 
   useEffect(() => {
-    // Tema ayarını yükle
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    // eslint-disable-next-line
-    
-    document.documentElement.setAttribute('data-theme', savedTheme);
+
 
     // Bildirimleri çek
     const fetchNotifications = async (retryCount = 0) => {
@@ -56,29 +52,6 @@ export default function Header() {
     };
     fetchNotifications();
 
-    // Arama verilerini (doktorlar, bölümler, hastalar) çek
-    const fetchSearchData = async () => {
-      try {
-        const { DoctorService, DepartmentService, PatientService } = await import('../services/api');
-        const isAdmin = userProfile?.role === 'ROLE_ADMIN' || userProfile?.role === 'ADMIN';
-        const promises = [
-          DoctorService.getAll(0, 500),
-          DepartmentService.getAll(0, 100),
-        ];
-        if (isAdmin) {
-          promises.push(PatientService.getAll(0, 500));
-        }
-        const results = await Promise.all(promises);
-        setAllDoctors(results[0].content || []);
-        setAllDepartments(results[1].content || []);
-        setAllPatients(isAdmin ? (results[2].content || []) : []);
-      } catch (error) {
-        console.error("Arama verisi alınamadı:", error);
-      }
-    };
-    fetchSearchData();
-
-
     // Dışarı tıklayınca dropdown kapansın
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -100,30 +73,45 @@ export default function Header() {
     };
   }, [userProfile?.id, userProfile?.role]);
 
-  const toggleTheme = () => {
-    const themeOrder = ['dark', 'light', 'high-contrast'];
-    const currentIndex = themeOrder.indexOf(theme);
-    const newTheme = themeOrder[(currentIndex + 1) % themeOrder.length];
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
-  };
+  useEffect(() => {
+    const handler = setTimeout(async () => {
+      if (searchQuery.trim().length >= 2) {
+        try {
+          const { DoctorService, DepartmentService, PatientService } = await import('../services/api');
+          const isAdmin = userProfile?.role === 'ROLE_ADMIN' || userProfile?.role === 'ADMIN';
+          const promises = [
+            DoctorService.search(searchQuery.trim(), 0, 5),
+            DepartmentService.search(searchQuery.trim(), 0, 3),
+          ];
+          if (isAdmin) {
+            promises.push(PatientService.search(searchQuery.trim(), 0, 3));
+          }
+          const results = await Promise.all(promises);
+          setAllDoctors(results[0].items || results[0].content || []);
+          setAllDepartments(results[1].items || results[1].content || []);
+          setAllPatients(isAdmin ? (results[2].items || results[2].content || []) : []);
+        } catch (error) {
+          console.error("Arama hatası:", error);
+        }
+      } else {
+        setAllDoctors([]);
+        setAllDepartments([]);
+        setAllPatients([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [searchQuery, userProfile?.role]);
+
+
+
 
   const filteredSuggestions = searchQuery.trim().length >= 2 ? (() => {
-    const term = searchQuery.toLowerCase().trim();
-    const docSuggestions = allDoctors.filter(d => 
-      `${d.firstName} ${d.lastName}`.toLowerCase().includes(term) || 
-      (d.specialization && d.specialization.toLowerCase().includes(term))
-    ).slice(0, 5).map(d => ({ type: 'doctor', text: `${d.firstName} ${d.lastName} (${t('doctor')}) - ${d.specialization || t('no_data')}`, url: `/doctors?search=${encodeURIComponent(d.firstName)}` }));
+    const docSuggestions = allDoctors.map(d => ({ type: 'doctor', text: `${d.firstName} ${d.lastName} (${t('doctor')}) - ${d.specialization || t('no_data')}`, url: `/doctors?search=${encodeURIComponent(d.firstName)}` }));
 
-    const deptSuggestions = allDepartments.filter(d => 
-      d.name.toLowerCase().includes(term)
-    ).slice(0, 3).map(d => ({ type: 'department', text: `${d.name} (${t('department')})`, url: `/doctors?search=${encodeURIComponent(d.name)}` }));
+    const deptSuggestions = allDepartments.map(d => ({ type: 'department', text: `${d.name} (${t('department')})`, url: `/doctors?search=${encodeURIComponent(d.name)}` }));
 
-    const patSuggestions = allPatients.filter(p => 
-      `${p.firstName} ${p.lastName}`.toLowerCase().includes(term) || 
-      (p.tcIdentityNumber && p.tcIdentityNumber.includes(term))
-    ).slice(0, 3).map(p => ({ type: 'patient', text: `${p.firstName} ${p.lastName} (${t('patient')}) - ${p.tcIdentityNumber}`, url: `/patients?search=${encodeURIComponent(p.tcIdentityNumber)}` }));
+    const patSuggestions = allPatients.map(p => ({ type: 'patient', text: `${p.firstName} ${p.lastName} (${t('patient')}) - ${p.tcIdentityNumber}`, url: `/patients?search=${encodeURIComponent(p.tcIdentityNumber)}` }));
 
     return [...docSuggestions, ...deptSuggestions, ...patSuggestions];
   })() : [];

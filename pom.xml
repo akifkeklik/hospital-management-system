@@ -1,32 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-    ╔══════════════════════════════════════════════════════════════════╗
-    ║  📦 POM.XML — Maven Proje Yapılandırma Dosyası                 ║
-    ║                                                                  ║
-    ║  Maven nedir?                                                    ║
-    ║  → Java projelerinde bağımlılıkları (kütüphaneleri) yöneten     ║
-    ║    bir araçtır. "Ben Spring Boot kullanacağım" diyorsun,        ║
-    ║    Maven gidip o kütüphaneyi internetten indirip projeye        ║
-    ║    ekliyor.                                                      ║
-    ║                                                                  ║
-    ║  pom.xml nedir?                                                  ║
-    ║  → Maven'a "Bu projede şu kütüphaneleri kullan" dediğin         ║
-    ║    yapılandırma dosyasıdır.                                      ║
-    ╚══════════════════════════════════════════════════════════════════╝
--->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
          https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <!-- Maven model versiyonu — her zaman 4.0.0 -->
     <modelVersion>4.0.0</modelVersion>
 
-    <!--
-        🧬 PARENT (Ebeveyn) — Spring Boot Starter Parent
-        Spring Boot'un varsayılan ayarlarını miras alıyoruz.
-        Böylece her şeyin uyumlu versiyonunu tek tek yazmamıza gerek kalmıyor.
-    -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -34,43 +13,19 @@
         <relativePath/>
     </parent>
 
-    <!--
-        📋 PROJE BİLGİLERİ
-        groupId    → Şirket/organizasyon adı (ters domain formatında)
-        artifactId → Proje adı (küçük harf, tire ile ayırma)
-        version    → Proje versiyonu
-        name       → Projenin görünen adı
-    -->
     <groupId>com.hospital</groupId>
     <artifactId>appointment-system</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>Hospital Appointment System</name>
     <description>Hastane Randevu Yönetim Sistemi — Spring Boot + JPA</description>
 
-    <!--
-        ☕ JAVA VERSİYONU
-        Java 17 kullanıyoruz (Spring Boot 3.x için minimum Java 17 gerekli)
-    -->
     <properties>
         <java.version>17</java.version>
         <maven.compiler.parameters>true</maven.compiler.parameters>
     </properties>
 
-    <!--
-        📚 DEPENDENCIES (Bağımlılıklar)
-        Projemizde kullanacağımız kütüphaneler.
-        Her <dependency> bir kütüphanedir.
-    -->
     <dependencies>
 
-        <!--
-            🌐 SPRING BOOT STARTER WEB
-            Ne yapar? → REST API oluşturmamızı sağlar.
-            İçinde neler var?
-              - Spring MVC (Controller'lar için)
-              - Gömülü Tomcat sunucusu (localhost:8080'de çalışır)
-              - JSON dönüşümü (Jackson kütüphanesi)
-        -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -80,42 +35,17 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!--
-            🗄️ SPRING BOOT STARTER DATA JPA
-            Ne yapar? → Veritabanı işlemlerini kolaylaştırır.
-            İçinde neler var?
-              - Hibernate (JPA implementasyonu — SQL yazmadan veritabanı işlemi yapar)
-              - Spring Data JPA (Repository pattern — CRUD işlemleri hazır gelir)
-
-            ⭐ JPA Nedir?
-            JPA (Java Persistence API), Java objelerini veritabanı tablolarına
-            eşleştiren bir standarttır. Yani sen Java sınıfı yazarsın,
-            JPA otomatik olarak veritabanında tablo oluşturur!
-        -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
-        <!--
-            🐬 MYSQL DRIVER
-            Ne yapar? → Uygulamanın MySQL veritabanına bağlanmasını sağlar.
-            Daha önce H2 vardı, şimdi onu kaldırıp yerine MySQL'i koyduk!
-        -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
         </dependency>
-        
-        <!-- 🐘 POSTGRESQL DRIVER (Render Deploy İçin) -->
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
-        </dependency>
 
-        <!-- 🚀 FLYWAY MIGRATION -->
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
@@ -124,18 +54,12 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-mysql</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-database-postgresql</artifactId>
-        </dependency>
 
-        <!-- 🔐 SPRING SECURITY -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
-        <!-- 🎫 JWT (JSON Web Token) Kütüphaneleri -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
@@ -154,18 +78,12 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- 🛡️ BUCKET4J (Rate Limiting) -->
         <dependency>
             <groupId>com.bucket4j</groupId>
             <artifactId>bucket4j-core</artifactId>
             <version>8.10.1</version>
         </dependency>
 
-        <!--
-            🧪 SPRING BOOT STARTER TEST
-            Ne yapar? → Birim test (unit test) yazmamızı sağlar.
-            scope=test → Sadece test yazarken kullanılır, üretim kodunda değil.
-        -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -178,14 +96,12 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- 🧪 H2 in-memory database for tests -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
 
-        <!-- Observability: Actuator & Prometheus -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
@@ -196,11 +112,6 @@
         </dependency>
     </dependencies>
 
-    <!--
-        🔨 BUILD (Derleme Ayarları)
-        Maven projeyi derlerken kullanacağı eklentiler.
-        spring-boot-maven-plugin → Projeyi çalıştırılabilir JAR dosyasına çevirir.
-    -->
     <build>
         <plugins>
             <plugin>

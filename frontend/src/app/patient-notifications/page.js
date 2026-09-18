@@ -1,6 +1,7 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { NotificationService, AuthService } from '../../services/api';
+import { useApi } from '../../hooks/useApi';
 import { toast } from '../../components/Toast';
 import { useSettings } from '../../context/SettingsContext';
 import { useAuth } from '../../context/AuthContext';
@@ -8,42 +9,35 @@ import styles from '../shared.module.css';
 
 export default function PatientNotificationsPage() {
   const { t } = useSettings();
-  const [notifications, setNotifications] = useState([]);
   const [mounted, setMounted] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState(null);
   const [broadcastMessage, setBroadcastMessage] = useState('');
   const [broadcasting, setBroadcasting] = useState(false);
   const { user: me } = useAuth();
 
+  const fetchNotifsApi = useCallback(async (signal) => {
+    if (!me) return [];
+    let myNotifications = [];
+    if (me.role === 'DOCTOR' || me.role === 'ROLE_DOCTOR' || me.role === 'HEKIM' || me.role === 'ROLE_HEKIM') {
+      myNotifications = await NotificationService.getByDoctor(me.id, { signal });
+    } else {
+      myNotifications = await NotificationService.getByPatient(me.id, { signal });
+    }
+    const hiddenNotifs = JSON.parse(localStorage.getItem('hiddenNotifs') || '[]');
+    return myNotifications.filter(n => !hiddenNotifs.includes(n.id));
+  }, [me]);
+
+  const { data: notifications, setData: setNotifications, loading, execute: executeFetch } = useApi(fetchNotifsApi, []);
+
   useEffect(() => {
     setMounted(true);
     if (me) {
-      checkAuthAndFetch();
+      setUserRole(me.role);
+      executeFetch().catch(err => {
+        if (err.name !== 'AbortError') console.error(err);
+      });
     }
-  }, [me]);
-
-  const checkAuthAndFetch = async () => {
-    setLoading(true);
-    try {
-      if (me) {
-        setUserRole(me.role);
-          let myNotifications = [];
-          if (me.role === 'DOCTOR' || me.role === 'ROLE_DOCTOR' || me.role === 'HEKIM' || me.role === 'ROLE_HEKIM') {
-            myNotifications = await NotificationService.getByDoctor(me.id);
-          } else {
-            myNotifications = await NotificationService.getByPatient(me.id);
-          }
-          const hiddenNotifs = JSON.parse(localStorage.getItem('hiddenNotifs') || '[]');
-          myNotifications = myNotifications.filter(n => !hiddenNotifs.includes(n.id));
-          setNotifications(myNotifications);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [me, executeFetch]);
 
   const handleMarkAsRead = async (id) => {
     try {

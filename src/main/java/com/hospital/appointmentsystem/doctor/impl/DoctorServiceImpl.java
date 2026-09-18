@@ -159,6 +159,12 @@ public class DoctorServiceImpl implements DoctorService {
         doctorRepository.deleteById(id);
     }
 
+    @Override
+    public Page<DoctorDto> searchDoctors(String query, Pageable pageable) {
+        Page<Doctor> doctors = doctorRepository.searchDoctors(query, pageable);
+        return doctors.map(this::mapToDto);
+    }
+
     // ── Dönüşüm Metotları ──
 
     private DoctorDto mapToDto(Doctor doctor) {

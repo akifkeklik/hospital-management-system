@@ -7,4 +7,5 @@ public interface UserService {
     boolean resetPassword(String username, String email, String newPassword);
     void setNeedsPasswordChange(String username, boolean flag);
     boolean changePassword(String username, String newPassword);
+    boolean changePasswordWithOld(String username, String oldPassword, String newPassword);
 }

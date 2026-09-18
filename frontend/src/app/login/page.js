@@ -7,7 +7,6 @@ import { useSettings } from '../../context/SettingsContext';
 import LanguageSelector from '../../components/LanguageSelector';
 import styles from './page.module.css';
 
-import { parseJwt } from '../../utils/jwt';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -19,7 +18,6 @@ export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
-  const [tempToken, setTempToken] = useState('');
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -67,9 +65,8 @@ export default function LoginPage() {
     try {
       setSuccessMsg('');
       const response = await AuthService.login(username.trim(), password);
-      if (response && response.token) {
-        const decoded = parseJwt(response.token);
-        const actualRole = decoded?.role;
+      if (response) {
+        const actualRole = response.role;
 
         let valid = false;
         if (loginType === 'PATIENT' && actualRole === 'ROLE_PATIENT') valid = true;
@@ -77,30 +74,27 @@ export default function LoginPage() {
         else if (loginType === 'ADMIN' && actualRole === 'ROLE_ADMIN') valid = true;
 
         if (!valid) {
+          await AuthService.logout(); // Clear the cookie since it's the wrong role
           setError(t('err_role_mismatch'));
           setLoading(false);
           return;
         }
 
         if (response.needsPasswordChange) {
-          setTempToken(response.token);
           setPassword('');
           setShowForcePasswordChange(true);
           return;
         }
 
         if (rememberMe) {
-          localStorage.setItem('token', response.token);
           localStorage.setItem(`remembered_username_${loginType}`, username.trim());
-          sessionStorage.removeItem('token');
         } else {
-          sessionStorage.setItem('token', response.token);
-          localStorage.removeItem('token');
           localStorage.removeItem(`remembered_username_${loginType}`);
         }
-        router.push('/');
+        
+        window.location.href = '/';
       } else {
-        setError(t('err_no_token'));
+        setError(t('err_invalid_credentials'));
       }
     } catch (err) {
       if (err.message && (err.message.includes('Failed to fetch') || err.message.includes('NetworkError'))) {
@@ -144,8 +138,7 @@ export default function LoginPage() {
     setError('');
     try {
       await AuthService.forceChangePassword(username.trim(), password);
-      localStorage.setItem('token', tempToken);
-      router.push('/');
+      window.location.href = '/';
     } catch (err) {
       setError(tErr(err.message) || t('err_password_update'));
     } finally {

@@ -24,4 +24,6 @@ public interface DoctorService {
     DoctorDto updateDoctor(Long id, DoctorDto doctorDto);
 
     void deleteDoctor(Long id);
+
+    Page<DoctorDto> searchDoctors(String query, Pageable pageable);
 }

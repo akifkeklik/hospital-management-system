@@ -1,9 +1,7 @@
 'use client';
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { dictionaries } from '../locales';
 import { translateError } from '../utils/errorTranslator';
-
-const SettingsContext = createContext();
 
 export const THEMES = [
   { id: 'indigo', name: 'İndigo', hex: '#4f46e5', hover: '#4338ca', rgb: '79, 70, 229' },
@@ -31,28 +29,57 @@ export const LANGUAGES = [
   { id: 'zh', name: '中文', flag: '🇨🇳' }
 ];
 
+const SettingsContext = createContext({
+  language: 'tr',
+  changeLanguage: () => {},
+  t: (key) => key,
+  tErr: (msg) => msg,
+  themeColor: 'indigo',
+  applyThemeColor: () => {},
+  theme: 'light',
+  toggleTheme: () => {},
+  THEMES,
+  LANGUAGES,
+});
+
+
+
 export function SettingsProvider({ children }) {
   const [language, setLanguage] = useState('tr');
   const [themeColor, setThemeColor] = useState('indigo');
+  const [theme, setTheme] = useState('light');
   const [mounted, setMounted] = useState(false);
+
+  const applyThemeColor = useCallback((colorId) => {
+    const colorTheme = THEMES.find(t => t.id === colorId) || THEMES[0];
+    setThemeColor(colorId);
+    localStorage.setItem('themeColor', colorId);
+
+    // Uygula (CSS Variable injection)
+    document.documentElement.style.setProperty('--primary', colorTheme.hex);
+    document.documentElement.style.setProperty('--primary-hover', colorTheme.hover);
+    document.documentElement.style.setProperty('--primary-rgb', colorTheme.rgb);
+  }, []);
 
   useEffect(() => {
     const savedLang = localStorage.getItem('language') || 'tr';
-    const savedTheme = localStorage.getItem('themeColor') || 'indigo';
-    setLanguage(savedLang);
-    applyThemeColor(savedTheme);
-    setMounted(true);
-  }, []);
+    const savedThemeColor = localStorage.getItem('themeColor') || 'indigo';
+    const savedTheme = localStorage.getItem('theme') || 'light';
 
-  const applyThemeColor = (colorId) => {
-    const theme = THEMES.find(t => t.id === colorId) || THEMES[0];
-    setThemeColor(colorId);
-    localStorage.setItem('themeColor', colorId);
-    
-    // Uygula (CSS Variable injection)
-    document.documentElement.style.setProperty('--primary', theme.hex);
-    document.documentElement.style.setProperty('--primary-hover', theme.hover);
-    document.documentElement.style.setProperty('--primary-rgb', theme.rgb);
+    setLanguage(savedLang);
+    applyThemeColor(savedThemeColor);
+    setTheme(savedTheme);
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    setMounted(true);
+  }, [applyThemeColor]);
+
+  const toggleTheme = () => {
+    const themeOrder = ['dark', 'light', 'high-contrast'];
+    const currentIndex = themeOrder.indexOf(theme);
+    const newTheme = themeOrder[(currentIndex + 1) % themeOrder.length];
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
   };
 
   const changeLanguage = (langId) => {
@@ -73,9 +100,10 @@ export function SettingsProvider({ children }) {
   const tErr = (rawMessage) => translateError(rawMessage, language);
 
   return (
-    <SettingsContext.Provider value={{ 
+    <SettingsContext.Provider value={{
       language, changeLanguage, t, tErr,
       themeColor, applyThemeColor,
+      theme, toggleTheme,
       THEMES, LANGUAGES
     }}>
       <div style={{ visibility: mounted ? 'visible' : 'hidden' }}>

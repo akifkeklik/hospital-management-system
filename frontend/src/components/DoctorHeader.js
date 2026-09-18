@@ -9,22 +9,19 @@ import { useAuth } from '../context/AuthContext';
 
 export default function DoctorHeader() {
   const router = useRouter();
-  const { t } = useSettings();
+  const { t, theme, toggleTheme } = useSettings();
   const { isInstallable, installApp } = usePwaInstall();
   const { user: userProfile } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [theme, setTheme] = useState('dark');
+
   const dropdownRef = useRef(null);
   const notifRef = useRef(null);
 
   useEffect(() => {
-    // Tema yükle
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    setTheme(savedTheme);
-    document.documentElement.setAttribute('data-theme', savedTheme);
+
 
     const fetchNotifications = async (retryCount = 0) => {
       if (!userProfile?.id) return;
@@ -57,14 +54,7 @@ export default function DoctorHeader() {
     AuthService.logout();
   };
 
-  const toggleTheme = () => {
-    const themeOrder = ['dark', 'light', 'high-contrast'];
-    const currentIndex = themeOrder.indexOf(theme);
-    const newTheme = themeOrder[(currentIndex + 1) % themeOrder.length];
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
-  };
+
 
   const initial = userProfile?.firstName && userProfile?.lastName 
     ? `${userProfile.firstName.charAt(0)}${userProfile.lastName.charAt(0)}`.toUpperCase() 

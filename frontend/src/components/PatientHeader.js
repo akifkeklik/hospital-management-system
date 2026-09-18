@@ -10,7 +10,7 @@ import { useAuth } from '../context/AuthContext';
 export default function PatientHeader() {
   const { isInstallable, installApp } = usePwaInstall();
   const router = useRouter();
-  const [theme, setTheme] = useState('dark');
+
   const { user: userProfile } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -18,13 +18,10 @@ export default function PatientHeader() {
   const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef(null);
   const notifRef = useRef(null);
-  const { t } = useSettings();
+  const { t, theme, toggleTheme } = useSettings();
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    // eslint-disable-next-line
-    
-    document.documentElement.setAttribute('data-theme', savedTheme);
+
 
     const fetchNotifications = async (retryCount = 0) => {
       if (!userProfile?.id) return;
@@ -53,14 +50,7 @@ export default function PatientHeader() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [userProfile?.id]);
 
-  const toggleTheme = () => {
-    const themeOrder = ['dark', 'light', 'high-contrast'];
-    const currentIndex = themeOrder.indexOf(theme);
-    const newTheme = themeOrder[(currentIndex + 1) % themeOrder.length];
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
-  };
+
 
   const handleLogout = () => {
     AuthService.logout();

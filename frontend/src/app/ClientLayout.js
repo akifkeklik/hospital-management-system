@@ -4,7 +4,7 @@ import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import PatientHeader from '../components/PatientHeader';
 import DoctorHeader from '../components/DoctorHeader';
-import { SettingsProvider } from '../context/SettingsContext';
+
 import ToastContainer from '../components/Toast';
 import { useAuth } from '../context/AuthContext';
 
@@ -16,17 +16,17 @@ export default function ClientLayout({ children }) {
   // Eğer sayfa login veya register ise Sidebar ve Header'ı KESİNLİKLE GİZLE!
   if (isAuthPage) {
     return (
-      <SettingsProvider>
+      <>
         {children}
         <ToastContainer />
-      </SettingsProvider>
+      </>
     );
   }
 
   // Hasta veya Doktor ise özel (Sidebar'sız) layout
   if (role === 'ROLE_PATIENT' || role === 'ROLE_DOCTOR') {
     return (
-      <SettingsProvider>
+      <>
         <div className="app-container" style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
           {role === 'ROLE_PATIENT' ? <PatientHeader /> : null}
           {role === 'ROLE_DOCTOR' ? <DoctorHeader /> : null}
@@ -38,13 +38,13 @@ export default function ClientLayout({ children }) {
           </main>
         </div>
         <ToastContainer />
-      </SettingsProvider>
+      </>
     );
   }
 
   // Sadece Admin (ROLE_ADMIN) veya diğer rollere Sidebar'lı Layout
   return (
-    <SettingsProvider>
+    <>
       <div className="app-container">
         <Sidebar />
         <div className="main-content">
@@ -55,6 +55,6 @@ export default function ClientLayout({ children }) {
         </div>
       </div>
       <ToastContainer />
-    </SettingsProvider>
+    </>
   );
 }

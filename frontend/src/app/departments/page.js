@@ -1,5 +1,6 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useApi } from '../../hooks/useApi';
 import { DepartmentService } from '../../services/api';
 import DataTable from '../../components/DataTable';
 import Modal from '../../components/Modal';
@@ -10,7 +11,6 @@ import styles from '../shared.module.css';
 
 export default function DepartmentsPage() {
   const { t, tErr } = useSettings();
-  const [departments, setDepartments] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,19 +18,24 @@ export default function DepartmentsPage() {
   const [editingId, setEditingId] = useState(null);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
 
-  const fetchDepartments = async () => {
-    try {
-      const data = await DepartmentService.getAll(page);
-      setDepartments(data.content || []);
-      setTotalPages(data.totalPages || 0);
-    } catch (error) {
+  const fetchDepartmentsApi = useCallback(async (signal, currentPage) => {
+    const data = await DepartmentService.getAll(currentPage, 5, { signal });
+    setTotalPages(data.totalPages || 0);
+    return data.content || [];
+  }, []);
+
+  const { data: departments, loading, execute } = useApi(fetchDepartmentsApi, []);
+
+  const fetchDepartments = useCallback(() => {
+    execute(page).catch(error => {
+      // Sadece iptal edilmeyen hataları toast ile göster
       toast.error(t('error_loading_departments'));
-    }
-  };
+    });
+  }, [execute, page, t]);
 
   useEffect(() => {
     fetchDepartments();
-  }, [page]);
+  }, [fetchDepartments]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -82,8 +87,8 @@ export default function DepartmentsPage() {
     <div>
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>{t('departments')}</h1>
-        <button 
-          className={styles.primaryBtn} 
+        <button
+          className={styles.primaryBtn}
           onClick={() => {
             setFormData({ name: '', description: '' });
             setEditingId(null);
@@ -94,25 +99,29 @@ export default function DepartmentsPage() {
         </button>
       </div>
 
-      <DataTable 
-        columns={columns} 
-        data={departments} 
-        onEdit={handleEdit} 
-        onDelete={handleDelete} 
-        page={page}
-        totalPages={totalPages}
-        onPageChange={setPage}
-      />
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>{t('loading') || 'Yükleniyor...'}</div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={departments}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
+      )}
 
-      <Modal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         title={editingId ? t('edit_dept') : t('add_dept')}
       >
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
             <label>{t('dept_name')}</label>
-            <input 
+            <input
               required
               value={formData.name}
               onChange={(e) => setFormData({...formData, name: e.target.value})}
@@ -120,7 +129,7 @@ export default function DepartmentsPage() {
           </div>
           <div className={styles.formGroup}>
             <label>{t('description')}</label>
-            <textarea 
+            <textarea
               rows="3"
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}

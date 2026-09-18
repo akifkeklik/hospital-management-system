@@ -72,7 +72,7 @@ public class AdminDoctorRequestController {
             request.setStatus("APPROVED");
             repository.save(request);
 
-            return ResponseEntity.ok(new MessageResponse("Doktor başarıyla onaylandı. İlk giriş için geçici şifresi: " + tempPassword + " (Lütfen hekime iletiniz)"));
+            return ResponseEntity.ok(new MessageResponse("Doktor başarıyla onaylandı. Geçici şifre (OTP) doktora güvenli kanallarla iletilmiştir."));
         } catch (Exception e) {
             String msg = e.getMessage() != null ? e.getMessage() : "";
             Throwable cause = e.getCause();

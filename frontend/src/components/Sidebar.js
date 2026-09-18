@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useSettings } from '../context/SettingsContext';
 import { DepartmentService } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { useApi } from '../hooks/useApi';
 import styles from './Sidebar.module.css';
 
 export default function Sidebar() {
@@ -12,8 +13,6 @@ export default function Sidebar() {
   const { t } = useSettings();
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const [departments, setDepartments] = useState([]);
-  const [polyclinics, setPolyclinics] = useState([]);
   const [hoveredMenu, setHoveredMenu] = useState(null);
   const [hoveredDepartment, setHoveredDepartment] = useState(null);
   const collapseTimer = useRef(null);
@@ -28,31 +27,33 @@ export default function Sidebar() {
     if (formattedRole === 'HASTA') formattedRole = 'PATIENT';
   }
 
-  useEffect(() => {
-    const fetchPolyclinics = async () => {
-      if (formattedRole === 'ADMIN') {
-         try {
-            const polyData = await import('../services/api').then(m => m.PolyclinicService.getAll());
-            setPolyclinics(polyData || []);
-         } catch (err) {
-            console.error("Could not fetch polyclinics for sidebar", err);
-         }
-      }
-    };
-    fetchPolyclinics();
+  const fetchDepartments = useCallback(async (signal) => {
+    const deptData = await DepartmentService.getAll(0, 100, { signal });
+    return deptData.content || deptData || [];
+  }, []);
+
+  const fetchPolyclinics = useCallback(async (signal) => {
+    if (formattedRole === 'ADMIN') {
+      const polyData = await import('../services/api').then(m => m.PolyclinicService.getAll({ signal }));
+      return polyData || [];
+    }
+    return [];
   }, [formattedRole]);
 
+  const { data: departments, execute: executeFetchDepartments } = useApi(fetchDepartments, []);
+  const { data: polyclinics, execute: executeFetchPolyclinics } = useApi(fetchPolyclinics, []);
+
   useEffect(() => {
-    const fetchDepartments = async () => {
-      try {
-        const deptData = await DepartmentService.getAll(0, 100);
-        setDepartments(deptData.content || deptData || []);
-      } catch (err) {
-        console.error("Could not fetch departments for sidebar", err);
-      }
-    };
-    fetchDepartments();
-  }, []);
+    executeFetchDepartments().catch(err => {
+      if (err.name !== 'AbortError') console.error("Could not fetch departments for sidebar", err);
+    });
+  }, [executeFetchDepartments]);
+
+  useEffect(() => {
+    executeFetchPolyclinics().catch(err => {
+      if (err.name !== 'AbortError') console.error("Could not fetch polyclinics for sidebar", err);
+    });
+  }, [executeFetchPolyclinics]);
 
   const handleMouseEnter = useCallback(() => {
     if (collapseTimer.current) clearTimeout(collapseTimer.current);

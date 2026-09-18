@@ -359,7 +359,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         LocalDateTime now = LocalDateTime.now();
         if (now.toLocalDate().equals(appointmentDate) && now.isBefore(appointment.getAppointmentDate())) {
             long minutesUntilAppointment = java.time.Duration.between(now, appointment.getAppointmentDate()).toMinutes();
-            estimatedMinutes = (int) Math.max(minutesUntilAppointment, 0);
+            estimatedMinutes = (int) Math.max(minutesUntilAppointment, queuePosition * avgExamMinutes);
         }
         
         // Yoğunluk seviyesi
