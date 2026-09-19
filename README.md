@@ -469,6 +469,15 @@ http://localhost:3000
 
 ---
 
+## 6. Default Credentials
+
+When running the application with the `dev` profile (default), the following admin user is automatically created:
+
+* **Username:** `admin` (or `admin@hospital.com`)
+* **Password:** `dev_admin_secret_key_2026`
+
+---
+
 # ⚙️ Configuration
 
 The application is configured primarily through environment variables.

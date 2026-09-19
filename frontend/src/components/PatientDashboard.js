@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { AppointmentService, AuthService } from '../services/api';
@@ -14,6 +14,7 @@ import { getTimeFilterParams } from '../utils/dateFilters';
 import { useApi } from '../hooks/useApi';
 import { useAuth } from '../context/AuthContext';
 import styles from './PatientDashboard.module.css';
+import { toast } from './Toast';
 
 export default function PatientDashboard() {
   const { t, tErr } = useSettings();

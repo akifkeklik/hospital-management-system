@@ -74,9 +74,7 @@ export function SettingsProvider({ children }) {
   }, [applyThemeColor]);
 
   const toggleTheme = () => {
-    const themeOrder = ['dark', 'light', 'high-contrast'];
-    const currentIndex = themeOrder.indexOf(theme);
-    const newTheme = themeOrder[(currentIndex + 1) % themeOrder.length];
+    const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
     localStorage.setItem('theme', newTheme);
     document.documentElement.setAttribute('data-theme', newTheme);

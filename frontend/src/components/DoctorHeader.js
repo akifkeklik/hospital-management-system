@@ -218,27 +218,17 @@ export default function DoctorHeader() {
       {/* Sağ Aksiyonlar */}
       <div style={rightActionsStyle}>
 
-        {isInstallable && (
-          <button style={installBtnStyle} onClick={installApp} title={t('pwa_install') || "Uygulamayı Kur"}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7 10 12 15 17 10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-          </button>
-        )}
+
 
         <button 
           onClick={toggleTheme} 
           style={iconButtonStyle}
           onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'var(--background)'; e.currentTarget.style.color = 'var(--text-main)'; }}
           onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}
-          title={theme === 'dark' ? t('light_mode') : theme === 'light' ? t('high_contrast_mode') : t('dark_mode')}
+          title={theme === 'dark' ? t('light_mode') : t('dark_mode')}
         >
           {theme === 'dark' ? (
             <span style={{ fontSize: '1.2rem' }}>☀️</span>
-          ) : theme === 'light' ? (
-            <span style={{ fontSize: '1.2rem' }}>👁️</span>
           ) : (
             <span style={{ fontSize: '1.2rem' }}>🌙</span>
           )}

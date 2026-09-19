@@ -39,6 +39,11 @@ public class HospitalAppointmentApplication {
                 }
                 userService.registerUser("admin", "admin@hospital.com", adminPassword, "ROLE_ADMIN", null);
                 System.out.println("✅ Varsayılan Sistem Yöneticisi (Admin) oluşturuldu.");
+            } else {
+                if (adminPassword != null && !adminPassword.trim().isEmpty()) {
+                    userService.changePassword("admin", adminPassword);
+                    System.out.println("✅ Varsayılan Sistem Yöneticisi (Admin) şifresi güncellendi.");
+                }
             }
 
             // 2. Varsayılan Verilerin Yüklenmesi (SADECE BİR KERE ÇALIŞIR)
