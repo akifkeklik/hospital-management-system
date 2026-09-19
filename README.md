@@ -863,8 +863,9 @@ The application is production-ready and fully supports modern cloud deployment p
 
 ### 3. Frontend Deployment (Vercel)
 - The Next.js frontend is deployed on **Vercel**.
-- The `Root Directory` must be set to `frontend` in the Vercel Project Settings.
+- ⚠️ **CRITICAL:** The `Root Directory` MUST be set to `frontend` in the Vercel Project Settings (`Settings -> General -> Root Directory`) for Next.js to be correctly detected and built. Do not use a `vercel.json` file for this.
 - The `NEXT_PUBLIC_API_URL` environment variable must be configured in Vercel to point to the live Render backend URL.
+
 
 ---
 
