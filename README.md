@@ -773,31 +773,17 @@ These are used to identify inefficient query patterns and verify expected databa
 
 ---
 
-## ☁️ Deployment
-
-### Aiven (Cloud MySQL)
-
-The application uses **Aiven MySQL** for production database:
-
-1. Configure Aiven MySQL service
-2. Set `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` environment variables in your deployment environment
-3. Start the application with production profile
-
-### Docker Production Build
-
----
-
 # 🐳 Docker
 
-The project includes a Dockerfile for containerized backend deployment.
+The project includes a `Dockerfile` for containerized backend deployment. It uses a multi-stage build process to ensure a lightweight production image.
 
-Build:
+**Build:**
 
 ```bash
 docker build -t hospital-management-system .
 ```
 
-Run:
+**Run:**
 
 ```bash
 docker run -p 8080:8080 \
@@ -809,15 +795,13 @@ docker run -p 8080:8080 \
   hospital-management-system
 ```
 
-For production, secrets should be provided through the deployment environment rather than hardcoded in Docker commands or source files.
+*Note: For production, secrets should be provided securely through the deployment environment (e.g., Render Environment Variables) rather than hardcoded.*
 
 ---
 
 # 🔄 CI/CD
 
-GitHub Actions is used for continuous integration.
-
-The current pipeline validates both backend and frontend builds.
+**GitHub Actions** is used for continuous integration, validating both backend and frontend environments automatically on every push and pull request.
 
 ```text
 Git Push / Pull Request
@@ -839,56 +823,48 @@ Git Push / Pull Request
       CI Result
 ```
 
-Workflow configuration:
-
-```text
-.github/workflows/build.yml
-```
+Workflow configuration is located at: `.github/workflows/build.yml`
 
 ---
 
 # ☁️ Deployment
 
-The application is being prepared for production deployment.
+The application is production-ready and fully supports modern cloud deployment platforms. The current production architecture securely separates the frontend, backend, and database layers.
 
-The intended production architecture separates the frontend, backend, and database:
+### Production Architecture
 
 ```text
-┌─────────────────────┐
-│      Frontend       │
-│      Next.js        │
-└──────────┬──────────┘
-           │ HTTPS
-           ▼
-┌─────────────────────┐
-│       Backend       │
-│     Spring Boot     │
-│       Docker        │
-└──────────┬──────────┘
-           │
-           ▼
-┌─────────────────────┐
-│       MySQL 8       │
-│   Production DB     │
-└─────────────────────┘
+┌───────────────────────────────┐
+│           Frontend            │
+│       Next.js (Vercel)        │
+└───────────────┬───────────────┘
+                │ HTTPS (REST API)
+                ▼
+┌───────────────────────────────┐
+│            Backend            │
+│      Spring Boot (Render)     │
+└───────────────┬───────────────┘
+                │ TCP (JDBC/SSL)
+                ▼
+┌───────────────────────────────┐
+│           Database            │
+│       MySQL 8.4 (Aiven)       │
+└───────────────────────────────┘
 ```
 
-The application is not intentionally coupled to a specific cloud provider.
+### 1. Database Deployment (Aiven)
+- The application uses **Aiven MySQL** for the production database.
+- Database schemas and initial data are automatically managed and migrated by **Flyway** on application startup.
 
-The production deployment process includes:
+### 2. Backend Deployment (Render)
+- The Spring Boot backend is deployed as a Web Service on **Render**.
+- Environment variables (`JWT_SECRET`, `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `CORS_ALLOWED_ORIGINS`) must be configured in the Render Dashboard.
+- Application health is automatically monitored via Spring Boot Actuator endpoints.
 
-1. Provision MySQL
-2. Configure production environment variables
-3. Deploy the Spring Boot backend
-4. Run and verify Flyway migrations
-5. Deploy the Next.js frontend
-6. Configure CORS
-7. Verify health endpoints
-8. Verify authentication
-9. Verify database connectivity
-10. Verify application workflows
-
-> Production deployment should only be considered complete after the deployed application has passed functional, database, security, and health checks.
+### 3. Frontend Deployment (Vercel)
+- The Next.js frontend is deployed on **Vercel**.
+- The `Root Directory` must be set to `frontend` in the Vercel Project Settings.
+- The `NEXT_PUBLIC_API_URL` environment variable must be configured in Vercel to point to the live Render backend URL.
 
 ---
 
