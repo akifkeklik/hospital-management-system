@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useSettings } from '../context/SettingsContext';
 
 export default function LoadingScreen({ fullScreen = false }) {
-  const { t } = useSettings();
+  const settings = useSettings();
+  const t = settings?.t || ((key) => key);
   const [showWarning, setShowWarning] = useState(false);
 
   useEffect(() => {
