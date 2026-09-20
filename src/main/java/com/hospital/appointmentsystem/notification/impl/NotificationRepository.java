@@ -8,4 +8,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     List<Notification> findByPatientIdAndIsReadFalse(Long patientId);
     List<Notification> findByDoctorIdOrderByCreatedAtDesc(Long doctorId);
     List<Notification> findByDoctorIdAndIsReadFalse(Long doctorId);
+    List<Notification> findByAdminIdOrderByCreatedAtDesc(Long adminId);
+    List<Notification> findByAdminIdAndIsReadFalse(Long adminId);
 }

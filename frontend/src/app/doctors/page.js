@@ -16,6 +16,7 @@ export default function DoctorsPage() {
   const initialSearch = searchParams.get('search');
   const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(5);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
   const [formData, setFormData] = useState({ 
@@ -135,9 +136,8 @@ export default function DoctorsPage() {
     return fullName.includes(term) || deptName.includes(term) || polyName.includes(term);
   });
 
-  const PAGE_SIZE = 5;
-  const calculatedTotalPages = Math.ceil(filteredDoctors.length / PAGE_SIZE);
-  const displayedDoctors = filteredDoctors.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  const calculatedTotalPages = Math.ceil(filteredDoctors.length / pageSize);
+  const displayedDoctors = filteredDoctors.slice(page * pageSize, (page + 1) * pageSize);
 
   return (
     <div className={styles.pageContainer}>
@@ -156,6 +156,23 @@ export default function DoctorsPage() {
         >
           + {t('add_doctor')}
         </button>
+      </div>
+
+      <div style={{ marginBottom: '1rem', marginTop: '1rem', display: 'flex', gap: '1rem', alignItems: 'center', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', backgroundColor: 'var(--surface)', padding: '0.2rem 0.5rem 0.2rem 1rem', borderRadius: '8px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
+          <span style={{ fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>Kayıt Sayısı:</span>
+          <select 
+            value={pageSize} 
+            onChange={(e) => { setPageSize(Number(e.target.value)); setPage(0); }}
+            style={{ width: 'auto', padding: '0.4rem 2rem 0.4rem 0.8rem', border: 'none', backgroundColor: 'transparent', boxShadow: 'none', fontWeight: '600', color: 'var(--primary)' }}
+          >
+            <option value={3}>3</option>
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
+          </select>
+        </div>
       </div>
 
       <DataTable 

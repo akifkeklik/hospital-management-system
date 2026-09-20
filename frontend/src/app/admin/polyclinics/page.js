@@ -44,7 +44,7 @@ function PolyclinicsContent() {
   const [departmentId, setDepartmentId] = useState('');
 
   const [page, setPage] = useState(1);
-  const itemsPerPage = 4;
+  const [itemsPerPage, setItemsPerPage] = useState(4);
 
   const fetchData = useCallback(() => {
     execute().catch(error => {
@@ -193,13 +193,29 @@ function PolyclinicsContent() {
           border: '1px solid var(--border)',
           overflow: 'hidden'
         }}>
-          <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(var(--background-rgb), 0.5)' }}>
+          <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(var(--background-rgb), 0.5)', flexWrap: 'wrap', gap: '1rem' }}>
             <h2 style={{ fontSize: '1.1rem', fontWeight: '600', color: 'var(--text-main)', margin: 0 }}>
               {filterDeptId ? `${getDeptName(filterDeptId)} ${t('polyclinics')}` : (t('all_polyclinics'))}
             </h2>
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', backgroundColor: 'var(--background)', padding: '4px 12px', borderRadius: '20px', border: '1px solid var(--border)' }}>
-              {t('total')} {filteredPolyclinics.length}
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', backgroundColor: 'var(--background)', padding: '0.2rem 0.5rem 0.2rem 1rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>Kayıt Sayısı:</span>
+                <select 
+                  value={itemsPerPage} 
+                  onChange={(e) => { setItemsPerPage(Number(e.target.value)); setPage(1); }}
+                  style={{ width: 'auto', padding: '0.4rem 2rem 0.4rem 0.8rem', border: 'none', backgroundColor: 'transparent', boxShadow: 'none', fontWeight: '600', color: 'var(--primary)' }}
+                >
+                  <option value={3}>3</option>
+                  <option value={4}>4</option>
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                </select>
+              </div>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', backgroundColor: 'var(--background)', padding: '4px 12px', borderRadius: '20px', border: '1px solid var(--border)' }}>
+                {t('total')} {filteredPolyclinics.length}
+              </span>
+            </div>
           </div>
 
           {loading ? (

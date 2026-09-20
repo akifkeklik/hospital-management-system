@@ -43,6 +43,18 @@ public class NotificationController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/{adminId}")
+    public ResponseEntity<List<NotificationDto>> getAdminNotifications(@PathVariable Long adminId) {
+        return ResponseEntity.ok(notificationService.getNotificationsByAdmin(adminId));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/{adminId}/unread-count")
+    public ResponseEntity<Long> getAdminUnreadCount(@PathVariable Long adminId) {
+        return ResponseEntity.ok(notificationService.getUnreadCountForAdmin(adminId));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/broadcast")
     public ResponseEntity<Void> broadcastToDoctors(@RequestBody String message) {
         notificationService.broadcastToDoctors(message);

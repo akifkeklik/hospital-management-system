@@ -6,16 +6,18 @@ public class NotificationDto {
     private Long id;
     private Long patientId;
     private Long doctorId;
+    private Long adminId;
     private String message;
     private boolean isRead;
     private LocalDateTime createdAt;
 
     public NotificationDto() {}
 
-    public NotificationDto(Long id, Long patientId, Long doctorId, String message, boolean isRead, LocalDateTime createdAt) {
+    public NotificationDto(Long id, Long patientId, Long doctorId, Long adminId, String message, boolean isRead, LocalDateTime createdAt) {
         this.id = id;
         this.patientId = patientId;
         this.doctorId = doctorId;
+        this.adminId = adminId;
         this.message = message;
         this.isRead = isRead;
         this.createdAt = createdAt;
@@ -27,6 +29,8 @@ public class NotificationDto {
     public void setPatientId(Long patientId) { this.patientId = patientId; }
     public Long getDoctorId() { return doctorId; }
     public void setDoctorId(Long doctorId) { this.doctorId = doctorId; }
+    public Long getAdminId() { return adminId; }
+    public void setAdminId(Long adminId) { this.adminId = adminId; }
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }
     public boolean isRead() { return isRead; }

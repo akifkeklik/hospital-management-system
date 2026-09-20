@@ -377,6 +377,16 @@ hospital-management-system/
 
 # 🚀 Getting Started
 
+## 🔑 Default Credentials (Development)
+
+Upon starting the application with the `dev` profile, the following default credentials are automatically provisioned:
+
+| Role | Username (TC) | Password |
+|---|---|---|
+| **Admin** | `admin` | `dev_admin_secret_key_2026` |
+| **Test Doktor** | `88888888888` | `local_test_secret_2026` |
+| **Test Hasta** | `99999999999` | `local_test_secret_2026` |
+
 ## Prerequisites
 
 Install the following:
@@ -475,6 +485,11 @@ When running the application with the `dev` profile (default), the following adm
 
 * **Username:** `admin` (or `admin@hospital.com`)
 * **Password:** `dev_admin_secret_key_2026`
+
+And the following test users are created:
+
+* **Test Doktor:** `88888888888` / `local_test_secret_2026`
+* **Test Hasta:** `99999999999` / `local_test_secret_2026`
 
 ---
 

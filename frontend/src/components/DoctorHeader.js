@@ -267,7 +267,25 @@ export default function DoctorHeader() {
                 {notifications.length === 0 ? (
                   <div style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>{t('no_notifications')}</div>
                 ) : (
-                  notifications.map(notif => (
+                  notifications.map(notif => {
+                    const d = new Date(notif.createdAt);
+                    const now = new Date();
+                    const isToday = d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                    
+                    const yesterday = new Date();
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    const isYesterday = d.getDate() === yesterday.getDate() && d.getMonth() === yesterday.getMonth() && d.getFullYear() === yesterday.getFullYear();
+                    
+                    let dateStr = '';
+                    if (isToday) {
+                        dateStr = t('today') + ' ' + d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+                    } else if (isYesterday) {
+                        dateStr = t('yesterday') + ' ' + d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+                    } else {
+                        dateStr = d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }) + ' ' + d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+                    }
+
+                    return (
                     <div 
                       key={notif.id} 
                       style={{ 
@@ -283,15 +301,15 @@ export default function DoctorHeader() {
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
                         {!notif.read && <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#ef4444' }}></div>}
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                          {new Date(notif.createdAt).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' })}
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: '600' }}>
+                          {dateStr}
                         </span>
                       </div>
                       <p style={{ color: notif.read ? 'var(--text-muted)' : 'var(--text-main)', fontSize: '0.85rem', margin: 0, fontWeight: notif.read ? '400' : '500', lineHeight: '1.4' }}>
                         {notif.message}
                       </p>
                     </div>
-                  ))
+                  )})
                 )}
               </div>
               <div style={dropdownFooterStyle}>

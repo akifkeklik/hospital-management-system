@@ -46,6 +46,12 @@ public class HospitalAppointmentApplication {
                 }
             }
 
+            // 1.5. Hasta şifre sıfırlama (geçici)
+            if (userService.existsByUsername("10964562766")) {
+                userService.changePassword("10964562766", "123456");
+                System.out.println("✅ Hasta (10964562766) şifresi '123456' olarak sıfırlandı.");
+            }
+
             // 2. Varsayılan Verilerin Yüklenmesi (SADECE BİR KERE ÇALIŞIR)
             boolean isDevOrLocal = env.acceptsProfiles(org.springframework.core.env.Profiles.of("dev", "default", "test"));
             if (!isDevOrLocal) {

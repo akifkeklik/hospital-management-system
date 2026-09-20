@@ -12,14 +12,15 @@ import styles from '../shared.module.css';
 export default function DepartmentsPage() {
   const { t, tErr } = useSettings();
   const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(5);
   const [totalPages, setTotalPages] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ name: '', description: '' });
   const [editingId, setEditingId] = useState(null);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
 
-  const fetchDepartmentsApi = useCallback(async (signal, currentPage) => {
-    const data = await DepartmentService.getAll(currentPage, 5, { signal });
+  const fetchDepartmentsApi = useCallback(async (signal, currentPage, currentSize) => {
+    const data = await DepartmentService.getAll(currentPage, currentSize, { signal });
     setTotalPages(data.totalPages || 0);
     return data.content || [];
   }, []);
@@ -27,11 +28,11 @@ export default function DepartmentsPage() {
   const { data: departments, loading, execute } = useApi(fetchDepartmentsApi, []);
 
   const fetchDepartments = useCallback(() => {
-    execute(page).catch(error => {
+    execute(page, pageSize).catch(error => {
       // Sadece iptal edilmeyen hataları toast ile göster
       toast.error(t('error_loading_departments'));
     });
-  }, [execute, page, t]);
+  }, [execute, page, pageSize, t]);
 
   useEffect(() => {
     fetchDepartments();
@@ -87,16 +88,32 @@ export default function DepartmentsPage() {
     <div>
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>{t('departments')}</h1>
-        <button
-          className={styles.primaryBtn}
-          onClick={() => {
-            setFormData({ name: '', description: '' });
-            setEditingId(null);
-            setIsModalOpen(true);
-          }}
-        >
-          + {t('add_dept')}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', backgroundColor: 'var(--surface)', padding: '0.2rem 0.5rem 0.2rem 1rem', borderRadius: '8px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
+            <span style={{ fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>Kayıt Sayısı:</span>
+            <select 
+              value={pageSize} 
+              onChange={(e) => { setPageSize(Number(e.target.value)); setPage(0); }}
+              style={{ width: 'auto', padding: '0.4rem 2rem 0.4rem 0.8rem', border: 'none', backgroundColor: 'transparent', boxShadow: 'none', fontWeight: '600', color: 'var(--primary)' }}
+            >
+              <option value={3}>3</option>
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
+          <button
+            className={styles.primaryBtn}
+            onClick={() => {
+              setFormData({ name: '', description: '' });
+              setEditingId(null);
+              setIsModalOpen(true);
+            }}
+          >
+            + {t('add_dept')}
+          </button>
+        </div>
       </div>
 
       {loading ? (

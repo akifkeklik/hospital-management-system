@@ -6,7 +6,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "notifications", indexes = {
     @Index(name = "IDX_NOTIFICATION_PATIENT_DATE", columnList = "patient_id, created_at DESC"),
-    @Index(name = "IDX_NOTIFICATION_DOCTOR_DATE", columnList = "doctor_id, created_at DESC")
+    @Index(name = "IDX_NOTIFICATION_DOCTOR_DATE", columnList = "doctor_id, created_at DESC"),
+    @Index(name = "IDX_NOTIFICATION_ADMIN_DATE", columnList = "admin_id, created_at DESC")
 })
 public class Notification {
 
@@ -19,6 +20,9 @@ public class Notification {
 
     @Column(name = "doctor_id", nullable = true)
     private Long doctorId;
+
+    @Column(name = "admin_id", nullable = true)
+    private Long adminId;
 
     @Column(name = "message", nullable = false, length = 500)
     private String message;
@@ -47,6 +51,9 @@ public class Notification {
     
     public Long getDoctorId() { return doctorId; }
     public void setDoctorId(Long doctorId) { this.doctorId = doctorId; }
+    
+    public Long getAdminId() { return adminId; }
+    public void setAdminId(Long adminId) { this.adminId = adminId; }
     
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }

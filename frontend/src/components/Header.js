@@ -34,7 +34,9 @@ export default function Header() {
       if (!userProfile?.id) return;
       try {
         let notifs = [];
-        if (userProfile.role === 'DOCTOR' || userProfile.role === 'ROLE_DOCTOR' || userProfile.role === 'HEKIM' || userProfile.role === 'ROLE_HEKIM') {
+        if (userProfile.role === 'ROLE_ADMIN' || userProfile.role === 'ADMIN') {
+          notifs = await import('../services/api').then(m => m.NotificationService.getByAdmin(1)); // Assuming default admin ID 1
+        } else if (userProfile.role === 'DOCTOR' || userProfile.role === 'ROLE_DOCTOR' || userProfile.role === 'HEKIM' || userProfile.role === 'ROLE_HEKIM') {
           notifs = await import('../services/api').then(m => m.NotificationService.getByDoctor(userProfile.id));
         } else {
           notifs = await import('../services/api').then(m => m.NotificationService.getByPatient(userProfile.id));
@@ -283,7 +285,25 @@ export default function Header() {
                 {notifications.length === 0 ? (
                   <div style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>{t('no_notifications')}</div>
                 ) : (
-                  notifications.map(notif => (
+                  notifications.map(notif => {
+                    const d = new Date(notif.createdAt);
+                    const now = new Date();
+                    const isToday = d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                    
+                    const yesterday = new Date();
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    const isYesterday = d.getDate() === yesterday.getDate() && d.getMonth() === yesterday.getMonth() && d.getFullYear() === yesterday.getFullYear();
+                    
+                    let dateStr = '';
+                    if (isToday) {
+                        dateStr = t('today') + ' ' + d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+                    } else if (isYesterday) {
+                        dateStr = t('yesterday') + ' ' + d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+                    } else {
+                        dateStr = d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }) + ' ' + d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+                    }
+
+                    return (
                     <div 
                       key={notif.id} 
                       style={{ 
@@ -301,8 +321,8 @@ export default function Header() {
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                           {!notif.read && <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#ef4444' }}></div>}
-                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                            {new Date(notif.createdAt).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' })}
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: '600' }}>
+                            {dateStr}
                           </span>
                         </div>
                         <button
@@ -330,7 +350,7 @@ export default function Header() {
                         {notif.message}
                       </p>
                     </div>
-                  ))
+                  )})
                 )}
               </div>
               <div style={{ padding: '1rem', borderTop: '1px solid var(--border)', backgroundColor: 'rgba(var(--background-rgb), 0.5)' }}>

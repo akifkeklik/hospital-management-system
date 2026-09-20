@@ -25,6 +25,7 @@ function PatientsContent() {
   const searchParams = useSearchParams();
   const [patients, setPatients] = useState([]);
   const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(5);
   const [totalPages, setTotalPages] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
@@ -126,9 +127,8 @@ function PatientsContent() {
     return fullName.includes(term) || tc.includes(term);
   });
 
-  const PAGE_SIZE = 5;
-  const calculatedTotalPages = Math.ceil(filteredPatients.length / PAGE_SIZE);
-  const displayedPatients = filteredPatients.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  const calculatedTotalPages = Math.ceil(filteredPatients.length / pageSize);
+  const displayedPatients = filteredPatients.slice(page * pageSize, (page + 1) * pageSize);
 
   return (
     <div>
@@ -157,7 +157,7 @@ function PatientsContent() {
         }
       }} />
 
-      <div style={{ marginBottom: '1rem', marginTop: '1rem' }}>
+      <div style={{ marginBottom: '1rem', marginTop: '1rem', display: 'flex', gap: '1rem', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
         <input
           type="text"
           placeholder={t('search_patient_placeholder')}
@@ -165,6 +165,21 @@ function PatientsContent() {
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{ width: '100%', maxWidth: '400px', padding: '0.6rem 1rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)', fontSize: '0.9rem' }}
         />
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', backgroundColor: 'var(--surface)', padding: '0.2rem 0.5rem 0.2rem 1rem', borderRadius: '8px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
+          <span style={{ fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>Kayıt Sayısı:</span>
+          <select 
+            value={pageSize} 
+            onChange={(e) => { setPageSize(Number(e.target.value)); setPage(0); }}
+            style={{ width: 'auto', padding: '0.4rem 2rem 0.4rem 0.8rem', border: 'none', backgroundColor: 'transparent', boxShadow: 'none', fontWeight: '600', color: 'var(--primary)' }}
+          >
+            <option value={3}>3</option>
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
+          </select>
+        </div>
       </div>
 
       {loading ? (

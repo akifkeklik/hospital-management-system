@@ -197,6 +197,8 @@ export const NotificationService = {
   getUnreadCountByPatient: (patientId, options = {}) => fetchAPI(`/notifications/patient/${patientId}/unread-count`, options),
   getByDoctor: (doctorId, options = {}) => fetchAPI(`/notifications/doctor/${doctorId}`, options),
   getUnreadCountByDoctor: (doctorId, options = {}) => fetchAPI(`/notifications/doctor/${doctorId}/unread-count`, options),
+  getByAdmin: (adminId, options = {}) => fetchAPI(`/notifications/admin/${adminId}`, options),
+  getUnreadCountByAdmin: (adminId, options = {}) => fetchAPI(`/notifications/admin/${adminId}/unread-count`, options),
   broadcastToDoctors: (message) => fetchAPI('/notifications/broadcast', {
     method: 'POST',
     body: JSON.stringify(message)

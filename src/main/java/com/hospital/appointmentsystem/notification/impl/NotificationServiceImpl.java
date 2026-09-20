@@ -35,14 +35,21 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public List<NotificationDto> getNotificationsByPatient(Long patientId) {
         return notificationRepository.findByPatientIdOrderByCreatedAtDesc(patientId).stream()
-                .map(n -> new NotificationDto(n.getId(), n.getPatientId(), n.getDoctorId(), n.getMessage(), n.isRead(), n.getCreatedAt()))
+                .map(n -> new NotificationDto(n.getId(), n.getPatientId(), n.getDoctorId(), n.getAdminId(), n.getMessage(), n.isRead(), n.getCreatedAt()))
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<NotificationDto> getNotificationsByDoctor(Long doctorId) {
         return notificationRepository.findByDoctorIdOrderByCreatedAtDesc(doctorId).stream()
-                .map(n -> new NotificationDto(n.getId(), n.getPatientId(), n.getDoctorId(), n.getMessage(), n.isRead(), n.getCreatedAt()))
+                .map(n -> new NotificationDto(n.getId(), n.getPatientId(), n.getDoctorId(), n.getAdminId(), n.getMessage(), n.isRead(), n.getCreatedAt()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<NotificationDto> getNotificationsByAdmin(Long adminId) {
+        return notificationRepository.findByAdminIdOrderByCreatedAtDesc(adminId).stream()
+                .map(n -> new NotificationDto(n.getId(), n.getPatientId(), n.getDoctorId(), n.getAdminId(), n.getMessage(), n.isRead(), n.getCreatedAt()))
                 .collect(Collectors.toList());
     }
 
@@ -68,6 +75,14 @@ public class NotificationServiceImpl implements NotificationService {
             Notification notification = new Notification(patient.getId(), null, message);
             notificationRepository.save(notification);
         }
+
+        // Send to admin as well
+        Notification adminNotif = new Notification();
+        adminNotif.setAdminId(1L); // Assuming admin ID is 1 for now
+        adminNotif.setMessage(message);
+        adminNotif.setRead(false);
+        adminNotif.setCreatedAt(java.time.LocalDateTime.now());
+        notificationRepository.save(adminNotif);
     }
 
     @Override
@@ -86,5 +101,10 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public long getUnreadCountForDoctor(Long doctorId) {
         return notificationRepository.findByDoctorIdAndIsReadFalse(doctorId).size();
+    }
+
+    @Override
+    public long getUnreadCountForAdmin(Long adminId) {
+        return notificationRepository.findByAdminIdAndIsReadFalse(adminId).size();
     }
 }

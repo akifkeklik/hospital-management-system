@@ -19,6 +19,7 @@ export default function AppointmentsPage() {
   const [polyclinics, setPolyclinics] = useState([]);
 
   const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(5);
   const [totalPages, setTotalPages] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
@@ -37,18 +38,18 @@ export default function AppointmentsPage() {
     try {
       let appts;
       if (role === 'ROLE_PATIENT') {
-        appts = await AppointmentService.getByPatient(user?.id, page, 5);
+        appts = await AppointmentService.getByPatient(user?.id, page, pageSize);
       } else if (role === 'ROLE_DOCTOR') {
-        appts = await AppointmentService.getByDoctor(user?.id, page, 5);
+        appts = await AppointmentService.getByDoctor(user?.id, page, pageSize);
       } else {
-        appts = await AppointmentService.getAll(page, 5);
+        appts = await AppointmentService.getAll(page, pageSize);
       }
       setAppointments(appts.items || []);
       setTotalPages(appts.totalPages || 0);
     } catch (error) {
       toast.error(t('error_loading_data'));
     }
-  }, [role, user?.id, page, t]);
+  }, [role, user?.id, page, pageSize, t]);
 
   useEffect(() => {
     if (user?.id || role === 'ROLE_ADMIN') {
@@ -210,7 +211,22 @@ export default function AppointmentsPage() {
     <div>
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>{t('appointments')}</h1>
-        <button
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', backgroundColor: 'var(--surface)', padding: '0.2rem 0.5rem 0.2rem 1rem', borderRadius: '8px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
+            <span style={{ fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>Kayıt Sayısı:</span>
+            <select 
+              value={pageSize} 
+              onChange={(e) => { setPageSize(Number(e.target.value)); setPage(0); }}
+              style={{ width: 'auto', padding: '0.4rem 2rem 0.4rem 0.8rem', border: 'none', backgroundColor: 'transparent', boxShadow: 'none', fontWeight: '600', color: 'var(--primary)' }}
+            >
+              <option value={3}>3</option>
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
+          <button
           className={styles.primaryBtn}
           onClick={() => {
             let initialPatient = '';
@@ -243,6 +259,7 @@ export default function AppointmentsPage() {
         >
           + {t('create_appointment')}
         </button>
+        </div>
       </div>
 
       <DataTable
