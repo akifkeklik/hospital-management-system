@@ -185,14 +185,14 @@ public class SecurityRegressionIntegrationTest {
                 .andExpect(status().isUnauthorized()); 
     }
 
-    // 11. disabled reset-password -> denied
+    // 11. reset-password with invalid token -> 400 Bad Request with invalid token message
     @Test
-    void resetPasswordDisabled() throws Exception {
+    void resetPasswordInvalidToken() throws Exception {
         mockMvc.perform(post("/api/auth/reset-password")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"tcIdentityNumber\":\"123\", \"email\":\"a@a.com\", \"newPassword\":\"123456\"}"))
+                .content("{\"token\":\"invalid_or_nonexistent_token\", \"newPassword\":\"123456\"}"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value(containsString("devre dışı bırakılmıştır")));
+                .andExpect(jsonPath("$.message").value(containsString("Geçersiz token")));
     }
 
     // 12. wrong oldPassword -> denied

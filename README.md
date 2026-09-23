@@ -893,6 +893,39 @@ The application is production-ready and fully supports modern cloud deployment p
 
 ---
 
+# 🔐 Password Reset
+
+The application implements a secure, token-based password reset mechanism using **Resend** as the email provider.
+
+### Architecture
+- **Token Generation**: Securely generated 32-byte tokens (`SecureRandom`).
+- **Storage**: Only the SHA-256 hash of the token is stored in the database to prevent token leakage from database dumps.
+- **Expiration**: Tokens expire after 30 minutes (configurable).
+- **Single-Use**: Tokens are invalidated immediately after a successful reset.
+- **Security**: 
+  - Prevents User Enumeration on the `/forgot-password` endpoint.
+  - Implements Rate Limiting (bypassing CORS OPTIONS).
+  - Enforces strong password policies (BCrypt hashing).
+
+### Production Configuration (Resend Integration)
+
+To enable email delivery in production, you must configure the following environment variables in your deployment environment (e.g., Render):
+
+| Environment Variable | Description | Example Value |
+| -------------------- | ----------- | ------------- |
+| `RESEND_API_KEY` | Your Resend API Key | `re_123456789` |
+| `MAIL_FROM` | Sender address (must be verified in Resend) | `no-reply@yourdomain.com` |
+| `PASSWORD_RESET_EMAIL_ENABLED` | Feature toggle for sending emails | `true` |
+| `PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES` | Token validity duration | `30` |
+| `FRONTEND_BASE_URL` | Base URL of the frontend for reset links | `https://hospital-management-system-rho-flax.vercel.app` |
+
+**⚠️ Important Setup Steps for Resend:**
+1. **Domain Verification**: You must add and verify your sending domain (e.g., `yourdomain.com`) in your [Resend Dashboard](https://resend.com/domains) by adding the provided DNS records.
+2. **Sender Address**: Ensure the `MAIL_FROM` address matches the verified domain.
+3. If you don't verify a domain, you can only send emails to the address associated with your Resend account (using `onboarding@resend.dev` as the sender) for testing purposes.
+
+---
+
 # 🧭 Development Notes
 
 This project is intentionally being developed incrementally.

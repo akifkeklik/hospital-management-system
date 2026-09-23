@@ -258,16 +258,18 @@ export default function LoginPage() {
           </div>
 
           {/* Remember Me */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginTop: '-0.5rem' }}>
-            <input
-              type="checkbox"
-              id="rememberMe"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-              style={{ width: '16px', height: '16px', accentColor: 'var(--primary)', cursor: 'pointer' }}
-            />
-            <label htmlFor="rememberMe" style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', cursor: 'pointer' }}>
-              {t('remember_me')}
+          <div style={{ marginTop: '-0.5rem', marginBottom: '1rem' }}>
+            <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                id="rememberMe"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                style={{ width: '16px', height: '16px', margin: 0, padding: 0, accentColor: 'var(--primary)', cursor: 'pointer', position: 'relative', top: '1px' }}
+              />
+              <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', userSelect: 'none', lineHeight: 'normal', position: 'relative', top: '-1px' }}>
+                {t('remember_me')}
+              </span>
             </label>
           </div>
           

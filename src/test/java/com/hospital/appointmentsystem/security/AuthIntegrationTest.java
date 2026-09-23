@@ -282,4 +282,49 @@ public class AuthIntegrationTest {
         mockMvc.perform(get("/api/auth/me"))
                 .andExpect(status().isUnauthorized());
     }
+
+    // ==========================================
+    // 5. PASSWORD RESET TESTS
+    // ==========================================
+
+    @Test
+    void shouldHandleForgotPasswordRequest_ValidUser() throws Exception {
+        shouldRegisterPatientSuccessfully();
+
+        Map<String, String> request = new HashMap<>();
+        request.put("tcIdentityNumber", UNIQUE_TC);
+        request.put("email", UNIQUE_EMAIL);
+
+        mockMvc.perform(post("/api/auth/forgot-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Eğer bilgileriniz sistemimizde kayıtlıysa, şifre sıfırlama bağlantısı e-posta adresinize gönderilmiştir."));
+    }
+
+    @Test
+    void shouldHandleForgotPasswordRequest_UnknownUser_SameResponse() throws Exception {
+        Map<String, String> request = new HashMap<>();
+        request.put("tcIdentityNumber", "00000000000");
+        request.put("email", "nonexistent@example.com");
+
+        mockMvc.perform(post("/api/auth/forgot-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Eğer bilgileriniz sistemimizde kayıtlıysa, şifre sıfırlama bağlantısı e-posta adresinize gönderilmiştir."));
+    }
+
+    @Test
+    void shouldRejectResetPassword_InvalidToken() throws Exception {
+        Map<String, String> request = new HashMap<>();
+        request.put("token", "invalid_token_123");
+        request.put("newPassword", "newstrongpassword");
+
+        mockMvc.perform(post("/api/auth/reset-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Hata: Geçersiz token."));
+    }
 }

@@ -143,9 +143,13 @@ export const AuthService = {
     method: 'POST',
     body: JSON.stringify(data)
   }),
-  resetPassword: (tcIdentityNumber, email, newPassword) => fetchAPI('/auth/reset-password', {
+  forgotPassword: (tcIdentityNumber, email) => fetchAPI('/auth/forgot-password', {
     method: 'POST',
-    body: JSON.stringify({ tcIdentityNumber, email, newPassword })
+    body: JSON.stringify({ tcIdentityNumber, email })
+  }),
+  resetPassword: (token, newPassword) => fetchAPI('/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify({ token, newPassword })
   }),
   forceChangePassword: (tcIdentityNumber, newPassword) => fetchAPI('/auth/force-change-password', {
     method: 'POST',

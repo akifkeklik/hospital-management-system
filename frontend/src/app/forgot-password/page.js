@@ -12,8 +12,7 @@ export default function ForgotPasswordPage() {
   
   const [formData, setFormData] = useState({
     tcIdentityNumber: '',
-    email: '',
-    newPassword: ''
+    email: ''
   });
 
   const [loading, setLoading] = useState(false);
@@ -34,11 +33,9 @@ export default function ForgotPasswordPage() {
     setSuccess(false);
 
     try {
-      await AuthService.resetPassword(formData.tcIdentityNumber, formData.email, formData.newPassword);
+      await AuthService.forgotPassword(formData.tcIdentityNumber, formData.email);
       setSuccess(true);
-      setTimeout(() => {
-        router.push('/login');
-      }, 3000);
+      // We don't redirect to login immediately, give user time to read message
     } catch (err) {
       setError(tErr(err.message) || t('forgot_password_error'));
     } finally {
@@ -59,8 +56,8 @@ export default function ForgotPasswordPage() {
 
         {error && <div className={styles.error}>{error}</div>}
         {success && (
-          <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10b981', padding: '10px 14px', borderRadius: '8px', fontSize: '0.85rem', marginBottom: '10px', border: '1px solid rgba(16, 185, 129, 0.2)', width: '100%' }}>
-            {t('forgot_password_success')}
+          <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10b981', padding: '10px 14px', borderRadius: '8px', fontSize: '0.85rem', marginBottom: '10px', border: '1px solid rgba(16, 185, 129, 0.2)', width: '100%', lineHeight: '1.4' }}>
+            Eğer bilgileriniz sistemimizde kayıtlıysa, şifre sıfırlama bağlantısı e-posta adresinize gönderilmiştir.
           </div>
         )}
 
@@ -87,19 +84,6 @@ export default function ForgotPasswordPage() {
               className={styles.input}
               placeholder={t('placeholder_registered_email')}
               value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className={styles.inputGroup}>
-            <label className={styles.label}>{t('new_password')}</label>
-            <input
-              type="password"
-              name="newPassword"
-              className={styles.input}
-              placeholder={t('placeholder_new_password')}
-              value={formData.newPassword}
               onChange={handleChange}
               required
             />

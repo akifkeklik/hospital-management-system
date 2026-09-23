@@ -44,6 +44,12 @@ public class RateLimitFilter extends OncePerRequestFilter {
         
         String requestURI = request.getRequestURI();
         
+        // OPTIONS isteklerini rate limit dışı bırakıyoruz (CORS preflight için gerekli)
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        
         // Sadece auth (login/register vb.) endpoint'leri için rate limiting uyguluyoruz.
         // Public API'lerin tamamına veya farklı endpointlere farklı limitler uygulanabilir.
         if (requestURI.startsWith("/api/auth/")) {
