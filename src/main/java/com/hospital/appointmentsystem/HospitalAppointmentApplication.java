@@ -7,7 +7,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import com.hospital.appointmentsystem.user.api.UserService;
 
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.scheduling.annotation.EnableAsync;
 
+@EnableAsync
 @SpringBootApplication
 @EnableJpaAuditing(auditorAwareRef = "auditorAware")
 public class HospitalAppointmentApplication {

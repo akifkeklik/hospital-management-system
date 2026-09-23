@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import org.springframework.scheduling.annotation.Async;
 
 /**
  * Email servisi — sifre sifirlama emaili gonderir.
@@ -43,6 +44,7 @@ public class EmailService {
      * @param resetLink  frontend reset URL'si (token iceriyor — loglanmaz)
      * @throws MailException email gonderilemezse
      */
+    @Async
     public void sendPasswordResetEmail(String toEmail, String resetLink) {
         if (!emailEnabled) {
             // Development modunda email gondermiyoruz; sadece INFO log
