@@ -21,6 +21,5 @@ CREATE UNIQUE INDEX UQ_PRT_TOKEN_HASH ON password_reset_tokens (token_hash);
 -- user_id + used_at uzerinde index: aktif tokenlari hizli bulmak icin
 CREATE INDEX IDX_PRT_USER_USED ON password_reset_tokens (user_id, used_at);
 
--- Fix for pre-existing schema mismatch
-ALTER TABLE notifications ADD COLUMN admin_id BIGINT;
+
 
