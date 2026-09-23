@@ -377,15 +377,19 @@ hospital-management-system/
 
 # 🚀 Getting Started
 
-## 🔑 Default Credentials (Development)
+## 🔑 Credentials (Development Only)
 
-Upon starting the application with the `dev` profile, the following default credentials are automatically provisioned:
+> [!WARNING]  
+> The application does **not** have a hardcoded default admin password. You MUST provide an `ADMIN_PASSWORD` environment variable to start the application.
+
+If the application is started in a non-production profile (e.g. `dev`), it will provision test users for local development:
 
 | Role | Username (TC) | Password |
 |---|---|---|
-| **Admin** | `admin` | `dev_admin_secret_key_2026` |
-| **Test Doktor** | `88888888888` | `local_test_secret_2026` |
-| **Test Hasta** | `99999999999` | `local_test_secret_2026` |
+| **Admin** | `admin` | *(Set by `ADMIN_PASSWORD` env variable)* |
+| **Test Doktor** | `88888888888` | `local_test_secret_2026` (configurable via `TEST_USER_PASSWORD`) |
+| **Test Hasta** | `99999999999` | `local_test_secret_2026` (configurable via `TEST_USER_PASSWORD`) |
+
 
 ## Prerequisites
 
@@ -431,16 +435,17 @@ Make sure the database server is running.
 
 ## 3. Configure the Backend
 
-Set the required environment variables.
+Set the required environment variables (e.g. in your shell or `.env` file).
 
-Example:
+Example configuration:
 
 ```bash
-export JWT_SECRET="replace-with-a-strong-secret"
+export ADMIN_PASSWORD="your-local-admin-password"
+export JWT_SECRET="your-local-jwt-secret"
 
 export DB_URL="jdbc:mysql://localhost:3306/hospitaldb?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
 export DB_DRIVER="com.mysql.cj.jdbc.Driver"
-export DB_USERNAME="root"
+export DB_USERNAME="your-local-user"
 export DB_PASSWORD="your-local-password"
 ```
 
@@ -451,7 +456,7 @@ Do not commit real secrets to Git.
 ## 4. Start the Backend
 
 ```bash
-mvn clean install
+mvn clean compile
 mvn spring-boot:run
 ```
 
@@ -479,17 +484,12 @@ http://localhost:3000
 
 ---
 
-## 6. Default Credentials
+## 6. Security on First Run
 
-When running the application with the `dev` profile (default), the following admin user is automatically created:
+When running the application for the first time, it expects the `ADMIN_PASSWORD` variable.
 
-* **Username:** `admin` (or `admin@hospital.com`)
-* **Password:** `dev_admin_secret_key_2026`
-
-And the following test users are created:
-
-* **Test Doktor:** `88888888888` / `local_test_secret_2026`
-* **Test Hasta:** `99999999999` / `local_test_secret_2026`
+* **Admin User:** Created automatically using the `ADMIN_PASSWORD` provided.
+* **Test Users:** `88888888888` (Doctor) and `99999999999` (Patient) are provisioned with the password `local_test_secret_2026` (only if the `dev` or `test` profile is active).
 
 ---
 
@@ -499,6 +499,7 @@ The application is configured primarily through environment variables.
 
 | Variable                   | Required | Description                        |
 | -------------------------- | -------- | ---------------------------------- |
+| `ADMIN_PASSWORD`           | Yes      | The password for the default admin |
 | `JWT_SECRET`               | Yes      | Secret used to sign JWT tokens     |
 | `DB_URL`                   | No       | JDBC database connection           |
 | `DB_DRIVER`                | No       | JDBC driver                        |
@@ -524,9 +525,13 @@ The backend exposes REST endpoints under `/api`.
 
 | Method | Endpoint                    | Description                |
 | ------ | --------------------------- | -------------------------- |
-| POST   | `/api/auth/register`        | Register user              |
+| POST   | `/api/auth/register`        | Register patient           |
+| POST   | `/api/auth/doctor-register` | Register doctor            |
 | POST   | `/api/auth/login`           | Authenticate user          |
-| POST   | `/api/auth/forgot-password` | Password recovery          |
+| POST   | `/api/auth/logout`          | Clear auth cookie          |
+| POST   | `/api/auth/forgot-password` | Initiate password recovery |
+| POST   | `/api/auth/reset-password`  | Complete password recovery |
+| POST   | `/api/auth/force-change-password`| Required password change|
 | GET    | `/api/auth/me`              | Current authenticated user |
 
 ## Appointments
@@ -914,10 +919,10 @@ To enable email delivery in production, you must configure the following environ
 | Environment Variable | Description | Example Value |
 | -------------------- | ----------- | ------------- |
 | `RESEND_API_KEY` | Your Resend API Key | `re_123456789` |
-| `MAIL_FROM` | Sender address (must be verified in Resend) | `no-reply@yourdomain.com` |
+| `PASSWORD_RESET_EMAIL_FROM` | Sender address (must be verified in Resend) | `no-reply@yourdomain.com` |
 | `PASSWORD_RESET_EMAIL_ENABLED` | Feature toggle for sending emails | `true` |
 | `PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES` | Token validity duration | `30` |
-| `FRONTEND_BASE_URL` | Base URL of the frontend for reset links | `https://hospital-management-system-rho-flax.vercel.app` |
+| `FRONTEND_BASE_URL` | Base URL of the frontend for reset links | `https://your-frontend-domain.vercel.app` |
 
 **⚠️ Important Setup Steps for Resend:**
 1. **Domain Verification**: You must add and verify your sending domain (e.g., `yourdomain.com`) in your [Resend Dashboard](https://resend.com/domains) by adding the provided DNS records.
