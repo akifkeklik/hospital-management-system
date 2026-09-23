@@ -3,14 +3,17 @@ package com.hospital.appointmentsystem.security.passwordreset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.MailException;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.stereotype.Service;
-
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Email servisi — sifre sifirlama emaili gonderir.
@@ -24,8 +27,9 @@ import org.springframework.scheduling.annotation.Async;
 public class EmailService {
 
     private static final Logger log = LoggerFactory.getLogger(EmailService.class);
+    private static final String RESEND_API_URL = "https://api.resend.com/emails";
 
-    private final JavaMailSender mailSender;
+    private final RestTemplate restTemplate;
 
     @Value("${password.reset.email.from:noreply@hospital.com}")
     private String fromAddress;
@@ -33,8 +37,11 @@ public class EmailService {
     @Value("${password.reset.email.enabled:false}")
     private boolean emailEnabled;
 
-    public EmailService(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
+    @Value("${RESEND_API_KEY:}")
+    private String resendApiKey;
+
+    public EmailService() {
+        this.restTemplate = new RestTemplate();
     }
 
     /**
@@ -42,7 +49,6 @@ public class EmailService {
      *
      * @param toEmail    alici email adresi
      * @param resetLink  frontend reset URL'si (token iceriyor — loglanmaz)
-     * @throws MailException email gonderilemezse
      */
     @Async
     public void sendPasswordResetEmail(String toEmail, String resetLink) {
@@ -53,23 +59,39 @@ public class EmailService {
         }
 
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-
-            helper.setFrom(fromAddress);
-            helper.setTo(toEmail);
-            helper.setSubject("Sifre Sifirlama Talebi");
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(resendApiKey);
 
             String htmlContent = buildHtmlEmail(resetLink);
-            helper.setText(htmlContent, true);
 
-            mailSender.send(message);
-            log.info("Password reset email sent successfully.");
-        } catch (MessagingException e) {
-            log.error("Failed to build password reset email message", e);
-            throw new RuntimeException("Email message could not be created", e);
+            Map<String, Object> requestBody = Map.of(
+                    "from", fromAddress,
+                    "to", List.of(toEmail),
+                    "subject", "Sifre Sifirlama Talebi",
+                    "html", htmlContent
+            );
+
+            HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    RESEND_API_URL,
+                    HttpMethod.POST,
+                    requestEntity,
+                    String.class
+            );
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                log.info("Password reset email sent successfully.");
+            } else {
+                log.error("Failed to send password reset email. HTTP Status: {}", response.getStatusCode());
+                throw new RuntimeException("Email sending failed with status: " + response.getStatusCode());
+            }
+
+        } catch (Exception e) {
+            log.error("Failed to send password reset email via Resend API: {}", e.getMessage());
+            throw new RuntimeException("Email message could not be sent", e);
         }
-        // MailException (send hatasi) caller'a propagate edilir
     }
 
     private String buildHtmlEmail(String resetLink) {
