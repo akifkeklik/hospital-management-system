@@ -63,8 +63,13 @@ export async function fetchAPI(endpoint, options = {}) {
       return null;
     }
 
-    const text = await response.text();
-    return text ? JSON.parse(text) : null;
+    const contentType = response.headers.get('content-type') || '';
+
+    if (contentType.includes('application/json')) {
+      return await response.json();
+    }
+
+    return null;
   } catch (error) {
     // console.error(`Fetch error on ${url}:`, error); // Removed to prevent Next.js overlay
     throw error;
