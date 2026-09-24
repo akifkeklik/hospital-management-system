@@ -42,16 +42,7 @@ public class HospitalAppointmentApplication {
                 userService.registerUser("admin", "admin@hospital.com", adminPassword, "ROLE_ADMIN", null);
                 System.out.println("✅ Varsayılan Sistem Yöneticisi (Admin) oluşturuldu.");
             } else {
-                if (adminPassword != null && !adminPassword.trim().isEmpty()) {
-                    userService.changePassword("admin", adminPassword);
-                    System.out.println("✅ Varsayılan Sistem Yöneticisi (Admin) şifresi güncellendi.");
-                }
-            }
-
-            // 1.5. Hasta şifre sıfırlama (geçici)
-            if (userService.existsByUsername("10964562766")) {
-                userService.changePassword("10964562766", "123456");
-                System.out.println("✅ Hasta (10964562766) şifresi '123456' olarak sıfırlandı.");
+                System.out.println("ℹ️ Admin kullanıcısı zaten mevcut. ADMIN_PASSWORD ile şifre değiştirilmedi.");
             }
 
             // 2. Varsayılan Verilerin Yüklenmesi (SADECE BİR KERE ÇALIŞIR)

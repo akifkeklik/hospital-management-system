@@ -131,7 +131,7 @@ function PatientsContent() {
   const displayedPatients = filteredPatients.slice(page * pageSize, (page + 1) * pageSize);
 
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>{t('patients')}</h1>
         <button
@@ -182,19 +182,21 @@ function PatientsContent() {
         </div>
       </div>
 
-      {loading ? (
-        <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>{t('loading') || 'Yükleniyor...'}</div>
-      ) : (
-        <DataTable
-          columns={columns}
-          data={displayedPatients}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          page={page}
-          totalPages={calculatedTotalPages}
-          onPageChange={setPage}
-        />
-      )}
+      <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>{t('loading') || 'Yükleniyor...'}</div>
+        ) : (
+          <DataTable
+            columns={columns}
+            data={displayedPatients}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            page={page}
+            totalPages={calculatedTotalPages}
+            onPageChange={setPage}
+          />
+        )}
+      </div>
 
       <Modal
         isOpen={isModalOpen}
