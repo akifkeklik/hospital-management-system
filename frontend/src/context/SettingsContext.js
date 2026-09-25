@@ -1,5 +1,5 @@
 'use client';
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useEffect, useCallback, useSyncExternalStore } from 'react';
 import { dictionaries } from '../locales';
 import { translateError } from '../utils/errorTranslator';
 
@@ -42,59 +42,84 @@ const SettingsContext = createContext({
   LANGUAGES,
 });
 
+function subscribeToStorage(key) {
+  return (callback) => {
+    if (typeof window === 'undefined') return () => {};
+    const handleStorage = (e) => {
+      if (e.key === key) callback();
+    };
+    const handleCustom = () => callback();
+    
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener(`local-storage-${key}`, handleCustom);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener(`local-storage-${key}`, handleCustom);
+    };
+  };
+}
 
+function useLocalStorage(key, initialValue) {
+  const subscribe = useCallback((callback) => subscribeToStorage(key)(callback), [key]);
+  const getSnapshot = () => {
+    if (typeof window === 'undefined') return initialValue;
+    return localStorage.getItem(key) || initialValue;
+  };
+  const getServerSnapshot = () => initialValue;
+  
+  const value = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  
+  const setValue = useCallback((newValue) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(key, newValue);
+      window.dispatchEvent(new Event(`local-storage-${key}`));
+    }
+  }, [key]);
+  
+  return [value, setValue];
+}
+
+function useMounted() {
+  const subscribe = useCallback(() => () => {}, []);
+  return useSyncExternalStore(subscribe, () => true, () => false);
+}
 
 export function SettingsProvider({ children }) {
-  const [language, setLanguage] = useState('tr');
-  const [themeColor, setThemeColor] = useState('indigo');
-  const [theme, setTheme] = useState('light');
-  const [mounted, setMounted] = useState(false);
+  const [language, setLanguage] = useLocalStorage('language', 'tr');
+  const [themeColor, setThemeColor] = useLocalStorage('themeColor', 'indigo');
+  const [theme, setTheme] = useLocalStorage('theme', 'light');
+  const mounted = useMounted();
 
   const applyThemeColor = useCallback((colorId) => {
-    const colorTheme = THEMES.find(t => t.id === colorId) || THEMES[0];
     setThemeColor(colorId);
-    localStorage.setItem('themeColor', colorId);
-
-    // Uygula (CSS Variable injection)
-    document.documentElement.style.setProperty('--primary', colorTheme.hex);
-    document.documentElement.style.setProperty('--primary-hover', colorTheme.hover);
-    document.documentElement.style.setProperty('--primary-rgb', colorTheme.rgb);
-  }, []);
-
-  useEffect(() => {
-    const savedLang = localStorage.getItem('language') || 'tr';
-    const savedThemeColor = localStorage.getItem('themeColor') || 'indigo';
-    const savedTheme = localStorage.getItem('theme') || 'light';
-
-    setLanguage(savedLang);
-    applyThemeColor(savedThemeColor);
-    setTheme(savedTheme);
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    setMounted(true);
-  }, [applyThemeColor]);
+  }, [setThemeColor]);
 
   const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
+    setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
   const changeLanguage = (langId) => {
     setLanguage(langId);
-    localStorage.setItem('language', langId);
   };
+
+  useEffect(() => {
+    if (!mounted) return;
+    const colorTheme = THEMES.find(t => t.id === themeColor) || THEMES[0];
+    document.documentElement.style.setProperty('--primary', colorTheme.hex);
+    document.documentElement.style.setProperty('--primary-hover', colorTheme.hover);
+    document.documentElement.style.setProperty('--primary-rgb', colorTheme.rgb);
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [themeColor, theme, mounted]);
 
   // Translation function
   const t = (key) => {
     if (!key) return key;
-    // Normalize unicode (e.g. ğ vs g+breve) and trim whitespace
     const normalizedKey = typeof key === 'string' ? key.normalize('NFC').trim() : key;
     if (!dictionaries[language]) return normalizedKey;
     return dictionaries[language][normalizedKey] || normalizedKey;
   };
 
-  // Error translation function (backend hata mesajlarını kullanıcı diline çevirir)
   const tErr = (rawMessage) => translateError(rawMessage, language);
 
   return (
