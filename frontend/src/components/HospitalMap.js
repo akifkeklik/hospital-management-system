@@ -34,9 +34,11 @@ export default function HospitalMap({ departmentName, isOpen, onClose }) {
 
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => setIsAnimated(true), 100);
-    } else {
-      setIsAnimated(false);
+      const timer = setTimeout(() => setIsAnimated(true), 100);
+      return () => {
+        clearTimeout(timer);
+        setIsAnimated(false);
+      };
     }
   }, [isOpen]);
 

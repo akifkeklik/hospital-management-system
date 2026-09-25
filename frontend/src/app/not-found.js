@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function NotFound() {
   return (
     <div
@@ -30,7 +32,7 @@ export default function NotFound() {
       <p style={{ fontSize: '1.25rem', marginTop: '1rem', color: '#64748b' }}>
         Sayfa bulunamadı / Page not found
       </p>
-      <a
+      <Link
         href="/"
         style={{
           marginTop: '2rem',
@@ -45,7 +47,7 @@ export default function NotFound() {
         }}
       >
         Ana Sayfa / Home
-      </a>
+      </Link>
     </div>
   );
 }

@@ -45,7 +45,7 @@ export default function Scanner({ onScan }) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [mode, onScan]);
+  }, [mode, onScan, t]);
 
   // Camera Logic
   const startCamera = async () => {

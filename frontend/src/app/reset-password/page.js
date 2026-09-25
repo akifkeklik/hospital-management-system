@@ -21,11 +21,8 @@ function ResetPasswordForm() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  useEffect(() => {
-    if (!token) {
-      setError('Geçersiz veya eksik şifre sıfırlama bağlantısı. Lütfen e-postanızdaki bağlantıya tekrar tıklayın.');
-    }
-  }, [token]);
+  // Token validation is derived during render — no effect needed
+  const tokenError = !token ? 'Geçersiz veya eksik şifre sıfırlama bağlantısı. Lütfen e-postanızdaki bağlantıya tekrar tıklayın.' : '';
 
   const handleChange = (e) => {
     setFormData({
@@ -70,7 +67,7 @@ function ResetPasswordForm() {
       <div className={styles.container}>
         <div className={styles.loginCard} style={{ maxWidth: '450px' }}>
           <h1 className={styles.title}>Geçersiz Bağlantı</h1>
-          <div className={styles.error}>{error}</div>
+          <div className={styles.error}>{tokenError}</div>
           <div style={{ marginTop: '15px', textAlign: 'center' }}>
             <Link href="/forgot-password" className={styles.button} style={{ textDecoration: 'none', display: 'inline-block' }}>
               Yeni Şifre Sıfırlama Talebi Oluştur
