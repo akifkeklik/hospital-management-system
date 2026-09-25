@@ -30,18 +30,19 @@ export default function LoginPage() {
     tcIdentityNumber: '', firstName: '', lastName: '', email: '', phoneNumber: '', specialization: '', departmentId: ''
   });
 
-  useEffect(() => {
-    if (loginType) {
-      const savedUsername = localStorage.getItem(`remembered_username_${loginType}`);
-      if (savedUsername) {
-        setUsername(savedUsername);
-        setRememberMe(true);
-      } else {
-        setUsername('');
-        setRememberMe(false);
-      }
+  const handleRoleSelect = (type) => {
+    setLoginType(type);
+    setError('');
+    setPassword('');
+    const savedUsername = localStorage.getItem(`remembered_username_${type}`);
+    if (savedUsername) {
+      setUsername(savedUsername);
+      setRememberMe(true);
+    } else {
+      setUsername('');
+      setRememberMe(false);
     }
-  }, [loginType]);
+  };
 
   useEffect(() => {
     if (showDoctorRegister) {
@@ -161,7 +162,7 @@ export default function LoginPage() {
       <p className={styles.subtitle}>{t('login_subtitle')}</p>
       
       <div className={styles.roleSelection}>
-        <button onClick={() => setLoginType('PATIENT')} className={styles.roleButton}>
+        <button onClick={() => handleRoleSelect('PATIENT')} className={styles.roleButton}>
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
             <circle cx="9" cy="7" r="4" />
@@ -171,7 +172,7 @@ export default function LoginPage() {
           <span className={styles.roleText}>{t('patient_login')}</span>
         </button>
 
-        <button onClick={() => setLoginType('DOCTOR')} className={styles.roleButton}>
+        <button onClick={() => handleRoleSelect('DOCTOR')} className={styles.roleButton}>
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             <path d="M12 8v4" />
@@ -180,7 +181,7 @@ export default function LoginPage() {
           <span className={styles.roleText}>{t('doctor_login')}</span>
         </button>
 
-        <button onClick={() => setLoginType('ADMIN')} className={styles.roleButton}>
+        <button onClick={() => handleRoleSelect('ADMIN')} className={styles.roleButton}>
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
             <path d="M7 11V7a5 5 0 0 1 10 0v4" />

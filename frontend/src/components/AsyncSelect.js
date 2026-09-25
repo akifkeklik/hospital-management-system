@@ -9,9 +9,17 @@ export default function AsyncSelect({
   initialLabel = ''
 }) {
   const [query, setQuery] = useState(initialLabel);
+  const [prevInitialLabel, setPrevInitialLabel] = useState(initialLabel);
   const [options, setOptions] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  if (initialLabel !== prevInitialLabel) {
+    setPrevInitialLabel(initialLabel);
+    if (initialLabel && !query && !value) {
+      setQuery(initialLabel);
+    }
+  }
   const wrapperRef = useRef(null);
 
   useEffect(() => {
@@ -23,12 +31,6 @@ export default function AsyncSelect({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  useEffect(() => {
-    if (initialLabel && !query && !value) {
-      setQuery(initialLabel);
-    }
-  }, [initialLabel, query, value]);
 
   useEffect(() => {
     if (!isOpen) return;
