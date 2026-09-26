@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -25,8 +26,8 @@ export default function DoctorsPage() {
   const [pageSize, setPageSize] = useState(5);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
-  const [formData, setFormData] = useState({ 
-    firstName: '', lastName: '', specialization: '', phoneNumber: '', email: '', departmentId: '', polyclinicId: '' 
+  const [formData, setFormData] = useState({
+    firstName: '', lastName: '', specialization: '', phoneNumber: '', email: '', departmentId: '', polyclinicId: ''
   });
   const [editingId, setEditingId] = useState(null);
   const fetchDoctorsData = useCallback(async (signal) => {
@@ -70,7 +71,7 @@ export default function DoctorsPage() {
       toast.error(t('select_dept_required'));
       return;
     }
-    
+
     try {
       if (editingId) {
         await DoctorService.update(editingId, formData);
@@ -87,8 +88,8 @@ export default function DoctorsPage() {
   };
 
   const handleEdit = (doctor) => {
-    setFormData({ 
-      firstName: doctor.firstName, 
+    setFormData({
+      firstName: doctor.firstName,
       lastName: doctor.lastName,
       specialization: doctor.specialization,
       phoneNumber: doctor.phoneNumber || '',
@@ -142,8 +143,8 @@ export default function DoctorsPage() {
           <h1 className={styles.pageTitle}>{t('doctors')}</h1>
           <p className={styles.pageDesc}>{t('Hastanede görev yapan tüm doktorların listesi ve yönetim paneli.')}</p>
         </div>
-        <button 
-          className={styles.primaryBtn} 
+        <button
+          className={styles.primaryBtn}
           onClick={() => {
             setFormData({ firstName: '', lastName: '', specialization: '', phoneNumber: '', email: '', departmentId: '', polyclinicId: '' });
             setEditingId(null);
@@ -157,8 +158,8 @@ export default function DoctorsPage() {
       <div style={{ marginBottom: '1rem', marginTop: '1rem', display: 'flex', gap: '1rem', alignItems: 'center', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', backgroundColor: 'var(--surface)', padding: '0.2rem 0.5rem 0.2rem 1rem', borderRadius: '8px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
           <span style={{ fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>Kayıt Sayısı:</span>
-          <select 
-            value={pageSize} 
+          <select
+            value={pageSize}
             onChange={(e) => { setPageSize(Number(e.target.value)); setPage(0); }}
             style={{ width: 'auto', padding: '0.4rem 2rem 0.4rem 0.8rem', border: 'none', backgroundColor: 'transparent', boxShadow: 'none', fontWeight: '600', color: 'var(--primary)' }}
           >
@@ -171,7 +172,7 @@ export default function DoctorsPage() {
         </div>
       </div>
 
-      <DataTable 
+      <DataTable
         columns={columns}
         data={displayedDoctors}
         onEdit={handleEdit}
@@ -181,29 +182,29 @@ export default function DoctorsPage() {
         onPageChange={setPage}
       />
 
-      <Modal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         title={editingId ? t('edit_doctor') : t('add_doctor')}
       >
         <form onSubmit={handleSubmit}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className={styles.formGroup}>
               <label>{t('name')}</label>
-              <input required value={formData.firstName} onChange={(e) => setFormData({...formData, firstName: e.target.value})} />
+              <input required value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} />
             </div>
             <div className={styles.formGroup}>
               <label>{t('surname')}</label>
-              <input required value={formData.lastName} onChange={(e) => setFormData({...formData, lastName: e.target.value})} />
+              <input required value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} />
             </div>
           </div>
-          
+
           <div className={styles.formGroup}>
             <label>{t('department')}</label>
-            <select 
-              required 
-              value={formData.departmentId} 
-              onChange={(e) => setFormData({...formData, departmentId: e.target.value, polyclinicId: ''})}
+            <select
+              required
+              value={formData.departmentId}
+              onChange={(e) => setFormData({ ...formData, departmentId: e.target.value, polyclinicId: '' })}
             >
               <option value="">-- {t('select_department')} --</option>
               {departments.map(dept => (
@@ -214,9 +215,9 @@ export default function DoctorsPage() {
 
           <div className={styles.formGroup}>
             <label>{t('polyclinics')}</label>
-            <select 
-              value={formData.polyclinicId} 
-              onChange={(e) => setFormData({...formData, polyclinicId: e.target.value})}
+            <select
+              value={formData.polyclinicId}
+              onChange={(e) => setFormData({ ...formData, polyclinicId: e.target.value })}
               disabled={!formData.departmentId}
               title={!formData.departmentId ? t('select_dept_first') : ""}
             >
@@ -226,19 +227,19 @@ export default function DoctorsPage() {
               ))}
             </select>
           </div>
-          
+
           <div className={styles.formGroup}>
             <label>{t('specialization')}</label>
-            <input required value={formData.specialization} onChange={(e) => setFormData({...formData, specialization: e.target.value})} />
+            <input required value={formData.specialization} onChange={(e) => setFormData({ ...formData, specialization: e.target.value })} />
           </div>
-          
+
           <div className={styles.formGroup}>
             <label>{t('phone')}</label>
-            <input maxLength="15" value={formData.phoneNumber} onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})} />
+            <input maxLength="15" value={formData.phoneNumber} onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })} />
           </div>
           <div className={styles.formGroup}>
             <label>{t('email')}</label>
-            <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
+            <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
           </div>
           <div className={styles.formActions}>
             <button type="button" className={styles.cancelBtn} onClick={() => setIsModalOpen(false)}>{t('cancel')}</button>
