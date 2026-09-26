@@ -14,6 +14,9 @@ export default function SettingsPage() {
   const [apptDuration, setApptDuration] = useState('15');
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('17:00');
+  const [lunchBreakStart, setLunchBreakStart] = useState('12:00');
+  const [lunchBreakEnd, setLunchBreakEnd] = useState('13:00');
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
   const mounted = useSyncExternalStore(
     useCallback(() => () => {}, []),
     () => true,
