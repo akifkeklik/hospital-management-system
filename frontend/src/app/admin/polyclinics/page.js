@@ -21,7 +21,6 @@ function PolyclinicsContent() {
   const filterDeptId = searchParams.get('departmentId');
   const highlightId = searchParams.get('highlight');
 
-  const [mounted, setMounted] = useState(false);
 
   const fetchPolyclinicsApi = useCallback(async (signal) => {
     const [polyData, deptData] = await Promise.all([
@@ -53,7 +52,6 @@ function PolyclinicsContent() {
   }, [execute]);
 
   useEffect(() => {
-    setMounted(true);
     fetchData();
   }, [fetchData]);
 
@@ -85,8 +83,6 @@ function PolyclinicsContent() {
       }
     }
   };
-
-  if (!mounted) return null;
 
   const getDeptName = (id) => {
     const dept = departments.find(d => d.id === parseInt(id));

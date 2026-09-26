@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSettings } from '../../../context/SettingsContext';
 import { fetchAPI } from '../../../services/api';
 import { toast } from '../../../components/Toast';
@@ -14,20 +14,25 @@ export default function DoctorRequestsPage() {
   const [confirmModal, setConfirmModal] = useState({ show: false, type: '', reqId: null, message: '' });
   const [credentialsModal, setCredentialsModal] = useState({ show: false, message: '' });
 
-  const fetchRequests = async () => {
-    try {
-      const data = await fetchAPI('/admin/doctor-requests');
-      setRequests(data);
-    } catch (err) {
-      setError(tErr(err.message));
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    let ignore = false;
+    async function fetchRequests() {
+      try {
+        const data = await fetchAPI('/admin/doctor-requests');
+        if (!ignore) {
+          setRequests(data);
+          setLoading(false);
+        }
+      } catch (err) {
+        if (!ignore) {
+          setError(tErr(err.message));
+          setLoading(false);
+        }
+      }
+    }
     fetchRequests();
-  }, []);
+    return () => { ignore = true; };
+  }, [tErr]);
 
   const handleAction = async (id, action) => {
     try {
@@ -49,7 +54,9 @@ export default function DoctorRequestsPage() {
         toast.success(successMsg);
       }
       
-      fetchRequests(); // Refresh list
+      // Refresh list
+      const newData = await fetchAPI('/admin/doctor-requests');
+      setRequests(newData);
     } catch (err) {
       setConfirmModal({ show: false, type: '', reqId: null, message: '' });
       toast.error(tErr(err.message));

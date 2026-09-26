@@ -9,7 +9,6 @@ import styles from '../../shared.module.css';
 export default function DoctorLeavesRequestPage() {
   const { t } = useSettings();
   const [leaves, setLeaves] = useState([]);
-  const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [doctorId, setDoctorId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,35 +18,33 @@ export default function DoctorLeavesRequestPage() {
   const [endDate, setEndDate] = useState('');
   const [reason, setReason] = useState('Yıllık İzin');
 
-  useEffect(() => {
-    setMounted(true);
-    if (me) {
-      checkAuthAndFetch();
-    }
-  }, [me]);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const triggerRefresh = () => setRefreshTrigger(prev => prev + 1);
 
-  const checkAuthAndFetch = async () => {
-    setLoading(true);
-    try {
-      if (me && (me.role === 'DOCTOR' || me.role === 'ROLE_DOCTOR' || me.role === 'HEKIM' || me.role === 'ROLE_HEKIM')) {
-        // Find doctorId by username or via some other API. For now, since we don't have getDoctorByUserId:
-        // Actually we do have /admin/doctors but we might need /doctors/me. 
-        // Assuming user ID maps to doctor or we just fetch all leaves and filter. 
-        // Let's assume the user has a doctorId attached or we fetch it.
-        // As a fallback in this demo, let's just hardcode doctorId=2 or fetch from an endpoint if available.
-        // Wait, earlier I saw we have a DoctorService. Let's fetch all and match email or id.
-        // In a real app we'd have an endpoint. Let's just fetch all leaves for now or prompt.
-        const id = me.id; // Just using user ID for demo, usually we map User <-> Doctor
-        setDoctorId(id);
-        const myLeaves = await DoctorLeaveService.getByDoctorId(id);
-        setLeaves(myLeaves);
+  useEffect(() => {
+    let ignore = false;
+    async function loadData() {
+      try {
+        if (me && (me.role === 'DOCTOR' || me.role === 'ROLE_DOCTOR' || me.role === 'HEKIM' || me.role === 'ROLE_HEKIM')) {
+          const id = me.id;
+          if (!ignore) setDoctorId(id);
+          const myLeaves = await DoctorLeaveService.getByDoctorId(id);
+          if (!ignore) {
+            setLeaves(myLeaves);
+            setLoading(false);
+          }
+        } else {
+          if (!ignore) setLoading(false);
+        }
+      } catch (err) {
+        if (!ignore) setLoading(false);
       }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
     }
-  };
+    if (me) {
+      loadData();
+    }
+    return () => { ignore = true; };
+  }, [me, refreshTrigger]);
 
   const handleRequestLeave = async (e) => {
     e.preventDefault();
@@ -63,7 +60,8 @@ export default function DoctorLeavesRequestPage() {
       setStartDate('');
       setEndDate('');
       setIsModalOpen(false);
-      checkAuthAndFetch();
+      setLoading(true);
+      triggerRefresh();
     } catch (err) {
       toast.error('Hata oluştu.');
     }
@@ -80,8 +78,6 @@ export default function DoctorLeavesRequestPage() {
         return <span style={{ padding: '6px 12px', borderRadius: '20px', backgroundColor: 'rgba(245, 158, 11, 0.1)', color: '#d97706', fontSize: '0.75rem', fontWeight: 'bold', border: '1px solid rgba(245, 158, 11, 0.2)' }}>BEKLİYOR</span>;
     }
   };
-
-  if (!mounted) return null;
 
   return (
     <div style={{ padding: '2rem', maxWidth: '1000px', margin: '0 auto' }}>

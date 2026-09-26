@@ -13,9 +13,15 @@ import styles from '../shared.module.css';
 export default function DoctorsPage() {
   const { t, tErr } = useSettings();
   const searchParams = useSearchParams();
-  const initialSearch = searchParams.get('search');
-  const [searchTerm, setSearchTerm] = useState(initialSearch);
+  const searchTerm = searchParams.get('search') || '';
+  const [prevSearchTerm, setPrevSearchTerm] = useState(searchTerm);
   const [page, setPage] = useState(0);
+
+  if (searchTerm !== prevSearchTerm) {
+    setPrevSearchTerm(searchTerm);
+    setPage(0);
+  }
+
   const [pageSize, setPageSize] = useState(5);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
@@ -57,16 +63,6 @@ export default function DoctorsPage() {
     fetchData();
   }, [fetchData]); // Run safely with useCallback dependencies
 
-  useEffect(() => {
-    const currentSearch = searchParams.get('search');
-    if (currentSearch !== searchTerm) {
-      setSearchTerm(currentSearch);
-    }
-  }, [searchParams]);
-
-  useEffect(() => {
-    setPage(0); // Reset page when search term changes
-  }, [searchTerm]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

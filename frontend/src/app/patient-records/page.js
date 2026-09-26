@@ -11,7 +11,6 @@ import styles from '../shared.module.css';
 export default function PatientRecordsPage() {
   const { t, language } = useSettings();
   const [appointments, setAppointments] = useState([]);
-  const [mounted, setMounted] = useState(false);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const { user: me } = useAuth();
@@ -20,10 +19,6 @@ export default function PatientRecordsPage() {
   const [selectedAppt, setSelectedAppt] = useState(null);
   const [diagnosisList, setDiagnosisList] = useState([]);
   const [prescriptionList, setPrescriptionList] = useState([]);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const fetchRecords = useCallback(async (signal, currentPage) => {
     if (me && me.role === 'ROLE_PATIENT') {

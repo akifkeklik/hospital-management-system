@@ -1,26 +1,26 @@
 'use client';
 import { useSettings } from '../../context/SettingsContext';
 import styles from './page.module.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore, useCallback } from 'react';
 import { SystemSettingService } from '../../services/api';
 import { toast } from '../../components/Toast';
 import { useAuth } from '../../context/AuthContext';
 
 export default function SettingsPage() {
   const { language, changeLanguage, themeColor, applyThemeColor, t, THEMES, LANGUAGES } = useSettings();
-  const [mounted, setMounted] = useState(false);
   const { user: userProfile } = useAuth();
   
   // Real System Settings State
   const [apptDuration, setApptDuration] = useState('15');
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('17:00');
-  const [lunchBreakStart, setLunchBreakStart] = useState('12:00');
-  const [lunchBreakEnd, setLunchBreakEnd] = useState('13:00');
-  const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const mounted = useSyncExternalStore(
+    useCallback(() => () => {}, []),
+    () => true,
+    () => false
+  );
 
   useEffect(() => {
-    setMounted(true);
     if (userProfile && userProfile.role === 'ROLE_ADMIN') {
       SystemSettingService.getSettings().then(settings => {
         setApptDuration(settings.appointmentDuration.toString());
@@ -50,8 +50,6 @@ export default function SettingsPage() {
     }
   };
 
-  if (!mounted) return null;
-
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -61,7 +59,7 @@ export default function SettingsPage() {
       <div className={styles.settingsGrid}>
         
         {/* Sistem Ayarları (Sadece Admin Görür) */}
-        {userProfile?.role === 'ROLE_ADMIN' && (
+        {mounted && userProfile?.role === 'ROLE_ADMIN' && (
           <section className={styles.section} style={{ gridColumn: '1 / -1' }}>
             <div className={styles.sectionHeader} style={{ marginBottom: '0.5rem' }}>
               <div className={styles.sectionIcon}>⚙️</div>

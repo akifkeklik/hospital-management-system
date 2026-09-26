@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { AppointmentService, PatientService, DoctorService, DepartmentService, PolyclinicService } from '../../services/api';
 import DataTable from '../../components/DataTable';
 import Modal from '../../components/Modal';
@@ -34,28 +34,38 @@ export default function AppointmentsPage() {
   const [selectedPolyclinicId, setSelectedPolyclinicId] = useState('');
   const [editingId, setEditingId] = useState(null);
 
-  const fetchData = useCallback(async () => {
-    try {
-      let appts;
-      if (role === 'ROLE_PATIENT') {
-        appts = await AppointmentService.getByPatient(user?.id, page, pageSize);
-      } else if (role === 'ROLE_DOCTOR') {
-        appts = await AppointmentService.getByDoctor(user?.id, page, pageSize);
-      } else {
-        appts = await AppointmentService.getAll(page, pageSize);
-      }
-      setAppointments(appts.items || []);
-      setTotalPages(appts.totalPages || 0);
-    } catch (error) {
-      toast.error(t('error_loading_data'));
-    }
-  }, [role, user?.id, page, pageSize, t]);
+
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const triggerRefresh = () => setRefreshTrigger(prev => prev + 1);
 
   useEffect(() => {
-    if (user?.id || role === 'ROLE_ADMIN') {
-      fetchData();
+    let ignore = false;
+    async function loadData() {
+      try {
+        let appts;
+        if (role === 'ROLE_PATIENT') {
+          appts = await AppointmentService.getByPatient(user?.id, page, pageSize);
+        } else if (role === 'ROLE_DOCTOR') {
+          appts = await AppointmentService.getByDoctor(user?.id, page, pageSize);
+        } else {
+          appts = await AppointmentService.getAll(page, pageSize);
+        }
+        if (!ignore) {
+          setAppointments(appts.items || []);
+          setTotalPages(appts.totalPages || 0);
+        }
+      } catch (error) {
+        if (!ignore) {
+          toast.error(t('error_loading_data'));
+        }
+      }
     }
-  }, [fetchData, user?.id, role]);
+
+    if (user?.id || role === 'ROLE_ADMIN') {
+      loadData();
+    }
+    return () => { ignore = true; };
+  }, [role, user?.id, page, pageSize, t, refreshTrigger]);
 
   // Sadece modal açıldığında departmanları yükle (bulk fetch iptal edildi)
   useEffect(() => {
@@ -68,8 +78,6 @@ export default function AppointmentsPage() {
   useEffect(() => {
     if (selectedDepartmentId) {
       PolyclinicService.getByDepartmentId(selectedDepartmentId).then(res => setPolyclinics(res || []));
-    } else {
-      setPolyclinics([]);
     }
   }, [selectedDepartmentId]);
 
@@ -88,7 +96,7 @@ export default function AppointmentsPage() {
       }
       setIsModalOpen(false);
       setEditingId(null);
-      fetchData();
+      triggerRefresh();
       toast.success(editingId ? t('appointment_updated') : t('appointment_created'));
     } catch (error) {
       toast.error(`${t('operation_failed')}:\n${error.message}`);
@@ -117,7 +125,7 @@ export default function AppointmentsPage() {
   const executeDelete = async () => {
     try {
       await AppointmentService.delete(confirmModal.id);
-      fetchData();
+      triggerRefresh();
       toast.success(t('appointment_deleted'));
     } catch (error) {
       toast.error(t('delete_failed'));
@@ -129,7 +137,7 @@ export default function AppointmentsPage() {
   const handleStatusChange = async (id, newStatus) => {
     try {
       await AppointmentService.updateStatus(id, newStatus);
-      fetchData();
+      triggerRefresh();
       toast.success(t('status_updated'));
     } catch (error) {
       toast.error(`${t('status_update_failed')}:\n${error.message}`);
@@ -304,6 +312,7 @@ export default function AppointmentsPage() {
               onChange={(e) => {
                 setSelectedDepartmentId(e.target.value);
                 setSelectedPolyclinicId('');
+                setPolyclinics([]);
                 if (role !== 'ROLE_DOCTOR') setFormData({...formData, doctorId: ''});
               }}
             >

@@ -9,11 +9,10 @@ import styles from '../shared.module.css';
 
 export default function PatientNotificationsPage() {
   const { t } = useSettings();
-  const [mounted, setMounted] = useState(false);
-  const [userRole, setUserRole] = useState(null);
   const [broadcastMessage, setBroadcastMessage] = useState('');
   const [broadcasting, setBroadcasting] = useState(false);
   const { user: me } = useAuth();
+  const userRole = me?.role;
 
   const fetchNotifsApi = useCallback(async (signal) => {
     if (!me) return [];
@@ -30,9 +29,7 @@ export default function PatientNotificationsPage() {
   const { data: notifications, setData: setNotifications, loading, execute: executeFetch } = useApi(fetchNotifsApi, []);
 
   useEffect(() => {
-    setMounted(true);
     if (me) {
-      setUserRole(me.role);
       executeFetch().catch(err => {
         if (err.name !== 'AbortError') console.error(err);
       });

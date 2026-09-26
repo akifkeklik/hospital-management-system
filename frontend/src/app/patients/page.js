@@ -23,10 +23,12 @@ export default function PatientsPage() {
 function PatientsContent() {
   const { t } = useSettings();
   const searchParams = useSearchParams();
-  const [patients, setPatients] = useState([]);
+  const currentSearchParam = searchParams.get('search') || '';
+  const [prevSearchParam, setPrevSearchParam] = useState(currentSearchParam);
+  
+  const [searchTerm, setSearchTerm] = useState(currentSearchParam);
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(5);
-  const [totalPages, setTotalPages] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
   const [formData, setFormData] = useState({
@@ -34,19 +36,12 @@ function PatientsContent() {
   });
   const [editingId, setEditingId] = useState(null);
 
-  const initialSearch = searchParams.get('search');
-  const [searchTerm, setSearchTerm] = useState(initialSearch || '');
-
-  useEffect(() => {
-    const currentSearch = searchParams.get('search');
-    if (currentSearch !== searchTerm) {
-      setSearchTerm(currentSearch || '');
-    }
-  }, [searchParams]);
-
-  useEffect(() => {
+  if (currentSearchParam !== prevSearchParam) {
+    setPrevSearchParam(currentSearchParam);
+    setSearchTerm(currentSearchParam);
     setPage(0);
-  }, [searchTerm]);
+  }
+
 
   const fetchPatientsApi = useCallback(async (signal) => {
     const data = await PatientService.getAll(0, 100, { signal });
@@ -148,6 +143,7 @@ function PatientsContent() {
 
       <Scanner onScan={(tc) => {
         setSearchTerm(tc);
+        setPage(0);
         const exists = allPatients.some(p => p.tcIdentityNumber === tc);
         if (!exists) {
           toast.info(t('patient_not_found_opening_register'));
@@ -162,7 +158,7 @@ function PatientsContent() {
           type="text"
           placeholder={t('search_patient_placeholder')}
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => { setSearchTerm(e.target.value); setPage(0); }}
           style={{ width: '100%', maxWidth: '400px', padding: '0.6rem 1rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--text-main)', fontSize: '0.9rem' }}
         />
         

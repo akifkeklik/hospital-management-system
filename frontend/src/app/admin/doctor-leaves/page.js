@@ -10,31 +10,33 @@ export default function DoctorLeavesPage() {
   const { t } = useSettings();
   const [leaves, setLeaves] = useState([]);
   const [doctors, setDoctors] = useState([]);
-  const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalConfig, setModalConfig] = useState({ id: null, status: null, message: '' });
 
-  useEffect(() => {
-    setMounted(true);
-    fetchData();
-  }, []);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const triggerRefresh = () => setRefreshTrigger(prev => prev + 1);
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const [leavesData, doctorsData] = await Promise.all([
-        DoctorLeaveService.getAll(),
-        DoctorService.getAll(0, 100)
-      ]);
-      setLeaves(leavesData);
-      setDoctors(doctorsData.content || []);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    let ignore = false;
+    async function loadData() {
+      try {
+        const [leavesData, doctorsData] = await Promise.all([
+          DoctorLeaveService.getAll(),
+          DoctorService.getAll(0, 100)
+        ]);
+        if (!ignore) {
+          setLeaves(leavesData);
+          setDoctors(doctorsData.content || []);
+          setLoading(false);
+        }
+      } catch (error) {
+        if (!ignore) setLoading(false);
+      }
     }
-  };
+    loadData();
+    return () => { ignore = true; };
+  }, [refreshTrigger]);
 
   const handleUpdateStatusClick = (id, status) => {
     const confirmMsg = status === 'APPROVED' ? t('confirm_approve_leave') : t('confirm_reject_leave');
@@ -47,7 +49,8 @@ export default function DoctorLeavesPage() {
     try {
       await DoctorLeaveService.updateStatus(id, status);
       toast.success(status === 'APPROVED' ? t('leave_approved') : t('leave_rejected'));
-      fetchData();
+      setLoading(true);
+      triggerRefresh();
     } catch (error) {
       toast.error(t('operation_error'));
     } finally {
@@ -66,8 +69,6 @@ export default function DoctorLeavesPage() {
     if (status === 'REJECTED') return { bg: '#fee2e2', color: '#991b1b' };
     return { bg: '#fef3c7', color: '#92400e' };
   };
-
-  if (!mounted) return null;
 
   return (
     <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>

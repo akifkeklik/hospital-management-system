@@ -10,7 +10,6 @@ import styles from '../../shared.module.css';
 
 export default function DoctorQueuePage() {
   const [appointments, setAppointments] = useState([]);
-  const [mounted, setMounted] = useState(false);
   const { user: doctorInfo } = useAuth();
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -23,10 +22,6 @@ export default function DoctorQueuePage() {
 
   const [diagForm, setDiagForm] = useState({ icd10Code: '', description: '' });
   const [prescForm, setPrescForm] = useState({ medicationName: '', dosage: '', usageInstruction: '' });
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const fetchQueue = useCallback(async (signal, currentPage) => {
     const me = doctorInfo;
