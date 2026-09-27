@@ -11,8 +11,13 @@ export default function PatientNotificationsPage() {
   const { t } = useSettings();
   const [broadcastMessage, setBroadcastMessage] = useState('');
   const [broadcasting, setBroadcasting] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { user: me } = useAuth();
   const userRole = me?.role;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const fetchNotifsApi = useCallback(async (signal) => {
     if (!me) return [];
