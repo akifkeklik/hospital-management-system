@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AppointmentService, AuthService } from '../services/api';
 import { useSettings } from '../context/SettingsContext';
 import ConfirmModal from './ConfirmModal';

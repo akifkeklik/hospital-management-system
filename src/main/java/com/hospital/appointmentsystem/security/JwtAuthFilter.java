@@ -42,6 +42,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
         }
 
+        // 2. Cookie bulunamazsa Authorization: Bearer <token> header'ına bakıyoruz
+        //    (Swagger UI ve API test araçları için fallback — üretim akışını etkilemez)
+        if (jwt == null || jwt.isEmpty()) {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                jwt = authHeader.substring(7);
+            }
+        }
+
         if (jwt != null && !jwt.isEmpty()) {
             try {
                 username = jwtUtil.extractUsername(jwt);

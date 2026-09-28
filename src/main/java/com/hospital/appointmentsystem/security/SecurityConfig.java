@@ -76,6 +76,8 @@ public class SecurityConfig {
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/departments", "/api/departments/**", "/api/doctors", "/api/doctors/**").permitAll()
                 .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                 .requestMatchers("/actuator/prometheus").hasRole("ADMIN")
+                // Swagger UI & OpenAPI spec — public access for API documentation
+                .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/v3/api-docs").permitAll()
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
             )

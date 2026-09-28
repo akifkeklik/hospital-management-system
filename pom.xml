@@ -111,6 +111,14 @@
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
+
+        <!-- Swagger / OpenAPI -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.6.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -125,6 +133,37 @@
                 <configuration>
                     <parameters>true</parameters>
                 </configuration>
+            </plugin>
+
+            <!-- JaCoCo Code Coverage -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
+                <configuration>
+                    <excludes>
+                        <!-- Exclude auto-generated / boilerplate classes -->
+                        <exclude>com/hospital/appointmentsystem/HospitalAppointmentApplication*</exclude>
+                        <exclude>com/hospital/appointmentsystem/config/OpenApiConfig*</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <!-- Attaches JaCoCo agent before tests run -->
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <!-- Generates HTML/XML/CSV report after tests -->
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

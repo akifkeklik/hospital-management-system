@@ -186,6 +186,15 @@ PATIENT
 
 ---
 
+## 🤖 AI Symptom Analyzer (Gemini Integration)
+
+* AI-driven patient symptom analysis
+* Department routing recommendations
+* Frontend integration for patients
+* **Note:** Gemini integration is optional. Without `GEMINI_API_KEY`, the application uses the built-in demo fallback. A real Gemini API key can be supplied through environment configuration.
+
+---
+
 ## 🔔 Notifications
 
 The system contains notification functionality for application-level patient and system notifications.
@@ -474,60 +483,103 @@ cd hospital-management-system
 
 ---
 
-## 2. Create a Local Database
+## 2. Configure Environment Variables
 
-For local development:
+Set the required environment variables in your shell or use the `.env` file for Docker Compose. You can refer to the existing `.env.example` file in the project root as a starting point.
 
-```sql
-CREATE DATABASE hospitaldb;
-```
-
-Make sure the MySQL server is running.
-
----
-
-## 3. Configure the Backend
-
-Set the required environment variables in your shell or development environment.
-
-Example configuration:
+Example configuration for local development:
 
 ```bash
 export ADMIN_PASSWORD="your-local-admin-password"
 export JWT_SECRET="your-local-jwt-secret"
-
-export DB_URL="jdbc:mysql://localhost:3306/hospitaldb?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
-export DB_DRIVER="com.mysql.cj.jdbc.Driver"
-export DB_USERNAME="your-local-user"
-export DB_PASSWORD="your-local-password"
+export GEMINI_API_KEY="your-gemini-api-key"
+# other configs like mail/password reset...
 ```
 
 Do **not** commit real secrets to Git.
 
 ---
 
-## 4. Start the Backend
+## 3. Run Backend & Database
+
+You can run the backend and database either natively or using Docker Compose.
+
+### Option A: Native Development
+
+**1. Create a Local Database:**
+
+```sql
+CREATE DATABASE hospitaldb;
+```
+Make sure the MySQL server is running on `localhost:3306`.
+
+**2. Start the Backend:**
 
 ```bash
 mvn clean compile
 mvn spring-boot:run
 ```
+The backend runs on `http://localhost:8080`.
 
-The backend runs on:
+### Option B: Docker Compose
 
+The project includes a `docker-compose.yml` for running the backend and MySQL together in isolated containers.
+
+**Local Development Architecture (Docker Compose):**
 ```text
-http://localhost:8080
+Developer Browser
+       │
+       ├──> Next.js Frontend (Native) :3000
+       │
+       ├──> Spring Boot Backend (Docker) :8080
+       │
+       └──> MySQL (Docker)
+              ├── Internal Docker Port: 3306
+              └── Mapped Host Port: 3307
 ```
+
+* **Backend**: Spring Boot container on port `8080`. Healthcheck: `/actuator/health`
+* **Database**: MySQL 8 container with named volume `mysql_data`.
+* **Networking**: The backend container connects to the MySQL container over the Docker network using `jdbc:mysql://mysql:3306/hospitaldb`.
+* **Host Port Mapping**: To avoid conflicts with local MySQL installations (`localhost:3306`), the Docker MySQL is exposed to the host machine on `localhost:3307` (`3307:3306`). Flyway migrations run automatically on backend startup.
+
+**Start the containers:**
+```bash
+docker compose up -d --build
+```
+
+**Check status:**
+```bash
+docker compose ps
+```
+
+**View logs:**
+```bash
+docker compose logs backend --tail=100
+docker compose logs mysql --tail=100
+```
+
+**Stop the containers:**
+```bash
+docker compose down
+```
+
+> [!WARNING]
+> Running `docker compose down -v` will delete the `mysql_data` volume and all local database data within Docker.
 
 ---
 
-## 5. Start the Frontend
+## 4. Start the Frontend
+
+The frontend is developed natively using Node.js and is **not** included in the Docker Compose setup (in production, it is deployed to Vercel).
 
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+
+*(On PowerShell you may need to use `npm.cmd run dev`)*
 
 The frontend runs on:
 
@@ -567,6 +619,8 @@ The application is configured primarily through environment variables.
 | `RATE_LIMIT_AUTH_CAPACITY` | No       | Authentication rate-limit capacity                |
 | `RATE_LIMIT_AUTH_MINUTES`  | No       | Authentication rate-limit window                  |
 | `TEST_USER_PASSWORD`       | No       | Password for local development test users         |
+| `GEMINI_API_KEY`           | No       | Google Gemini API authentication (Empty = demo)   |
+| `GEMINI_API_URL`           | No       | Gemini HTTP endpoint                              |
 
 Defaults may differ between local and production environments.
 
@@ -641,6 +695,17 @@ The backend exposes REST endpoints under `/api`.
 | GET    | `/actuator/prometheus` | Application metrics |
 
 > The exact authorization requirements of individual endpoints are enforced by the backend security configuration.
+
+## 📖 Swagger / OpenAPI Documentation
+
+The backend provides interactive API documentation using **Springdoc OpenAPI**.
+
+* **Swagger UI:** [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+* **OpenAPI JSON:** [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs)
+
+You can use the Swagger UI to explore and test the available REST endpoints. **JWT Bearer authentication** is supported directly in the Swagger UI. To test secured endpoints, first authenticate via `/api/auth/login`, copy the JWT token, and click the "Authorize" button in Swagger UI to provide your token.
+
+The API currently exposes all endpoints documented above.
 
 ---
 
@@ -830,10 +895,26 @@ The project contains tests covering multiple areas of the application.
 | Test database               | H2                    |
 | Database performance checks | Custom test utilities |
 
+**Current Snapshot:** The repository contains **209 tests** validating various application components.
+
+All tests are designed to run in isolation using an in-memory **H2 database** and **mocked external services** (such as the Gemini AI client). This ensures that executing tests (locally or in CI) does not require any external connections (e.g., MySQL, Render, Aiven, or Google Gemini).
+
 ## Run All Tests
 
 ```bash
 mvn test
+```
+
+Test reports are generated in `target/surefire-reports` after execution.
+
+## JaCoCo Code Coverage
+
+The project is actively configured with the JaCoCo Maven plugin (`org.jacoco:jacoco-maven-plugin:0.8.12`) for test coverage analysis.
+
+Code coverage is generated automatically during the Maven test lifecycle. Once tests finish executing, you can view the detailed coverage report by opening the following HTML file in your browser:
+
+```text
+target/site/jacoco/index.html
 ```
 
 ## Run a Specific Test
@@ -904,7 +985,7 @@ Git Push / Pull Request
      ▼          ▼
   Maven        npm
   Build       Build
-  Tests
+(& Tests)
      │          │
      └────┬─────┘
           ▼
@@ -916,6 +997,10 @@ Workflow configuration is located at:
 ```text
 .github/workflows/build.yml
 ```
+
+> **Note:** GitHub Actions validates the application by running all **209 backend tests** via `mvn clean package` (using Java 17). The frontend is built using Node 20 (`npm run build`). Upon success, Surefire test reports and JaCoCo coverage reports are uploaded as artifacts (retained for 7 days).
+>
+> **Production Safety:** The CI pipeline is strictly for build/test/quality validation. It does **not** perform production deployments and contains **no hardcoded production secrets**.
 
 ---
 

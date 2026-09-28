@@ -198,4 +198,58 @@ public class GlobalExceptionHandlerTest {
         org.junit.jupiter.api.Assertions.assertFalse(responseBody.contains("RuntimeException"), "Exception class leaked!");
         org.junit.jupiter.api.Assertions.assertTrue(responseBody.contains("Beklenmeyen bir hata oluştu"), "Generic safe message not found");
     }
+
+    @Test
+    void shouldReturn409_whenDataIntegrityViolation_activeSlotId() throws Exception {
+        Cookie adminCookie = loginAndGetCookie("ADMIN");
+
+        // Mock DB constraint exception with active_slot_id
+        org.mockito.Mockito.doThrow(new DataIntegrityViolationException("active_slot_id constraint failed"))
+                .when(patientService).createPatient(org.mockito.ArgumentMatchers.any());
+
+        PatientRequest req = new PatientRequest();
+        req.setFirstName("A");
+        req.setLastName("B");
+        req.setTcIdentityNumber("22222222222");
+        req.setPhoneNumber("5555555555");
+        req.setEmail("test2@test.com");
+
+        mockMvc.perform(post("/api/patients")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req))
+                .cookie(adminCookie))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.error").value("Conflict"))
+                .andExpect(jsonPath("$.message", containsString("başka bir hasta tarafından rezerve edildi")))
+                .andExpect(jsonPath("$.traceId").exists())
+                .andExpect(jsonPath("$.path").value("/api/patients"));
+    }
+
+    @Test
+    void shouldReturn409_whenOptimisticLockingFailure() throws Exception {
+        Cookie adminCookie = loginAndGetCookie("ADMIN");
+
+        // Mock optimistic locking exception
+        org.mockito.Mockito.doThrow(new org.springframework.orm.ObjectOptimisticLockingFailureException("Patient", new RuntimeException()))
+                .when(patientService).createPatient(org.mockito.ArgumentMatchers.any());
+
+        PatientRequest req = new PatientRequest();
+        req.setFirstName("A");
+        req.setLastName("B");
+        req.setTcIdentityNumber("33333333333");
+        req.setPhoneNumber("5555555555");
+        req.setEmail("test3@test.com");
+
+        mockMvc.perform(post("/api/patients")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req))
+                .cookie(adminCookie))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.error").value("Conflict"))
+                .andExpect(jsonPath("$.message", containsString("Sistem çakışması tespit edildi")))
+                .andExpect(jsonPath("$.traceId").exists())
+                .andExpect(jsonPath("$.path").value("/api/patients"));
+    }
 }

@@ -39,13 +39,27 @@ public class AiService {
     private String apiUrl;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final HttpClient httpClient = HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(10))
-            .build();
+    private final HttpClient httpClient;
 
     // Rate limiting: userId -> son istek zamanları
     private final ConcurrentHashMap<String, List<Long>> rateLimitMap = new ConcurrentHashMap<>();
     private static final int MAX_REQUESTS_PER_MINUTE = 5;
+
+    /** Default constructor used by Spring. */
+    public AiService() {
+        this.httpClient = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(10))
+                .build();
+    }
+
+    /**
+     * Package-private constructor for unit testing only.
+     * Allows injecting a mock HttpClient without requiring external network calls.
+     * This constructor is NOT used by Spring in production.
+     */
+    AiService(HttpClient httpClient) {
+        this.httpClient = httpClient;
+    }
 
     /**
      * Semptomları analiz et ve bölüm önerisi döndür.
