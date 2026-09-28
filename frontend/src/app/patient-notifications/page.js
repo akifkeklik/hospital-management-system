@@ -23,9 +23,9 @@ export default function PatientNotificationsPage() {
     if (!me) return [];
     let myNotifications = [];
     if (me.role === 'DOCTOR' || me.role === 'ROLE_DOCTOR' || me.role === 'HEKIM' || me.role === 'ROLE_HEKIM') {
-      myNotifications = await NotificationService.getByDoctor(me.id, { signal });
+      myNotifications = await NotificationService.getByDoctor(me.referenceId || me.id, { signal });
     } else {
-      myNotifications = await NotificationService.getByPatient(me.id, { signal });
+      myNotifications = await NotificationService.getByPatient(me.referenceId || me.id, { signal });
     }
     const hiddenNotifs = JSON.parse(localStorage.getItem('hiddenNotifs') || '[]');
     return myNotifications.filter(n => !hiddenNotifs.includes(n.id));

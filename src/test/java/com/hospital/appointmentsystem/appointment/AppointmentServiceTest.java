@@ -54,6 +54,9 @@ public class AppointmentServiceTest {
     @Mock
     private DoctorLeaveRepository doctorLeaveRepository;
 
+    @Mock
+    private com.hospital.appointmentsystem.notification.api.NotificationService notificationService;
+
     @InjectMocks
     private AppointmentServiceImpl appointmentService;
 

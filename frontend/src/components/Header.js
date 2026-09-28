@@ -37,9 +37,9 @@ export default function Header() {
         if (userProfile.role === 'ROLE_ADMIN' || userProfile.role === 'ADMIN') {
           notifs = await import('../services/api').then(m => m.NotificationService.getByAdmin(1)); // Assuming default admin ID 1
         } else if (userProfile.role === 'DOCTOR' || userProfile.role === 'ROLE_DOCTOR' || userProfile.role === 'HEKIM' || userProfile.role === 'ROLE_HEKIM') {
-          notifs = await import('../services/api').then(m => m.NotificationService.getByDoctor(userProfile.id));
+          notifs = await import('../services/api').then(m => m.NotificationService.getByDoctor(userProfile.referenceId || userProfile.id));
         } else {
-          notifs = await import('../services/api').then(m => m.NotificationService.getByPatient(userProfile.id));
+          notifs = await import('../services/api').then(m => m.NotificationService.getByPatient(userProfile.referenceId || userProfile.id));
         }
         const hiddenNotifs = JSON.parse(localStorage.getItem('hiddenNotifs') || '[]');
         notifs = notifs.filter(n => !hiddenNotifs.includes(n.id));

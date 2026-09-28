@@ -59,6 +59,26 @@ public class NotificationControllerTest {
                 .andExpect(status().isForbidden());
     }
 
-    // Notice: We don't test @securityService.isPatientOwner because that requires a full integration setup 
-    // with custom security service beans properly configured for the mock user context. We just test role access.
+    @org.springframework.boot.test.mock.mockito.MockBean
+    private com.hospital.appointmentsystem.security.SecurityService securityService;
+
+    @Test
+    @WithMockUser(roles = "PATIENT")
+    void getPatientNotifications_asPatientWithCorrectId_returnsOk() throws Exception {
+        when(securityService.isPatientOwner(2L)).thenReturn(true);
+        when(notificationService.getNotificationsByPatient(2L)).thenReturn(List.of(new NotificationDto(1L, 2L, null, null, "Hello", false, null)));
+
+        mockMvc.perform(get("/api/notifications/patient/2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].message").value("Hello"));
+    }
+
+    @Test
+    @WithMockUser(roles = "PATIENT")
+    void getPatientNotifications_asPatientWithWrongId_returnsForbidden() throws Exception {
+        when(securityService.isPatientOwner(1L)).thenReturn(false);
+
+        mockMvc.perform(get("/api/notifications/patient/1"))
+                .andExpect(status().isForbidden());
+    }
 }

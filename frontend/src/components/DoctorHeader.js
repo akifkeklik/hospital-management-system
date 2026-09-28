@@ -26,7 +26,7 @@ export default function DoctorHeader() {
     const fetchNotifications = async (retryCount = 0) => {
       if (!userProfile?.id) return;
       try {
-        const notifs = await import('../services/api').then(m => m.NotificationService.getByDoctor(userProfile.id));
+        const notifs = await import('../services/api').then(m => m.NotificationService.getByDoctor(userProfile.referenceId || userProfile.id));
         setNotifications(notifs.slice(0, 5));
         setUnreadCount(notifs.filter(n => !n.read).length);
       } catch (error) {
