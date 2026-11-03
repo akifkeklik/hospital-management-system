@@ -207,25 +207,26 @@ public class AppointmentServiceImpl implements AppointmentService {
                         "Doctor", "id", appointmentDto.getDoctorId()
                 ));
 
-        existingAppointment.setPatient(patient);
-        existingAppointment.setDoctor(doctor);
+        // Compare against persisted values before changing the entity.
+        boolean doctorChanged = !existingAppointment.getDoctor().getId().equals(doctor.getId());
+        boolean appointmentDateChanged = !existingAppointment.getAppointmentDate()
+                .equals(appointmentDto.getAppointmentDate());
 
-        // ⭐ Randevu saati değiştiyse veya doktor değiştiyse uygunluk kontrolü yap
-        boolean timeOrDoctorChanged = !existingAppointment.getAppointmentDate().equals(appointmentDto.getAppointmentDate()) || 
-                                      !existingAppointment.getDoctor().getId().equals(doctor.getId());
-                                      
-        if (timeOrDoctorChanged) {
+        // A doctor change must trigger availability validation even when the time is unchanged.
+        if (doctorChanged || appointmentDateChanged) {
             LocalDate date = appointmentDto.getAppointmentDate().toLocalDate();
             LocalTime time = appointmentDto.getAppointmentDate().toLocalTime();
-            
+
             List<String> availableSlots = getAvailableSlots(doctor.getId(), date);
             String timeString = String.format("%02d:%02d", time.getHour(), time.getMinute());
-            
+
             if (!availableSlots.contains(timeString)) {
                 throw new BusinessRuleException("Seçilen randevu saati dolu veya mesai saatleri dışında!");
             }
         }
 
+        existingAppointment.setPatient(patient);
+        existingAppointment.setDoctor(doctor);
         existingAppointment.setAppointmentDate(appointmentDto.getAppointmentDate());
         existingAppointment.setNotes(appointmentDto.getNotes());
 
