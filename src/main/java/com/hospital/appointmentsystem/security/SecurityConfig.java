@@ -74,7 +74,7 @@ public class SecurityConfig {
                 }
                 config.setAllowedOrigins(trustedOrigins);
                 config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-                config.setAllowedHeaders(List.of("Cache-Control", "Content-Type", "Accept", "Origin", "X-Requested-With"));
+                config.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type", "Accept", "Origin", "X-Requested-With", "X-Request-Id"));
                 config.setAllowCredentials(true);
                 return config;
             }))
