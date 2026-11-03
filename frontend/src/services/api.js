@@ -156,9 +156,9 @@ export const AuthService = {
     method: 'POST',
     body: JSON.stringify({ token, newPassword })
   }),
-  forceChangePassword: (tcIdentityNumber, newPassword) => fetchAPI('/auth/force-change-password', {
+  forceChangePassword: (tcIdentityNumber, oldPassword, newPassword) => fetchAPI('/auth/force-change-password', {
     method: 'POST',
-    body: JSON.stringify({ tcIdentityNumber, newPassword })
+    body: JSON.stringify({ tcIdentityNumber, oldPassword, newPassword })
   }),
   getMe: (options = {}) => fetchAPI('/auth/me', options),
   logout: async () => {
