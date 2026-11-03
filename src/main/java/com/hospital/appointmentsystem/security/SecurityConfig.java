@@ -60,18 +60,23 @@ public class SecurityConfig {
     }
 
     @Bean
+    private List<String> getTrustedOrigins() {
+        List<String> trustedOrigins = java.util.Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .filter(origin -> !origin.isEmpty())
+                .toList();
+        if (trustedOrigins.isEmpty() || trustedOrigins.contains("*")) {
+            throw new IllegalStateException("CORS_ALLOWED_ORIGINS must contain explicit trusted origins");
+        }
+        return trustedOrigins;
+    }
+
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        List<String> trustedOrigins = getTrustedOrigins();
         http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(request -> {
                 CorsConfiguration config = new CorsConfiguration();
-                List<String> trustedOrigins = java.util.Arrays.stream(allowedOrigins.split(","))
-                        .map(String::trim)
-                        .filter(origin -> !origin.isEmpty())
-                        .toList();
-                if (trustedOrigins.isEmpty() || trustedOrigins.contains("*")) {
-                    throw new IllegalStateException("CORS_ALLOWED_ORIGINS must contain explicit trusted origins");
-                }
                 config.setAllowedOrigins(trustedOrigins);
                 config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
                 config.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type", "Accept", "Origin", "X-Requested-With", "X-Request-Id"));
@@ -123,6 +128,8 @@ public class SecurityConfig {
                     response.getWriter().write(mapper.writeValueAsString(errorResponse));
                 })
             )
+            // SameSite=None cookies require an Origin check for unsafe browser requests.
+            .addFilterBefore(new OriginValidationFilter(trustedOrigins), RateLimitFilter.class)
             .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
