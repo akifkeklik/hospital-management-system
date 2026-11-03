@@ -250,6 +250,49 @@ public class SecurityRegressionIntegrationTest {
         assertFalse(json.contains("sql"), "Should not contain SQL");
     }
 
+    @Test
+    void forcePasswordChangeRequiresAuthentication() throws Exception {
+        Map<String, String> req = new HashMap<>();
+        req.put("tcIdentityNumber", "99999999999");
+        req.put("oldPassword", testUserPassword);
+        req.put("newPassword", "newSecurePassword");
+
+        mockMvc.perform(post("/api/auth/force-change-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void forcePasswordChangeCannotTargetAnotherUser() throws Exception {
+        Map<String, String> req = new HashMap<>();
+        req.put("tcIdentityNumber", "88888888888");
+        req.put("oldPassword", testUserPassword);
+        req.put("newPassword", "newSecurePassword");
+
+        mockMvc.perform(post("/api/auth/force-change-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req))
+                .cookie(patientCookie))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void crossOriginStateChangingRequestIsRejected() throws Exception {
+        mockMvc.perform(post("/api/auth/logout")
+                .header("Origin", "https://attacker.example")
+                .cookie(patientCookie))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void configuredOriginCanMakeStateChangingRequest() throws Exception {
+        mockMvc.perform(post("/api/auth/logout")
+                .header("Origin", "http://localhost:3000")
+                .cookie(patientCookie))
+                .andExpect(status().isOk());
+    }
+
     // 18. logout -> authentication removed
     @Test
     void logoutTest() throws Exception {

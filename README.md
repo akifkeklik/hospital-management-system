@@ -895,7 +895,7 @@ The project contains tests covering multiple areas of the application.
 | Test database               | H2                    |
 | Database performance checks | Custom test utilities |
 
-**Current Snapshot:** The repository contains **209 tests** validating various application components.
+**Current Snapshot:** The repository includes a broad unit and integration test suite covering the application's main domains. The current test count is reported by Maven Surefire after each run.
 
 All tests are designed to run in isolation using an in-memory **H2 database** and **mocked external services** (such as the Gemini AI client). This ensures that executing tests (locally or in CI) does not require any external connections (e.g., MySQL, Render, Aiven, or Google Gemini).
 
@@ -998,7 +998,7 @@ Workflow configuration is located at:
 .github/workflows/build.yml
 ```
 
-> **Note:** GitHub Actions validates the application by running all **209 backend tests** via `mvn clean package` (using Java 17). The frontend is built using Node 20 (`npm run build`). Upon success, Surefire test reports and JaCoCo coverage reports are uploaded as artifacts (retained for 7 days).
+> **Note:** GitHub Actions validates the application by running the complete backend test suite via `mvn clean package` (using Java 17). The frontend is built using Node 20 (`npm run build`). Upon success, Surefire test reports and JaCoCo coverage reports are uploaded as artifacts (retained for 7 days).
 >
 > **Production Safety:** The CI pipeline is strictly for build/test/quality validation. It does **not** perform production deployments and contains **no hardcoded production secrets**.
 

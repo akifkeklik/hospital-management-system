@@ -17,6 +17,7 @@ export default function LoginPage() {
   
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [temporaryPassword, setTemporaryPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
   
   const [loading, setLoading] = useState(false);
@@ -82,6 +83,7 @@ export default function LoginPage() {
         }
 
         if (response.needsPasswordChange) {
+          setTemporaryPassword(password);
           setPassword('');
           setShowForcePasswordChange(true);
           return;
@@ -138,7 +140,8 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
     try {
-      await AuthService.forceChangePassword(username.trim(), password);
+      await AuthService.forceChangePassword(username.trim(), temporaryPassword, password);
+      setTemporaryPassword('');
       window.location.href = '/';
     } catch (err) {
       setError(tErr(err.message) || t('err_password_update'));

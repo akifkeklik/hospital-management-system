@@ -59,19 +59,24 @@ public class SecurityConfig {
         return new ProviderManager(authProvider);
     }
 
+    private List<String> getTrustedOrigins() {
+        List<String> trustedOrigins = java.util.Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .filter(origin -> !origin.isEmpty())
+                .toList();
+        if (trustedOrigins.isEmpty() || trustedOrigins.contains("*")) {
+            throw new IllegalStateException("CORS_ALLOWED_ORIGINS must contain explicit trusted origins");
+        }
+        return trustedOrigins;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        List<String> trustedOrigins = getTrustedOrigins();
         http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(request -> {
                 CorsConfiguration config = new CorsConfiguration();
-                List<String> trustedOrigins = java.util.Arrays.stream(allowedOrigins.split(","))
-                        .map(String::trim)
-                        .filter(origin -> !origin.isEmpty())
-                        .toList();
-                if (trustedOrigins.isEmpty() || trustedOrigins.contains("*")) {
-                    throw new IllegalStateException("CORS_ALLOWED_ORIGINS must contain explicit trusted origins");
-                }
                 config.setAllowedOrigins(trustedOrigins);
                 config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
                 config.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type", "Accept", "Origin", "X-Requested-With", "X-Request-Id"));
@@ -79,6 +84,7 @@ public class SecurityConfig {
                 return config;
             }))
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/auth/force-change-password").authenticated()
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/departments", "/api/departments/**", "/api/doctors", "/api/doctors/**").permitAll()
                 .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
@@ -124,7 +130,10 @@ public class SecurityConfig {
                 })
             )
             .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            // Register after RateLimitFilter so Spring Security knows its filter order.
+            // SameSite=None cookies require an Origin check for unsafe browser requests.
+            .addFilterBefore(new OriginValidationFilter(trustedOrigins), RateLimitFilter.class);
 
         return http.build();
     }
