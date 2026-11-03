@@ -21,7 +21,7 @@ Built with **Spring Boot**, **Next.js**, **React**, and relational database tech
 
 <br/>
 
-**Current Status: Production Deployment & Hardening**
+**Project Status: Active Development**
 
 </div>
 
