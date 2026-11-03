@@ -43,7 +43,7 @@ public class AuthControllerSecurityTest {
         when(userRepository.findByUsername("12345678901")).thenReturn(Optional.of(mockUser));
         when(userService.changePasswordWithOld("12345678901", "oldPass", "newPass")).thenReturn(true);
 
-        ResponseEntity<?> response = authController.forceChangePassword(request);
+        ResponseEntity<?> response = authController.forceChangePassword(request, new org.springframework.security.authentication.UsernamePasswordAuthenticationToken("12345678901", null, java.util.List.of()));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         verify(userService).changePasswordWithOld("12345678901", "oldPass", "newPass");
@@ -58,7 +58,7 @@ public class AuthControllerSecurityTest {
         when(userRepository.findByUsername("12345678901")).thenReturn(Optional.of(mockUser));
         when(userService.changePasswordWithOld("12345678901", "wrongOld", "newPass")).thenReturn(false);
 
-        ResponseEntity<?> response = authController.forceChangePassword(request);
+        ResponseEntity<?> response = authController.forceChangePassword(request, new org.springframework.security.authentication.UsernamePasswordAuthenticationToken("12345678901", null, java.util.List.of()));
 
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
         verify(userService).changePasswordWithOld("12345678901", "wrongOld", "newPass");
@@ -70,7 +70,7 @@ public class AuthControllerSecurityTest {
 
         when(userRepository.findByUsername("00000000000")).thenReturn(Optional.empty());
 
-        ResponseEntity<?> response = authController.forceChangePassword(request);
+        ResponseEntity<?> response = authController.forceChangePassword(request, new org.springframework.security.authentication.UsernamePasswordAuthenticationToken("00000000000", null, java.util.List.of()));
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         verify(userService, never()).changePasswordWithOld(anyString(), anyString(), anyString());
@@ -80,7 +80,7 @@ public class AuthControllerSecurityTest {
     void forceChangePassword_MissingOldPassword() {
         ForceChangePasswordRequest request = new ForceChangePasswordRequest("12345678901", "", "newPass");
 
-        ResponseEntity<?> response = authController.forceChangePassword(request);
+        ResponseEntity<?> response = authController.forceChangePassword(request, new org.springframework.security.authentication.UsernamePasswordAuthenticationToken("12345678901", null, java.util.List.of()));
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         verify(userService, never()).changePasswordWithOld(anyString(), anyString(), anyString());
@@ -90,7 +90,7 @@ public class AuthControllerSecurityTest {
     void forceChangePassword_InvalidNewPassword() {
         ForceChangePasswordRequest request = new ForceChangePasswordRequest("12345678901", "oldPass", "short");
 
-        ResponseEntity<?> response = authController.forceChangePassword(request);
+        ResponseEntity<?> response = authController.forceChangePassword(request, new org.springframework.security.authentication.UsernamePasswordAuthenticationToken("12345678901", null, java.util.List.of()));
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         verify(userService, never()).changePasswordWithOld(anyString(), anyString(), anyString());
