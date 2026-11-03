@@ -87,7 +87,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .stream()
                 .map(fieldError -> new ValidationError(
                         fieldError.getField(),
-                        fieldError.getRejectedValue(),
+                        null,
                         fieldError.getDefaultMessage()
                 ))
                 .collect(Collectors.toList());
