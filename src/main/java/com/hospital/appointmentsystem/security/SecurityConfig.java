@@ -128,10 +128,11 @@ public class SecurityConfig {
                     response.getWriter().write(mapper.writeValueAsString(errorResponse));
                 })
             )
-            // SameSite=None cookies require an Origin check for unsafe browser requests.
-            .addFilterBefore(new OriginValidationFilter(trustedOrigins), RateLimitFilter.class)
             .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            // Register after RateLimitFilter so Spring Security knows its filter order.
+            // SameSite=None cookies require an Origin check for unsafe browser requests.
+            .addFilterBefore(new OriginValidationFilter(trustedOrigins), RateLimitFilter.class);
 
         return http.build();
     }
