@@ -128,7 +128,7 @@ public class AppointmentController {
     }
 
     // PATCH /api/appointments/{id}/status — Sadece durum güncelle
-    @PreAuthorize("hasRole('ADMIN') or @securityService.isDoctorOfAppointment(#id) or @securityService.isPatientOfAppointment(#id)")
+    @PreAuthorize("hasRole('ADMIN') or @securityService.isDoctorOfAppointment(#id) or (@securityService.isPatientOfAppointment(#id) and #statusUpdate['status'] != null and #statusUpdate['status'].toUpperCase() == 'CANCELLED')")
     @PatchMapping("/{id}/status")
     public ResponseEntity<AppointmentResponse> updateStatus(
             @PathVariable Long id,
