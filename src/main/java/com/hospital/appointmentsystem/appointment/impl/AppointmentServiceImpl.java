@@ -83,7 +83,8 @@ public class AppointmentServiceImpl implements AppointmentService {
         // ⭐ Randevu saati uygunluk kontrolü
         LocalDate date = appointmentDto.getAppointmentDate().toLocalDate();
         LocalTime time = appointmentDto.getAppointmentDate().toLocalTime();
-        
+        validateSlotPrecision(time);
+
         List<String> availableSlots = getAvailableSlots(doctor.getId(), date);
         
         // saniyeleri atıp saat:dakika formatında kontrol et (örn: "09:15")
@@ -133,6 +134,12 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
         Specification<Appointment> spec = AppointmentSpecification.filterBy(null, doctorId, statuses, startDate, endDate);
         return appointmentRepository.findAll(spec, pageable).map(this::mapToDto);
+    }
+
+    private void validateSlotPrecision(LocalTime time) {
+        if (time.getSecond() != 0 || time.getNano() != 0) {
+            throw new BusinessRuleException("Randevu saatleri dakika hassasiyetinde olmalıdır.");
+        }
     }
 
     @Override
@@ -231,6 +238,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (doctorChanged || appointmentDateChanged) {
             LocalDate date = appointmentDto.getAppointmentDate().toLocalDate();
             LocalTime time = appointmentDto.getAppointmentDate().toLocalTime();
+            validateSlotPrecision(time);
 
             List<String> availableSlots = getAvailableSlots(doctor.getId(), date);
             String timeString = String.format("%02d:%02d", time.getHour(), time.getMinute());
