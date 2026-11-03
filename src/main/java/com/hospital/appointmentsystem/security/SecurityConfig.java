@@ -59,7 +59,6 @@ public class SecurityConfig {
         return new ProviderManager(authProvider);
     }
 
-    @Bean
     private List<String> getTrustedOrigins() {
         List<String> trustedOrigins = java.util.Arrays.stream(allowedOrigins.split(","))
                 .map(String::trim)
@@ -71,6 +70,7 @@ public class SecurityConfig {
         return trustedOrigins;
     }
 
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         List<String> trustedOrigins = getTrustedOrigins();
         http
