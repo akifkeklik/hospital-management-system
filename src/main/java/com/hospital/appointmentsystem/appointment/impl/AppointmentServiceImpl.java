@@ -141,9 +141,14 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new ResourceNotFoundException("Doctor", "id", doctorId);
         }
 
-        // DOKTOR İZİN KONTROLÜ (Enterprise Feature)
+        // Past dates must never expose bookable slots.
+        if (date.isBefore(LocalDate.now())) {
+            return new ArrayList<>();
+        }
+
+        // DOKTOR İZİN KONTROLÜ
         if (doctorLeaveRepository.isDoctorOnLeave(doctorId, date)) {
-            return new ArrayList<>(); // Doktor izinliyse slot yok!
+            return new ArrayList<>();
         }
 
         // SİSTEM AYARLARINI ÇEK
@@ -154,12 +159,22 @@ public class AppointmentServiceImpl implements AppointmentService {
         LocalTime lunchEnd = LocalTime.parse(settings.getLunchBreakEnd());
         int duration = settings.getAppointmentDuration();
 
-        // Tüm günün randevularını çek
+        if (duration <= 0 || !workStart.isBefore(workEnd) || !lunchStart.isBefore(lunchEnd)) {
+            throw new BusinessRuleException("Randevu çalışma saatleri veya süre ayarları geçersiz.");
+        }
+
+        // All active appointment states occupy a doctor's slot, not only SCHEDULED.
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
-        
-        List<Appointment> existingAppointments = appointmentRepository
-            .findByDoctorIdAndStatusAndAppointmentDateBetween(doctorId, AppointmentStatus.SCHEDULED, startOfDay, endOfDay);
+        List<Appointment> existingAppointments = new ArrayList<>();
+        for (AppointmentStatus activeStatus : List.of(
+                AppointmentStatus.SCHEDULED,
+                AppointmentStatus.ARRIVED,
+                AppointmentStatus.IN_EXAMINATION)) {
+            existingAppointments.addAll(appointmentRepository
+                    .findByDoctorIdAndStatusAndAppointmentDateBetween(
+                            doctorId, activeStatus, startOfDay, endOfDay));
+        }
 
         // Dolu saatlerin listesi
         List<LocalTime> bookedTimes = existingAppointments.stream()
@@ -261,12 +276,22 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", id));
 
+        if (status == null || status.isBlank()) {
+            throw new BusinessRuleException("Randevu durumu zorunludur.");
+        }
+
         // String → Enum dönüşümü
-        // "COMPLETED" → AppointmentStatus.COMPLETED
         try {
-            AppointmentStatus newStatus = AppointmentStatus.valueOf(status.toUpperCase());
-            
-            // ⭐ İŞ KURALI: Gelecekteki bir randevu 'Tamamlandı' veya 'Gelmedi' yapılamaz
+            AppointmentStatus newStatus = AppointmentStatus.valueOf(status.trim().toUpperCase());
+
+            if ((appointment.getStatus() == AppointmentStatus.COMPLETED
+                    || appointment.getStatus() == AppointmentStatus.CANCELLED
+                    || appointment.getStatus() == AppointmentStatus.NO_SHOW)
+                    && newStatus == AppointmentStatus.CANCELLED) {
+                throw new BusinessRuleException("Tamamlanmış veya sonuçlanmış randevu iptal edilemez.");
+            }
+
+            // A future appointment cannot be marked as completed or no-show.
             if ((newStatus == AppointmentStatus.COMPLETED || newStatus == AppointmentStatus.NO_SHOW) 
                 && appointment.getAppointmentDate().isAfter(LocalDateTime.now())) {
                 throw new BusinessRuleException("Gelecekteki bir randevu 'Tamamlandı' veya 'Gelmedi' olarak işaretlenemez!");
