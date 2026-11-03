@@ -85,6 +85,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         List<ValidationError> validationErrors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
+                // Never echo rejected values: fields may contain passwords or personal data.
                 .map(fieldError -> new ValidationError(
                         fieldError.getField(),
                         null,
