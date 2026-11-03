@@ -84,6 +84,7 @@ public class SecurityConfig {
                 return config;
             }))
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/auth/force-change-password").authenticated()
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/departments", "/api/departments/**", "/api/doctors", "/api/doctors/**").permitAll()
                 .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
