@@ -93,6 +93,26 @@ public class AppointmentRepositoryIntegrationTest {
         return a;
     }
 
+
+    @Test
+    void softDeletingAppointmentReleasesItsSlot() {
+        Doctor doctor = doctorRepository.findAll().get(0);
+        Patient patient = patientRepository.findAll().get(0);
+        LocalDateTime slot = LocalDateTime.now().plusDays(10).with(LocalTime.of(10, 0));
+
+        Appointment original = appointmentRepository.saveAndFlush(createAppt(doctor, patient, slot));
+        appointmentRepository.delete(original);
+        appointmentRepository.flush();
+
+        Appointment replacement = appointmentRepository.saveAndFlush(createAppt(doctor, patient, slot));
+
+        List<Appointment> appointmentsForSlot = appointmentRepository.findAll().stream()
+                .filter(appointment -> slot.equals(appointment.getAppointmentDate()))
+                .toList();
+        assertEquals(1, appointmentsForSlot.size());
+        assertEquals(replacement.getId(), appointmentsForSlot.get(0).getId());
+    }
+
     @Test
     void getAppointmentsByDate_ShouldGroupAndCountByDate_AndTestCastFunction() {
         // Test CAST(a.appointmentDate AS date) behavior in H2.
