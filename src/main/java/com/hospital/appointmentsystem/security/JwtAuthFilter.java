@@ -8,6 +8,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import io.jsonwebtoken.JwtException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -64,13 +66,23 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+            try {
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
-            if (jwtUtil.validateToken(jwt, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                boolean accountIsUsable = userDetails.isEnabled()
+                        && userDetails.isAccountNonLocked()
+                        && userDetails.isAccountNonExpired()
+                        && userDetails.isCredentialsNonExpired();
+
+                if (accountIsUsable && jwtUtil.validateToken(jwt, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+            } catch (UsernameNotFoundException | JwtException | IllegalArgumentException ex) {
+                logger.warn("JWT authentication rejected: " + ex.getMessage());
+                SecurityContextHolder.clearContext();
             }
         }
         filterChain.doFilter(request, response);
