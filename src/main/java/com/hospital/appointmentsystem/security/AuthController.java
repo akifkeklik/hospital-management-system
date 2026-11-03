@@ -214,8 +214,13 @@ public class AuthController {
     public record ForceChangePasswordRequest(String tcIdentityNumber, String oldPassword, String newPassword) {
     }
 
+    @org.springframework.security.access.prepost.PreAuthorize("isAuthenticated()")
     @PostMapping("/force-change-password")
-    public ResponseEntity<?> forceChangePassword(@RequestBody ForceChangePasswordRequest request) {
+    public ResponseEntity<?> forceChangePassword(@RequestBody ForceChangePasswordRequest request, Principal principal) {
+        if (request == null || principal == null || request.tcIdentityNumber() == null
+                || !principal.getName().equals(request.tcIdentityNumber())) {
+            return ResponseEntity.status(403).body(new MessageResponse("Bu işlem için yetkiniz bulunmamaktadır."));
+        }
         if (request.newPassword() == null || request.newPassword().length() < 6) {
             return ResponseEntity.badRequest()
                     .body(new MessageResponse("Hata: Yeni şifreniz en az 6 karakter olmalıdır."));
