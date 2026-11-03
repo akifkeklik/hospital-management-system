@@ -11,7 +11,7 @@ package com.hospital.appointmentsystem.exception;
  * <pre>{@code
  * {
  *   "field": "tcKimlikNo",
- *   "rejectedValue": "123",
+ *   "rejectedValue": null,
  *   "message": "TC Kimlik No 11 haneli olmalıdır"
  * }
  * }</pre>
@@ -26,7 +26,7 @@ public final class ValidationError {
 
     /**
      * @param field         Doğrulama hatası olan alan adı (ör: "email", "tcKimlikNo")
-     * @param rejectedValue Reddedilen değer (ör: "123", null, "")
+     * @param rejectedValue Intentionally null so sensitive or personal input is not echoed
      * @param message       Kullanıcıya gösterilecek hata mesajı
      */
     public ValidationError(String field, Object rejectedValue, String message) {
