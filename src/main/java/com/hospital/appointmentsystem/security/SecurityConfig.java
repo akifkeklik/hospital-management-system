@@ -65,7 +65,14 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(request -> {
                 CorsConfiguration config = new CorsConfiguration();
-                config.setAllowedOriginPatterns(java.util.Arrays.asList(allowedOrigins.split(",")));
+                List<String> trustedOrigins = java.util.Arrays.stream(allowedOrigins.split(","))
+                        .map(String::trim)
+                        .filter(origin -> !origin.isEmpty())
+                        .toList();
+                if (trustedOrigins.isEmpty() || trustedOrigins.contains("*")) {
+                    throw new IllegalStateException("CORS_ALLOWED_ORIGINS must contain explicit trusted origins");
+                }
+                config.setAllowedOrigins(trustedOrigins);
                 config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
                 config.setAllowedHeaders(List.of("Cache-Control", "Content-Type", "Accept", "Origin", "X-Requested-With"));
                 config.setAllowCredentials(true);
