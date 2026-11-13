@@ -6,10 +6,18 @@ on:
   pull_request:
     branches: ["main", "master"]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: hospital-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   backend-build:
+    name: Backend · Java 17 · Spring Boot
     runs-on: ubuntu-latest
-
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -20,43 +28,42 @@ jobs:
           distribution: "temurin"
           cache: maven
 
-      - name: Build and Test with Maven
-        run: mvn clean package
+      - name: Build and test
+        run: mvn --batch-mode --no-transfer-progress clean verify
 
-      - name: Upload Test Reports
-        uses: actions/upload-artifact@v4
+      - name: Upload test reports
         if: always()
-        with:
-          name: surefire-reports
-          path: target/surefire-reports/
-          retention-days: 7
-
-      - name: Upload JaCoCo Coverage Report
         uses: actions/upload-artifact@v4
         with:
-          name: jacoco-report
-          path: target/site/jacoco/
+          name: backend-test-reports
+          path: |
+            target/surefire-reports/
+            target/site/jacoco/
+          if-no-files-found: ignore
           retention-days: 7
 
   frontend-build:
+    name: Frontend · Next.js
     runs-on: ubuntu-latest
-
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: ./frontend
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "npm"
-          cache-dependency-path: "./frontend/package-lock.json"
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build Next.js
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
         run: npm run build
