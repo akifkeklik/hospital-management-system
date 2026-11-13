@@ -11,11 +11,15 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
+import java.security.SecureRandom;
+import java.util.Base64;
 
 @RestController
 @RequestMapping("/api/admin/doctor-requests")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminDoctorRequestController {
+
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     private final DoctorRegistrationRequestRepository repository;
     private final DoctorService doctorService;
@@ -59,8 +63,10 @@ public class AdminDoctorRequestController {
             
             DoctorDto savedDoctor = doctorService.createDoctor(dto);
 
-            // Rastgele Tek Kullanımlık Şifre (OTP) Üretimi
-            String tempPassword = "DR-" + java.util.UUID.randomUUID().toString().substring(0, 5).toUpperCase();
+            // Generate a high-entropy temporary credential; never use short predictable OTPs.
+            byte[] temporarySecret = new byte[32];
+            SECURE_RANDOM.nextBytes(temporarySecret);
+            String tempPassword = Base64.getUrlEncoder().withoutPadding().encodeToString(temporarySecret);
 
             // 2. User kaydı doctorService içinde zaten oluşturulduğu için sadece güncelliyoruz
             userService.changePassword(request.getTcIdentityNumber(), tempPassword);
