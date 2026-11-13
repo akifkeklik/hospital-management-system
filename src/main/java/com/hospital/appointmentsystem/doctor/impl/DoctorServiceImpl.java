@@ -41,6 +41,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class DoctorServiceImpl implements DoctorService {
 
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
     // ⭐ İKİ repository — çünkü iki tabloyla işimiz var
     private final DoctorRepository doctorRepository;
     private final DepartmentRepository departmentRepository;
