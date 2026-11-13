@@ -48,7 +48,7 @@ export default function DoctorHeader() {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [userProfile?.id]);
+  }, [userProfile?.id, userProfile?.referenceId]);
 
   const handleLogout = () => {
     AuthService.logout();
