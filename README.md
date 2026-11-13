@@ -246,7 +246,7 @@ The backend is deployed as a single Spring Boot application while its business f
                            │ REST API (JSON)
                            ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│                    SPRING BOOT 3.3.5 BACKEND                        │
+│                    SPRING BOOT 3.5.16 BACKEND                        │
 │                                                                     │
 │  ┌─────────────┐  ┌──────────────┐  ┌────────────────────┐         │
 │  │  Security   │  │  Web Layer   │  │    AI Service      │         │
@@ -328,7 +328,7 @@ This structure keeps controllers, business logic, and persistence concerns separ
 | Technology           | Version | Purpose                          |
 | -------------------- | ------: | -------------------------------- |
 | Java                 |      17 | Backend language                 |
-| Spring Boot          |   3.3.5 | Application framework            |
+| Spring Boot          |  3.5.16 | Application framework            |
 | Spring Security      |     6.x | Security and authorization       |
 | Spring Data JPA      |     3.x | Data access                      |
 | Hibernate            |     6.x | ORM                              |
@@ -770,7 +770,7 @@ Passwords are stored using **BCrypt hashing** rather than plaintext storage.
 
 ### Rate Limiting
 
-Authentication endpoints are protected by Bucket4J-based rate limiting to reduce brute-force attempts.
+Authentication endpoints are protected by Bucket4J-based rate limiting. Client buckets use a bounded Caffeine cache with idle expiration to prevent unbounded in-memory growth.
 
 ### CORS
 
@@ -998,7 +998,7 @@ Workflow configuration is located at:
 .github/workflows/build.yml
 ```
 
-> **Note:** GitHub Actions validates the application by running the complete backend test suite via `mvn clean package` (using Java 17). The frontend is built using Node 20 (`npm run build`). Upon success, Surefire test reports and JaCoCo coverage reports are uploaded as artifacts (retained for 7 days).
+> **Note:** GitHub Actions validates the application by running the complete backend test suite via `mvn clean package` (using Java 17). The frontend is built using Node 22 (`npm run lint` and `npm run build`). Upon success, Surefire test reports and JaCoCo coverage reports are uploaded as artifacts (retained for 7 days).
 >
 > **Production Safety:** The CI pipeline is strictly for build/test/quality validation. It does **not** perform production deployments and contains **no hardcoded production secrets**.
 
