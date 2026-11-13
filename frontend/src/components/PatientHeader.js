@@ -48,7 +48,7 @@ export default function PatientHeader() {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [userProfile?.id]);
+  }, [userProfile?.id, userProfile?.referenceId]);
 
 
 
