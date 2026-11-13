@@ -11,6 +11,8 @@ import com.hospital.appointmentsystem.user.api.UserService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -82,12 +84,14 @@ public class DoctorServiceImpl implements DoctorService {
 
         Doctor savedDoctor = doctorRepository.save(doctor);
 
-        // ⭐ Doktor için otomatik Kullanıcı hesabı oluştur
-        // Şifre olarak TC'nin ilk 6 hanesini varsayılan olarak veriyoruz
-        String tc = doctorDto.getTcIdentityNumber();
-        String defaultPassword = tc != null && tc.length() >= 6 ? tc.substring(0, 6) : "123456";
-        userService.registerUser(tc, doctorDto.getEmail(), defaultPassword, "ROLE_DOCTOR", savedDoctor.getId());
-        userService.setNeedsPasswordChange(tc, true);
+        // Create the account with an unpredictable temporary credential.
+        // Never derive credentials from public or guessable identity attributes.
+        String username = doctorDto.getTcIdentityNumber();
+        byte[] temporarySecret = new byte[32];
+        SECURE_RANDOM.nextBytes(temporarySecret);
+        String temporaryPassword = Base64.getUrlEncoder().withoutPadding().encodeToString(temporarySecret);
+        userService.registerUser(username, doctorDto.getEmail(), temporaryPassword, "ROLE_DOCTOR", savedDoctor.getId());
+        userService.setNeedsPasswordChange(username, true);
 
         return mapToDto(savedDoctor);
     }
