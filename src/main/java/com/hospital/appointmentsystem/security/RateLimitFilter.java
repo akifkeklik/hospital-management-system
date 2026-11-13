@@ -1,5 +1,7 @@
 package com.hospital.appointmentsystem.security;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Refill;
@@ -14,11 +16,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class RateLimitFilter extends OncePerRequestFilter {
+
+    private static final int MAX_TRACKED_CLIENTS = 10_000;
 
     @Value("${rate-limit.auth.capacity:10}")
     private int authCapacity;
@@ -26,54 +28,62 @@ public class RateLimitFilter extends OncePerRequestFilter {
     @Value("${rate-limit.auth.minutes:1}")
     private int authMinutes;
 
-    private final Map<String, Bucket> cache = new ConcurrentHashMap<>();
+    /*
+     * Bound the number of client buckets and expire inactive entries. A plain
+     * ConcurrentHashMap retains every IP ever seen, allowing memory exhaustion
+     * through requests carrying many distinct source addresses.
+     */
+    private final Cache<String, Bucket> buckets = Caffeine.newBuilder()
+            .maximumSize(MAX_TRACKED_CLIENTS)
+            .expireAfterAccess(Duration.ofMinutes(15))
+            .build();
 
-    private Bucket resolveBucket(String ip) {
-        return cache.computeIfAbsent(ip, this::newBucket);
+    private Bucket resolveBucket(String clientKey) {
+        return buckets.get(clientKey, this::newBucket);
     }
 
-    private Bucket newBucket(String ip) {
+    private Bucket newBucket(String clientKey) {
+        int capacity = Math.max(1, authCapacity);
+        int refillMinutes = Math.max(1, authMinutes);
+
         return Bucket.builder()
-                .addLimit(Bandwidth.classic(authCapacity, Refill.intervally(authCapacity, Duration.ofMinutes(authMinutes))))
+                .addLimit(Bandwidth.classic(
+                        capacity,
+                        Refill.intervally(capacity, Duration.ofMinutes(refillMinutes))))
                 .build();
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-        
-        String requestURI = request.getRequestURI();
-        
-        // OPTIONS isteklerini rate limit dışı bırakıyoruz (CORS preflight için gerekli)
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             filterChain.doFilter(request, response);
             return;
         }
-        
-        // Sadece auth (login/register vb.) endpoint'leri için rate limiting uyguluyoruz.
-        // Public API'lerin tamamına veya farklı endpointlere farklı limitler uygulanabilir.
-        if (requestURI.startsWith("/api/auth/")) {
-            String ip = getClientIP(request);
-            Bucket bucket = resolveBucket(ip + "_auth");
-            
-            if (bucket.tryConsume(1)) {
-                filterChain.doFilter(request, response);
-            } else {
-                response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-                response.setContentType("application/json;charset=UTF-8");
-                // Standart hata formatımıza uygun bir JSON döndürüyoruz
-                response.getWriter().write("{\"status\": 429, \"error\": \"Too Many Requests\", \"message\": \"Çok fazla istek gönderdiniz. Lütfen daha sonra tekrar deneyin.\"}");
-                return;
-            }
-        } else {
+
+        String requestUri = request.getRequestURI();
+        if (!requestUri.startsWith(request.getContextPath() + "/api/auth/")) {
             filterChain.doFilter(request, response);
+            return;
         }
+
+        Bucket bucket = resolveBucket(getClientIP(request) + "_auth");
+        if (bucket.tryConsume(1)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+        response.setHeader("Retry-After", String.valueOf(Math.max(1, authMinutes * 60)));
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(
+                "{\"status\":429,\"error\":\"Too Many Requests\","
+                        + "\"message\":\"Çok fazla istek gönderdiniz. Lütfen daha sonra tekrar deneyin.\"}");
     }
 
     private String getClientIP(HttpServletRequest request) {
-        // Güvenlik: Spring Boot server.forward-headers-strategy=framework 
-        // ayarı sayesinde X-Forwarded-For'u güvenli şekilde işler ve 
-        // request.getRemoteAddr() içine asıl IP'yi koyar. Manuel parçalamak spoofing'e yol açar.
+        // Forwarded headers must only be accepted from trusted reverse proxies.
         return request.getRemoteAddr();
     }
 }
