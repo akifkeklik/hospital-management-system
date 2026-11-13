@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useSyncExternalStore } from 'react';
 import { NotificationService, AuthService } from '../../services/api';
 import { useApi } from '../../hooks/useApi';
 import { toast } from '../../components/Toast';
@@ -11,13 +11,9 @@ export default function PatientNotificationsPage() {
   const { t } = useSettings();
   const [broadcastMessage, setBroadcastMessage] = useState('');
   const [broadcasting, setBroadcasting] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(() => () => {}, () => true, () => false);
   const { user: me } = useAuth();
   const userRole = me?.role;
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const fetchNotifsApi = useCallback(async (signal) => {
     if (!me) return [];
