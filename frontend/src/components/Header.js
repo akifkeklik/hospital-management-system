@@ -73,7 +73,7 @@ export default function Header() {
       document.removeEventListener("mousedown", handleClickOutside);
       window.removeEventListener("hiddenNotifsUpdate", fetchNotifications);
     };
-  }, [userProfile?.id, userProfile?.role]);
+  }, [userProfile?.id, userProfile?.role, userProfile?.referenceId]);
 
   useEffect(() => {
     const handler = setTimeout(async () => {
