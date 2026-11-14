@@ -23,6 +23,12 @@ Built with **Spring Boot**, **Next.js**, **React**, and relational database tech
 
 **Project Status: Active Development**
 
+<br/>
+
+📝 **Postmortem (Medium, TR):** [Kod Değişmediği Halde Site Neden Çöktü? Bir Hastane Randevu Sisteminden Gerçek Dersler](https://medium.com/@akifkeklik/kod-de%C4%9Fi%C5%9Fmedi%C4%9Fi-halde-site-neden-%C3%A7%C3%B6kt%C3%BC-bir-hastane-randevu-sisteminden-ger%C3%A7ek-dersler-f712205ec386)
+<br/>
+*A production incident on this project, its root cause, and what a code review found afterwards.*
+
 </div>
 
 ---
