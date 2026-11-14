@@ -94,6 +94,29 @@ public class EmailService {
         }
     }
 
+    /** Onaylanan doktora kullanıcı adı ve geçici şifreyi gönderir. Şifre loglanmaz. */
+    @Async
+    public void sendDoctorCredentialsEmail(String toEmail, String username, String tempPassword) {
+        if (!emailEnabled) {
+            log.info("[DEV] Doctor credentials email sending disabled. Recipient: [REDACTED]");
+            return;
+        }
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(resendApiKey);
+            String html = "<p>Doktor hesabınız onaylandı.</p><p>Kullanıcı adı (TC): <b>" + username
+                    + "</b><br>Geçici şifre: <b>" + tempPassword
+                    + "</b></p><p>İlk girişte şifrenizi değiştirmeniz istenecektir.</p>";
+            Map<String, Object> body = Map.of("from", fromAddress, "to", List.of(toEmail),
+                    "subject", "Doktor Hesabiniz Onaylandi", "html", html);
+            restTemplate.exchange(RESEND_API_URL, HttpMethod.POST, new HttpEntity<>(body, headers), String.class);
+            log.info("Doctor credentials email sent.");
+        } catch (Exception e) {
+            log.error("Failed to send doctor credentials email: {}", e.getMessage());
+        }
+    }
+
     private String buildHtmlEmail(String resetLink) {
         return """
                 <!DOCTYPE html>

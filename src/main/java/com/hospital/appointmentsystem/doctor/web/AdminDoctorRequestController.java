@@ -24,13 +24,16 @@ public class AdminDoctorRequestController {
     private final DoctorRegistrationRequestRepository repository;
     private final DoctorService doctorService;
     private final UserService userService;
+    private final com.hospital.appointmentsystem.security.passwordreset.EmailService emailService;
 
     public AdminDoctorRequestController(DoctorRegistrationRequestRepository repository, 
                                         DoctorService doctorService, 
-                                        UserService userService) {
+                                        UserService userService,
+                                        com.hospital.appointmentsystem.security.passwordreset.EmailService emailService) {
         this.repository = repository;
         this.doctorService = doctorService;
         this.userService = userService;
+        this.emailService = emailService;
     }
 
     public record MessageResponse(String message) {}
@@ -42,6 +45,7 @@ public class AdminDoctorRequestController {
     }
 
     @PostMapping("/{id}/approve")
+    @org.springframework.transaction.annotation.Transactional
     public ResponseEntity<?> approveRequest(@PathVariable Long id) {
         try {
             DoctorRegistrationRequest request = repository.findById(id)
@@ -74,12 +78,17 @@ public class AdminDoctorRequestController {
             // Şifre yenileme zorunluluğunu aktif et
             userService.setNeedsPasswordChange(request.getTcIdentityNumber(), true);
 
+            // Geçici şifreyi doktora e-postayla ilet (API yanıtında asla dönülmez)
+            emailService.sendDoctorCredentialsEmail(request.getEmail(), request.getTcIdentityNumber(), tempPassword);
+
             // 3. İsteği APPROVED olarak güncelle
             request.setStatus("APPROVED");
             repository.save(request);
 
-            return ResponseEntity.ok(new MessageResponse("Doktor başarıyla onaylandı. Geçici şifre (OTP) doktora güvenli kanallarla iletilmiştir."));
+            return ResponseEntity.ok(new MessageResponse("Doktor başarıyla onaylandı. Geçici şifre (OTP) doktorun e-posta adresine gönderildi; ilk girişte değiştirmesi zorunludur."));
         } catch (Exception e) {
+            // Kısmi kayıt (doktor oluştu, kullanıcı/şifre yarım kaldı) bırakmamak için geri al
+            org.springframework.transaction.interceptor.TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             String msg = e.getMessage() != null ? e.getMessage() : "";
             Throwable cause = e.getCause();
             while (cause != null) {
@@ -89,7 +98,7 @@ public class AdminDoctorRequestController {
             if (msg.contains("Duplicate entry") || msg.contains("ConstraintViolationException")) {
                 return ResponseEntity.badRequest().body(new MessageResponse("Hata: Bu TC Kimlik Numarası veya E-Posta adresi zaten sistemde kayıtlı."));
             }
-            return ResponseEntity.badRequest().body(new MessageResponse("İşlem başarısız: " + e.getMessage()));
+            return ResponseEntity.badRequest().body(new MessageResponse("İşlem başarısız. Lütfen bilgileri kontrol edip tekrar deneyin."));
         }
     }
 

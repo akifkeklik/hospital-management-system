@@ -31,6 +31,9 @@ public class AuthController {
     @org.springframework.beans.factory.annotation.Value("${cookie.sameSite:None}")
     private String cookieSameSite;
 
+    @org.springframework.beans.factory.annotation.Value("${jwt.expiration}")
+    private long jwtExpirationMs;
+
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
@@ -105,7 +108,7 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(cookieSecure)
                 .path("/")
-                .maxAge(10 * 60 * 60) // 10 saat
+                .maxAge(jwtExpirationMs / 1000) // JWT ömrüyle senkron
                 .sameSite(cookieSameSite)
                 .build();
 
@@ -131,7 +134,13 @@ public class AuthController {
     }
 
     @PostMapping("/register")
+    @org.springframework.transaction.annotation.Transactional
     public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
+        if (isBlank(registerRequest.tcIdentityNumber()) || !registerRequest.tcIdentityNumber().matches("[0-9]{11}")
+                || isBlank(registerRequest.email()) || isBlank(registerRequest.firstName())
+                || isBlank(registerRequest.lastName())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Hata: TC (11 hane), ad, soyad ve e-posta zorunludur."));
+        }
         if (userService.existsByUsername(registerRequest.tcIdentityNumber())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Hata: Bu TC Kimlik Numarası zaten kayıtlı."));
         }
@@ -159,6 +168,11 @@ public class AuthController {
 
     @PostMapping("/doctor-register")
     public ResponseEntity<?> registerDoctor(@RequestBody DoctorRegisterRequest request) {
+        if (isBlank(request.tcIdentityNumber()) || !request.tcIdentityNumber().matches("[0-9]{11}")
+                || isBlank(request.email()) || isBlank(request.firstName()) || isBlank(request.lastName())
+                || request.departmentId() == null) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Hata: TC (11 hane), ad, soyad, e-posta ve bölüm zorunludur."));
+        }
         if (userService.existsByUsername(request.tcIdentityNumber())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Hata: Bu TC Kimlik Numarası zaten kayıtlı."));
         }
@@ -209,6 +223,10 @@ public class AuthController {
             };
             return ResponseEntity.badRequest().body(new MessageResponse("Hata: " + errorMsg));
         }
+    }
+
+    private static boolean isBlank(String s) {
+        return s == null || s.isBlank();
     }
 
     public record ForceChangePasswordRequest(String tcIdentityNumber, String oldPassword, String newPassword) {

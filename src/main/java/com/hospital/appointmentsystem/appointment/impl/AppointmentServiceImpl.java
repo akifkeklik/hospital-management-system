@@ -289,6 +289,10 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
 
         // String → Enum dönüşümü
+        // "COMPLETED" → AppointmentStatus.COMPLETED
+        if (status == null || status.isBlank()) {
+            throw new BusinessRuleException("Randevu durumu boş olamaz.");
+        }
         try {
             AppointmentStatus newStatus = AppointmentStatus.valueOf(status.trim().toUpperCase());
 

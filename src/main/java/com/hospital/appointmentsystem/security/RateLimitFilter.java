@@ -63,12 +63,14 @@ public class RateLimitFilter extends OncePerRequestFilter {
         }
 
         String requestUri = request.getRequestURI();
-        if (!requestUri.startsWith(request.getContextPath() + "/api/auth/")) {
+        boolean isAi = requestUri.startsWith(request.getContextPath() + "/api/ai/");
+        if (!isAi && !requestUri.startsWith(request.getContextPath() + "/api/auth/")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        Bucket bucket = resolveBucket(getClientIP(request) + "_auth");
+        // AI (Gemini) çağrıları ücretli: auth ile aynı limit, ayrı kova
+        Bucket bucket = resolveBucket(getClientIP(request) + (isAi ? "_ai" : "_auth"));
         if (bucket.tryConsume(1)) {
             filterChain.doFilter(request, response);
             return;
