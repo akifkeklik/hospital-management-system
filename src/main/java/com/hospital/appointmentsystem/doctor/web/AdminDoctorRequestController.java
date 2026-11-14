@@ -1,120 +1,41 @@
 package com.hospital.appointmentsystem.doctor.web;
 
-import com.hospital.appointmentsystem.doctor.impl.DoctorRegistrationRequest;
-import com.hospital.appointmentsystem.doctor.impl.DoctorRegistrationRequestRepository;
-import com.hospital.appointmentsystem.doctor.api.DoctorService;
-import com.hospital.appointmentsystem.doctor.api.DoctorDto;
-import com.hospital.appointmentsystem.exception.ResourceNotFoundException;
-import com.hospital.appointmentsystem.user.api.UserService;
+import com.hospital.appointmentsystem.doctor.api.DoctorRegistrationService;
+import com.hospital.appointmentsystem.doctor.api.DoctorRegistrationService.RegistrationRequestView;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.security.SecureRandom;
-import java.util.Base64;
 
 @RestController
 @RequestMapping("/api/admin/doctor-requests")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminDoctorRequestController {
 
-    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+    private final DoctorRegistrationService registrationService;
 
-    private final DoctorRegistrationRequestRepository repository;
-    private final DoctorService doctorService;
-    private final UserService userService;
-    private final com.hospital.appointmentsystem.security.passwordreset.EmailService emailService;
-
-    public AdminDoctorRequestController(DoctorRegistrationRequestRepository repository, 
-                                        DoctorService doctorService, 
-                                        UserService userService,
-                                        com.hospital.appointmentsystem.security.passwordreset.EmailService emailService) {
-        this.repository = repository;
-        this.doctorService = doctorService;
-        this.userService = userService;
-        this.emailService = emailService;
+    public AdminDoctorRequestController(DoctorRegistrationService registrationService) {
+        this.registrationService = registrationService;
     }
 
     public record MessageResponse(String message) {}
 
-    // Admin tüm bekleyen istekleri görür
     @GetMapping
-    public ResponseEntity<List<DoctorRegistrationRequest>> getPendingRequests() {
-        return ResponseEntity.ok(repository.findByStatusOrderByRequestDateDesc("PENDING"));
+    public ResponseEntity<List<RegistrationRequestView>> getPendingRequests() {
+        return ResponseEntity.ok(registrationService.getPendingRequests());
     }
 
     @PostMapping("/{id}/approve")
-    @org.springframework.transaction.annotation.Transactional
-    public ResponseEntity<?> approveRequest(@PathVariable Long id) {
-        try {
-            DoctorRegistrationRequest request = repository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("DoctorRegistrationRequest", "id", id));
-
-            if (!"PENDING".equals(request.getStatus())) {
-                return ResponseEntity.badRequest().body(new MessageResponse("Bu istek zaten işlem görmüş."));
-            }
-
-            // 1. Doctor kaydını oluştur
-            DoctorDto dto = new DoctorDto();
-            dto.setFirstName(request.getFirstName());
-            dto.setLastName(request.getLastName());
-            dto.setTcIdentityNumber(request.getTcIdentityNumber());
-            dto.setPhoneNumber(request.getPhoneNumber());
-            dto.setEmail(request.getEmail());
-            dto.setDepartmentId(request.getDepartmentId());
-            dto.setSpecialization(request.getSpecialization());
-            
-            DoctorDto savedDoctor = doctorService.createDoctor(dto);
-
-            // Generate a high-entropy temporary credential; never use short predictable OTPs.
-            byte[] temporarySecret = new byte[32];
-            SECURE_RANDOM.nextBytes(temporarySecret);
-            String tempPassword = Base64.getUrlEncoder().withoutPadding().encodeToString(temporarySecret);
-
-            // 2. User kaydı doctorService içinde zaten oluşturulduğu için sadece güncelliyoruz
-            userService.changePassword(request.getTcIdentityNumber(), tempPassword);
-
-            // Şifre yenileme zorunluluğunu aktif et
-            userService.setNeedsPasswordChange(request.getTcIdentityNumber(), true);
-
-            // Geçici şifreyi doktora e-postayla ilet (API yanıtında asla dönülmez)
-            emailService.sendDoctorCredentialsEmail(request.getEmail(), request.getTcIdentityNumber(), tempPassword);
-
-            // 3. İsteği APPROVED olarak güncelle
-            request.setStatus("APPROVED");
-            repository.save(request);
-
-            return ResponseEntity.ok(new MessageResponse("Doktor başarıyla onaylandı. Geçici şifre (OTP) doktorun e-posta adresine gönderildi; ilk girişte değiştirmesi zorunludur."));
-        } catch (Exception e) {
-            // Kısmi kayıt (doktor oluştu, kullanıcı/şifre yarım kaldı) bırakmamak için geri al
-            org.springframework.transaction.interceptor.TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            String msg = e.getMessage() != null ? e.getMessage() : "";
-            Throwable cause = e.getCause();
-            while (cause != null) {
-                if (cause.getMessage() != null) msg += " " + cause.getMessage();
-                cause = cause.getCause();
-            }
-            if (msg.contains("Duplicate entry") || msg.contains("ConstraintViolationException")) {
-                return ResponseEntity.badRequest().body(new MessageResponse("Hata: Bu TC Kimlik Numarası veya E-Posta adresi zaten sistemde kayıtlı."));
-            }
-            return ResponseEntity.badRequest().body(new MessageResponse("İşlem başarısız. Lütfen bilgileri kontrol edip tekrar deneyin."));
-        }
+    public ResponseEntity<MessageResponse> approveRequest(@PathVariable Long id) {
+        registrationService.approve(id);
+        return ResponseEntity.ok(new MessageResponse(
+                "Doktor başarıyla onaylandı. Geçici şifre doktorun e-posta adresine gönderildi; ilk girişte değiştirmesi zorunludur."));
     }
 
-    // Admin reddeder
     @PostMapping("/{id}/reject")
-    public ResponseEntity<?> rejectRequest(@PathVariable Long id) {
-        DoctorRegistrationRequest request = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("DoctorRegistrationRequest", "id", id));
-
-        if (!"PENDING".equals(request.getStatus())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Bu istek zaten işlem görmüş."));
-        }
-
-        request.setStatus("REJECTED");
-        repository.save(request);
-
+    public ResponseEntity<MessageResponse> rejectRequest(@PathVariable Long id) {
+        registrationService.reject(id);
         return ResponseEntity.ok(new MessageResponse("Doktor isteği reddedildi."));
     }
 }

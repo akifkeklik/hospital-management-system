@@ -1,30 +1,5 @@
 package com.hospital.appointmentsystem.department.api;
 
-/**
- * ╔══════════════════════════════════════════════════════════════════╗
- * ║  📦 DEPARTMENT DTO — Veri Transfer Objesi                       ║
- * ╠══════════════════════════════════════════════════════════════════╣
- * ║                                                                  ║
- * ║  📌 DTO NEDİR? (Data Transfer Object)                           ║
- * ║                                                                  ║
- * ║  DTO, katmanlar arasında veri taşıyan basit bir objedir.        ║
- * ║                                                                  ║
- * ║  Neden Entity'yi direkt kullanmıyoruz?                          ║
- * ║  → Entity veritabanıyla doğrudan bağlantılıdır.                ║
- * ║  → Entity'yi dışarıya açmak tehlikeli olabilir                 ║
- * ║    (şifre gibi hassas alanlar sızabilir).                       ║
- * ║  → DTO ile sadece göstermek istediğin alanları paylaşırsın.    ║
- * ║                                                                  ║
- * ║  Akış şöyle:                                                    ║
- * ║  Veritabanı → Entity → DTO → Dış dünya (API yanıtı)           ║
- * ║  Dış dünya → Request → DTO → Entity → Veritabanı              ║
- * ║                                                                  ║
- * ║  DTO, SERVICE KATMANINDA kullanılır.                             ║
- * ║  api paketinde olmasının sebebi: Service interface'i ile        ║
- * ║  birlikte bu paketin "dış dünyaya açık sözleşme" olmasıdır.    ║
- * ║                                                                  ║
- * ╚══════════════════════════════════════════════════════════════════╝
- */
 public class DepartmentDto {
 
     private Long id;

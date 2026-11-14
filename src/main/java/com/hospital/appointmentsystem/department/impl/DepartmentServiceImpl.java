@@ -13,60 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.CacheEvict;
 
-/**
- * ╔══════════════════════════════════════════════════════════════════╗
- * ║  ⚙️ DEPARTMENT SERVICE IMPL — Servis İmplementasyonu            ║
- * ╠══════════════════════════════════════════════════════════════════╣
- * ║                                                                  ║
- * ║  📌 SERVICE IMPL NEDİR?                                         ║
- * ║  Service interface'inde tanımlanan metotların GERÇEK             ║
- * ║  kodunun yazıldığı sınıftır.                                    ║
- * ║                                                                  ║
- * ║  Interface: "Bölüm oluştur" dedi (NE yapılacak)                ║
- * ║  ServiceImpl: "Bölüm şöyle oluşturulur..." yazar (NASIL)       ║
- * ║                                                                  ║
- * ║  📌 İŞ MANTIĞI (Business Logic)                                 ║
- * ║  Tüm iş kuralları burada yazılır:                               ║
- * ║  - Aynı isimde bölüm var mı kontrolü                           ║
- * ║  - Entity ↔ DTO dönüşümü                                       ║
- * ║  - Hata fırlatma                                                 ║
- * ║                                                                  ║
- * ║  📌 KATMAN MİMARİSİ                                             ║
- * ║  Controller → Service (interface) → ServiceImpl → Repository    ║
- * ║  Controller iş mantığını bilmez, Service'e sorar.               ║
- * ║  Service veritabanını bilmez, Repository'ye sorar.              ║
- * ║                                                                  ║
- * ╚══════════════════════════════════════════════════════════════════╝
- */
-
-// ──────────────────────────────────────────────────────────────
-// 📌 @Service
-// Spring'e der ki: "Bu sınıf bir SERVİS bileşenidir, yönet!"
-// Spring bu sınıfı otomatik oluşturur ve gerekli yerlere enjekte eder.
-// ──────────────────────────────────────────────────────────────
 @Service
 public class DepartmentServiceImpl implements DepartmentService {
-
-    // ──────────────────────────────────────────────────────────
-    // 📌 DEPENDENCY INJECTION (Bağımlılık Enjeksiyonu)
-    //
-    // Bu çok önemli bir kavram!
-    //
-    // DepartmentServiceImpl, veritabanı işlemi yapmak için
-    // DepartmentRepository'ye İHTİYAÇ DUYAR.
-    //
-    // Peki Repository objesini kim oluşturuyor?
-    // → SPRING oluşturuyor ve otomatik veriyor!
-    //
-    // Nasıl?
-    // 1. Spring, @Repository olan sınıfları otomatik oluşturur
-    // 2. Constructor'da parametre olarak istediğimizde,
-    //    Spring "Aa, bu Repository'ye ihtiyacın var, al sana!"
-    //    diyerek otomatik verir.
-    //
-    // Buna "Constructor Injection" denir.
-    // (En temiz ve önerilen yöntemdir)
-    // ──────────────────────────────────────────────────────────
 
     private final DepartmentRepository departmentRepository;
 
@@ -75,9 +23,6 @@ public class DepartmentServiceImpl implements DepartmentService {
         this.departmentRepository = departmentRepository;
     }
 
-    // ──────────────────────────────────────────────────────────
-    // 📌 CREATE — Yeni Bölüm Oluştur
-    // ──────────────────────────────────────────────────────────
     @Override
     @CacheEvict(value = "departments", allEntries = true)
     public DepartmentDto createDepartment(DepartmentDto departmentDto) {
@@ -103,9 +48,6 @@ public class DepartmentServiceImpl implements DepartmentService {
         return mapToDto(savedDepartment);
     }
 
-    // ──────────────────────────────────────────────────────────
-    // 📌 READ (by ID) — ID ile Bölüm Getir
-    // ──────────────────────────────────────────────────────────
     @Override
     @Cacheable(value = "departments", key = "#id")
     public DepartmentDto getDepartmentById(Long id) {
@@ -123,9 +65,6 @@ public class DepartmentServiceImpl implements DepartmentService {
         return mapToDto(department);
     }
 
-    // ──────────────────────────────────────────────────────────
-    // 📌 READ (all) — Tüm Bölümleri Getir
-    // ──────────────────────────────────────────────────────────
     @Override
     @Cacheable(value = "departments")
     public Page<DepartmentDto> getAllDepartments(Pageable pageable) {
@@ -133,9 +72,6 @@ public class DepartmentServiceImpl implements DepartmentService {
         return departments.map(this::mapToDto);
     }
 
-    // ──────────────────────────────────────────────────────────
-    // 📌 UPDATE — Bölüm Güncelle
-    // ──────────────────────────────────────────────────────────
     @Override
     @CacheEvict(value = "departments", allEntries = true)
     public DepartmentDto updateDepartment(Long id, DepartmentDto departmentDto) {
@@ -158,9 +94,6 @@ public class DepartmentServiceImpl implements DepartmentService {
         return mapToDto(updatedDepartment);
     }
 
-    // ──────────────────────────────────────────────────────────
-    // 📌 DELETE — Bölüm Sil
-    // ──────────────────────────────────────────────────────────
     @Override
     @CacheEvict(value = "departments", allEntries = true)
     public void deleteDepartment(Long id) {
@@ -180,11 +113,6 @@ public class DepartmentServiceImpl implements DepartmentService {
         Page<Department> departments = departmentRepository.searchDepartments(query, pageable);
         return departments.map(this::mapToDto);
     }
-
-    // ══════════════════════════════════════════════════════════
-    //  🔄 DÖNÜŞÜM METOTLARI (Mapping)
-    //  Entity ↔ DTO arasında dönüşüm yapar
-    // ══════════════════════════════════════════════════════════
 
     /**
      * Entity → DTO dönüşümü

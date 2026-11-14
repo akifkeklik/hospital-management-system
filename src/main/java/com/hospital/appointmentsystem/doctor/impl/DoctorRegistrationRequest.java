@@ -35,8 +35,9 @@ public class DoctorRegistrationRequest {
     @Column(name = "password", nullable = false)
     private String password;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private String status; // PENDING, APPROVED, REJECTED
+    private DoctorRegistrationStatus status;
 
     @Column(name = "request_date", nullable = false)
     private LocalDateTime requestDate;
@@ -48,7 +49,7 @@ public class DoctorRegistrationRequest {
     protected void onCreate() {
         this.requestDate = LocalDateTime.now();
         if (this.status == null) {
-            this.status = "PENDING";
+            this.status = DoctorRegistrationStatus.PENDING;
         }
     }
 
@@ -71,8 +72,8 @@ public class DoctorRegistrationRequest {
     @com.fasterxml.jackson.annotation.JsonIgnore
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public DoctorRegistrationStatus getStatus() { return status; }
+    public void setStatus(DoctorRegistrationStatus status) { this.status = status; }
     public LocalDateTime getRequestDate() { return requestDate; }
     public void setRequestDate(LocalDateTime requestDate) { this.requestDate = requestDate; }
 }

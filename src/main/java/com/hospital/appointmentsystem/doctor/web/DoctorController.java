@@ -13,13 +13,6 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-/**
- * 🌐 Doctor Controller — Doktor REST API Endpoint'leri
- *
- * 📌 YENİ ENDPOINT: GET /api/doctors/department/{departmentId}
- * Belirli bir bölümdeki doktorları listeler.
- * Örneğin: GET /api/doctors/department/1 → Kardiyoloji'deki doktorlar
- */
 @RestController
 @RequestMapping("/api/doctors")
 public class DoctorController {
@@ -75,10 +68,6 @@ public class DoctorController {
         return ResponseEntity.ok(responses);
     }
 
-    // ──────────────────────────────────────────────────────────
-    // ⭐ YENİ: Bölüme göre doktor listele
-    // GET /api/doctors/department/1 → ID=1 bölümündeki doktorlar
-    // ──────────────────────────────────────────────────────────
     @GetMapping("/department/{departmentId}")
     public ResponseEntity<List<DoctorResponse>> getDoctorsByDepartment(
             @PathVariable Long departmentId) {

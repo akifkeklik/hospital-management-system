@@ -114,7 +114,7 @@ public class AuthIntegrationTest {
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.message").value("Hata: Bu TC Kimlik Numarası zaten kayıtlı."));
     }
 
@@ -134,7 +134,7 @@ public class AuthIntegrationTest {
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.message").value("Hata: Bu e-posta adresi zaten kullanılıyor."));
     }
 
@@ -152,7 +152,8 @@ public class AuthIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Hata: Şifreniz en az 6 karakter olmalıdır."));
+                .andExpect(jsonPath("$.validationErrors[0].field").value("password"))
+                .andExpect(jsonPath("$.validationErrors[0].message").value("Şifreniz en az 6 karakter olmalıdır."));
     }
 
     // ==========================================

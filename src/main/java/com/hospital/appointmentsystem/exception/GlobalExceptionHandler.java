@@ -225,6 +225,28 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
+     * Kayıt sırasında TC veya e-posta başka bir hesaba aitse.
+     *
+     * @return 409 Conflict
+     */
+    @ExceptionHandler(DuplicateAccountException.class)
+    public ResponseEntity<ApiErrorResponse> handleDuplicateAccount(
+            DuplicateAccountException ex, HttpServletRequest request) {
+
+        String traceId = generateTraceId();
+        log.warn("[TraceId: {}] Duplicate account on path: {}", traceId, request.getRequestURI());
+
+        ApiErrorResponse errorResponse = new ApiErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI(),
+                traceId
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+
+    /**
      * İş kuralı ihlallerinde (ör: gelecekteki randevu tamamlandı olarak işaretlenemez).
      *
      * @return 422 Unprocessable Entity

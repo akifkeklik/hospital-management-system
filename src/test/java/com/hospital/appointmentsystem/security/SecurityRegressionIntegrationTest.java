@@ -221,7 +221,7 @@ public class SecurityRegressionIntegrationTest {
         req.setPhoneNumber("123");
         req.setDepartmentId(1L);
         req.setPassword("SUPER_SECRET_LEAK");
-        req.setStatus("PENDING");
+        req.setStatus(com.hospital.appointmentsystem.doctor.impl.DoctorRegistrationStatus.PENDING);
         req.setRequestDate(LocalDateTime.now());
         registrationRequestRepository.save(req);
 

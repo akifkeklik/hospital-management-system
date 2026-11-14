@@ -20,7 +20,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import com.hospital.appointmentsystem.appointment.impl.AppointmentStatus;
 
 /**
- * 🌐 Appointment Controller — Randevu REST API Endpoint'leri
+ * Appointment Controller — Randevu REST API Endpoint'leri
  *
  * En zengin Controller — hastaya göre, doktora göre sorgulama
  * ve durum güncelleme endpoint'leri var.

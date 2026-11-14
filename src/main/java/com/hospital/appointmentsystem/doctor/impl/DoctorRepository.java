@@ -9,14 +9,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * 🗄️ Doctor Repository — Doktor veritabanı işlemleri.
- *
- * 📌 YENİ KAVRAM: İlişki Tabanlı Sorgular
- * findByDepartmentId → doktorları bölüm ID'sine göre filtrele
- * Spring, "Department" ilişkisinin "Id" alanını kullanarak SQL üretir:
- * SELECT * FROM doctors WHERE department_id = ?
- */
 @Repository
 public interface DoctorRepository extends JpaRepository<Doctor, Long> {
 

@@ -9,25 +9,6 @@ import jakarta.persistence.Column;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
-/**
- * ╔══════════════════════════════════════════════════════════════════╗
- * ║  🧑 PATIENT ENTITY — Hasta Tablosu                              ║
- * ╠══════════════════════════════════════════════════════════════════╣
- * ║                                                                  ║
- * ║  Bu Entity, Department'tan biraz daha karmaşık çünkü:           ║
- * ║  - Daha fazla @Column özelliği kullanıyoruz                     ║
- * ║  - unique ve nullable kısıtlamaları var                          ║
- * ║                                                                  ║
- * ║  Veritabanında oluşacak tablo:                                   ║
- * ║  ┌────┬──────┬───────┬─────────────┬──────────┬────────────┐    ║
- * ║  │ id │ first│ last  │ tc_identity │ phone    │ email      │    ║
- * ║  │    │ _name│ _name │ _number     │ _number  │            │    ║
- * ├────┼──────┼───────┼─────────────┼──────────┼────────────┤    ║
- * ║  │ 1  │ Ahmet│ Yılmaz│ 12345678901 │ 05551234 │ a@mail.com │    ║
- * ║  └────┴──────┴───────┴─────────────┴──────────┴────────────┘    ║
- * ║                                                                  ║
- * ╚══════════════════════════════════════════════════════════════════╝
- */
 @Entity
 @Table(name = "patients")
 @SQLDelete(sql = "UPDATE patients SET is_active = false, tc_identity_number = CONCAT(tc_identity_number, '_del_', id) WHERE id=?")
@@ -38,30 +19,12 @@ public class Patient {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // ──────────────────────────────────────────────────────────
-    // 📌 @Column DETAYLARI — Daha Fazla Kontrol
-    //
-    // nullable = false → Bu alan BOŞ BIRAKILAMAZ
-    //   → Veritabanı seviyesinde "NOT NULL" kısıtlaması ekler
-    //   → Hasta adı olmadan kayıt yapamazsın
-    //
-    // length = 50 → Maksimum 50 karakter
-    //   → VARCHAR(50) olarak oluşturulur
-    // ──────────────────────────────────────────────────────────
     @Column(name = "first_name", nullable = false, length = 50)
     private String firstName;
 
     @Column(name = "last_name", nullable = false, length = 50)
     private String lastName;
 
-    // ──────────────────────────────────────────────────────────
-    // 📌 unique = true
-    // Bu alan BENZERSİZ olmalı — aynı TC ile iki hasta kaydı olamaz!
-    // Veritabanında UNIQUE INDEX oluşturur.
-    //
-    // Gerçek hayatta TC Kimlik No benzersizdir,
-    // o yüzden unique=true diyoruz.
-    // ──────────────────────────────────────────────────────────
     @Column(name = "tc_identity_number", nullable = false, unique = true, length = 50)
     private String tcIdentityNumber;
 

@@ -1,28 +1,5 @@
 package com.hospital.appointmentsystem.department.web;
 
-/**
- * ╔══════════════════════════════════════════════════════════════════╗
- * ║  📤 DEPARTMENT RESPONSE — İstemciye Dönen Veri Modeli           ║
- * ╠══════════════════════════════════════════════════════════════════╣
- * ║                                                                  ║
- * ║  📌 RESPONSE NEDİR?                                             ║
- * ║  API'nin istemciye döndürdüğü veriyi temsil eder.               ║
- * ║                                                                  ║
- * ║  Request'ten farkı:                                              ║
- * ║  → Response'da "id" VAR (çünkü istemci kaydedilen verinin      ║
- * ║    ID'sini bilmek ister)                                        ║
- * ║  → İleride ek bilgiler de eklenebilir                           ║
- * ║    (oluşturulma tarihi, güncellenme tarihi vb.)                 ║
- * ║                                                                  ║
- * ║  Örnek JSON yanıtı:                                              ║
- * ║  {                                                               ║
- * ║    "id": 1,                                                      ║
- * ║    "name": "Cardiology",                                        ║
- * ║    "description": "Heart and circulatory system"                ║
- * ║  }                                                               ║
- * ║                                                                  ║
- * ╚══════════════════════════════════════════════════════════════════╝
- */
 public class DepartmentResponse {
 
     // İstemciye dönecek alanlar — id DAHİL

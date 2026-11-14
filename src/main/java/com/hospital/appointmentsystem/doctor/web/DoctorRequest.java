@@ -6,9 +6,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 /**
- * 📥 Doctor Request — Doktor oluşturma/güncelleme isteği.
+ * Doctor Request — Doktor oluşturma/güncelleme isteği.
  *
- * ⭐ departmentId alanına dikkat!
+ * departmentId alanına dikkat!
  * İstemci doktor oluştururken, hangi bölüme ait olduğunu
  * departmentId ile belirtir.
  *
@@ -44,7 +44,7 @@ public class DoctorRequest {
     private String email;
 
     @NotNull(message = "Bölüm seçimi zorunludur")
-    private Long departmentId; // ⭐ Hangi bölüme ait?
+    private Long departmentId;
 
     private Long polyclinicId;
 

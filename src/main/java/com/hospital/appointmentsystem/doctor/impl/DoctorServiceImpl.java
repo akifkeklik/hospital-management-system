@@ -20,30 +20,12 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * ╔══════════════════════════════════════════════════════════════════╗
- * ║  ⚙️ DOCTOR SERVICE IMPL — İlişkili Servis İmplementasyonu       ║
- * ╠══════════════════════════════════════════════════════════════════╣
- * ║                                                                  ║
- * ║  🆕 YENİ KAVRAM: BİRDEN FAZLA REPOSITORY KULLANMAK             ║
- * ║                                                                  ║
- * ║  Doctor, Department'a bağlı olduğu için bu serviste             ║
- * ║  HEM DoctorRepository HEM DepartmentRepository kullanıyoruz.    ║
- * ║                                                                  ║
- * ║  Neden?                                                          ║
- * ║  → Doktor oluşturulurken, bağlı olacağı bölümü veritabanından  ║
- * ║    çekip doktora bağlamamız gerekiyor.                          ║
- * ║  → İstemci bize sadece departmentId gönderiyor (sayı).          ║
- * ║  → Biz o ID ile Department objesini bulup Doctor'a atıyoruz.   ║
- * ║                                                                  ║
- * ╚══════════════════════════════════════════════════════════════════╝
- */
 @Service
 public class DoctorServiceImpl implements DoctorService {
 
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
-    // ⭐ İKİ repository — çünkü iki tabloyla işimiz var
+    // İKİ repository — çünkü iki tabloyla işimiz var
     private final DoctorRepository doctorRepository;
     private final DepartmentRepository departmentRepository;
     private final PolyclinicRepository polyclinicRepository;
@@ -64,7 +46,7 @@ public class DoctorServiceImpl implements DoctorService {
     @CacheEvict(value = "doctors", allEntries = true)
     public DoctorDto createDoctor(DoctorDto doctorDto) {
 
-        // ⭐ İLİŞKİ KURMA AŞAMASI
+        // İLİŞKİ KURMA AŞAMASI
         // 1. İstemci bize departmentId gönderdi (örneğin: 1)
         // 2. Bu ID ile Department objesini veritabanından çekiyoruz
         // 3. Department objesini Doctor'a bağlıyoruz
@@ -81,7 +63,7 @@ public class DoctorServiceImpl implements DoctorService {
 
         // DTO → Entity dönüşümü + Department bağlama
         Doctor doctor = mapToEntity(doctorDto);
-        doctor.setDepartment(department); // ⭐ İlişkiyi kuruyoruz!
+        doctor.setDepartment(department);
         doctor.setPolyclinic(polyclinic);
 
         Doctor savedDoctor = doctorRepository.save(doctor);
@@ -183,7 +165,7 @@ public class DoctorServiceImpl implements DoctorService {
         dto.setPhoneNumber(doctor.getPhoneNumber());
         dto.setEmail(doctor.getEmail());
 
-        // ⭐ İlişkili entity'den bilgi alma
+        // İlişkili entity'den bilgi alma
         // doctor.getDepartment() → Department objesini verir
 
         if (doctor.getDepartment() != null) {

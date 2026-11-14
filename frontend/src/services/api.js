@@ -42,9 +42,8 @@ export async function fetchAPI(endpoint, options = {}) {
         if (rawText) {
           try {
             const errorData = JSON.parse(rawText);
-            if (errorData.details) {
-              const detailsStr = Object.values(errorData.details).join('\n');
-              errorMessage = `${errorData.error}:\n${detailsStr}`;
+            if (Array.isArray(errorData.validationErrors) && errorData.validationErrors.length > 0) {
+              errorMessage = errorData.validationErrors.map((e) => e.message).join('\n');
             } else if (errorData.message) {
               errorMessage = errorData.message;
             }

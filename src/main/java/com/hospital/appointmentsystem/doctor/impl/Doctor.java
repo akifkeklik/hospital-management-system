@@ -6,38 +6,6 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
-/**
- * ╔══════════════════════════════════════════════════════════════════╗
- * ║  👨‍⚕️ DOCTOR ENTITY — Doktor Tablosu (İLİŞKİLİ ENTITY!)         ║
- * ╠══════════════════════════════════════════════════════════════════╣
- * ║                                                                  ║
- * ║  🆕 YENİ KAVRAM: ENTITY İLİŞKİLERİ                             ║
- * ║                                                                  ║
- * ║  Gerçek dünyada tablolar birbirleriyle İLİŞKİLİDİR:            ║
- * ║  - Bir BÖLÜM'de birden fazla DOKTOR çalışır                    ║
- * ║  - Her DOKTOR bir BÖLÜM'e bağlıdır                             ║
- * ║                                                                  ║
- * ║  Bu ilişkiye "Many-to-One" (Çoktan Bire) denir:                ║
- * ║  → MANY doktor → ONE bölüm                                     ║
- * ║  → Birçok doktor, bir bölüme bağlıdır                          ║
- * ║                                                                  ║
- * ║  Veritabanında şöyle görünür:                                    ║
- * ║                                                                  ║
- * ║  DEPARTMENTS                  DOCTORS                           ║
- * ║  ┌────┬────────────┐         ┌────┬───────┬──────────────┐      ║
- * ║  │ id │ name       │         │ id │ name  │ department_id│      ║
- * ║  ├────┼────────────┤         ├────┼───────┼──────────────┤      ║
- * ║  │ 1  │ Cardiology │◄────────│ 1  │ Ahmet │ 1            │      ║
- * ║  │    │            │◄────────│ 2  │ Mehmet│ 1            │      ║
- * ║  │ 2  │ Neurology  │◄────────│ 3  │ Ayşe  │ 2            │      ║
- * ║  └────┴────────────┘         └────┴───────┴──────────────┘      ║
- * ║                                                                  ║
- * ║  Doktor tablosunda "department_id" kolonu var.                  ║
- * ║  Bu kolon, doktorun hangi bölüme ait olduğunu gösterir.         ║
- * ║  Buna FOREIGN KEY (Yabancı Anahtar) denir.                     ║
- * ║                                                                  ║
- * ╚══════════════════════════════════════════════════════════════════╝
- */
 @Entity
 @Table(name = "doctors")
 @SQLDelete(sql = "UPDATE doctors SET is_active = false, tc_identity_number = CONCAT(tc_identity_number, '_del_', id) WHERE id=?")
@@ -54,10 +22,6 @@ public class Doctor {
     @Column(name = "last_name", nullable = false, length = 50)
     private String lastName;
 
-    // ──────────────────────────────────────────────────────────
-    // 📌 Uzmanlık alanı
-    // Doktorun uzmanlığı (Kardiyoloji Uzmanı, Nörolog vb.)
-    // ──────────────────────────────────────────────────────────
     @Column(name = "specialization", nullable = false, length = 100)
     private String specialization;
 
@@ -73,32 +37,6 @@ public class Doctor {
     @Column(name = "is_active")
     private Boolean isActive = true;
 
-    // ══════════════════════════════════════════════════════════
-    //  ⭐ İLİŞKİ TANIMLAMASI — En önemli kısım!
-    // ══════════════════════════════════════════════════════════
-
-    // ──────────────────────────────────────────────────────────
-    // 📌 @ManyToOne — Çoktan Bire İlişki
-    //
-    // Bu anotasyon JPA'ya der ki:
-    // "Birçok Doctor, bir Department'a bağlıdır"
-    //
-    // fetch = FetchType.EAGER
-    // → Doktoru çektiğinde, bağlı olduğu bölümü de HEMEN çek
-    //
-    // İki seçenek var:
-    //   EAGER → Doktorla birlikte bölümü de hemen yükle
-    //   LAZY  → Bölümü sadece ihtiyaç olduğunda yükle (performans için)
-    //
-    // Şimdilik EAGER kullanıyoruz (öğrenmesi kolay).
-    //
-    // 📌 @JoinColumn(name = "department_id")
-    // → Veritabanındaki FOREIGN KEY kolonunun adını belirler
-    // → doctors tablosunda "department_id" adında bir kolon oluşturur
-    // → Bu kolon, departments tablosunun id'sine referans verir
-    //
-    // nullable = false → Her doktor bir bölüme bağlı OLMALI
-    // ──────────────────────────────────────────────────────────
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id", nullable = false)
     private Department department;
@@ -200,7 +138,7 @@ public class Doctor {
         this.isActive = isActive;
     }
 
-    // ⭐ Department ilişkisi getter/setter
+    // Department ilişkisi getter/setter
     // Bu sayede doktor.getDepartment() diyerek
     // doktorun bağlı olduğu bölümü alabilirsin
     public Department getDepartment() {

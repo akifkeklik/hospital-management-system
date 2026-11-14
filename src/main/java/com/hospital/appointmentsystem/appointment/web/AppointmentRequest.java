@@ -6,20 +6,6 @@ import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-/**
- * 📥 Appointment Request — Randevu oluşturma/güncelleme isteği.
- *
- * Örnek JSON:
- * {
- *   "patientId": 1,
- *   "doctorId": 2,
- *   "appointmentDate": "2026-07-15T10:30:00",
- *   "notes": "Göğüs ağrısı şikayeti"
- * }
- *
- * 📌 Tarih formatı: "YYYY-MM-DDTHH:MM:SS"
- * T harfi, tarih ile saati ayırır (ISO 8601 standardı)
- */
 public class AppointmentRequest {
 
     @NotNull(message = "Hasta seçimi zorunludur")

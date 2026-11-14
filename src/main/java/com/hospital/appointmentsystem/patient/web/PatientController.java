@@ -14,10 +14,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 /**
- * 🌐 Patient Controller — Hasta REST API Endpoint'leri
+ * Patient Controller — Hasta REST API Endpoint'leri
  *
  * Department Controller ile aynı pattern'i takip eder.
- * Artık bu yapıya aşina olmalısın! 😊
+ * Artık bu yapıya aşina olmalısın! 
  */
 @RestController
 @RequestMapping("/api/patients")

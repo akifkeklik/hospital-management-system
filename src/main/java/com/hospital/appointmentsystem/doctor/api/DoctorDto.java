@@ -1,17 +1,5 @@
 package com.hospital.appointmentsystem.doctor.api;
 
-/**
- * 📦 Doctor DTO — Doktor veri transfer objesi.
- *
- * 📌 ÖNEMLİ FARK:
- * Entity'de department alanı "Department" objesi olarak tutulur (ilişki).
- * Ama DTO'da sadece departmentId (Long) ve departmentName (String) tutuyoruz.
- *
- * Neden?
- * → DTO'lar basit olmalı, iç içe karmaşık objeler içermemeli
- * → İstemciye sadece "hangi bölümde" bilgisini veriyoruz
- * → İstemci bölüm detayını merak ederse /api/departments/{id} ile alır
- */
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

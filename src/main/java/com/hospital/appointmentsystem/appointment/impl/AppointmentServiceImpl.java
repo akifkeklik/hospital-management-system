@@ -25,23 +25,6 @@ import com.hospital.appointmentsystem.setting.api.SystemSettingService;
 import com.hospital.appointmentsystem.setting.api.SystemSettingDto;
 import com.hospital.appointmentsystem.doctorleave.impl.DoctorLeaveRepository;
 
-/**
- * ╔══════════════════════════════════════════════════════════════════╗
- * ║  ⚙️ APPOINTMENT SERVICE IMPL — En Karmaşık Servis!              ║
- * ╠══════════════════════════════════════════════════════════════════╣
- * ║                                                                  ║
- * ║  Bu serviste 3 repository kullanıyoruz:                         ║
- * ║  - AppointmentRepository → Randevu işlemleri                    ║
- * ║  - PatientRepository     → Hasta bilgisini çekmek için         ║
- * ║  - DoctorRepository      → Doktor bilgisini çekmek için        ║
- * ║                                                                  ║
- * ║  Randevu oluştururken:                                           ║
- * ║  1. İstemci patientId ve doctorId gönderir                      ║
- * ║  2. Biz bu ID'lerle Patient ve Doctor objelerini buluruz        ║
- * ║  3. Appointment'a bağlarız                                      ║
- * ║                                                                  ║
- * ╚══════════════════════════════════════════════════════════════════╝
- */
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
 
@@ -51,7 +34,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final SystemSettingService systemSettingService;
     private final DoctorLeaveRepository doctorLeaveRepository;
 
-    // ⭐ BEŞ repository/service enjeksiyonu
+    // BEŞ repository/service enjeksiyonu
     public AppointmentServiceImpl(AppointmentRepository appointmentRepository,
                                   PatientRepository patientRepository,
                                   DoctorRepository doctorRepository,
@@ -80,7 +63,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                         "Doctor", "id", appointmentDto.getDoctorId()
                 ));
 
-        // ⭐ Randevu saati uygunluk kontrolü
+        // Randevu saati uygunluk kontrolü
         LocalDate date = appointmentDto.getAppointmentDate().toLocalDate();
         LocalTime time = appointmentDto.getAppointmentDate().toLocalTime();
         validateSlotPrecision(time);
@@ -95,10 +78,10 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         // 3. Randevu oluştur ve ilişkileri kur
         Appointment appointment = new Appointment();
-        appointment.setPatient(patient);                          // ⭐ Hasta ilişkisi
-        appointment.setDoctor(doctor);                            // ⭐ Doktor ilişkisi
+        appointment.setPatient(patient);
+        appointment.setDoctor(doctor);
         appointment.setAppointmentDate(appointmentDto.getAppointmentDate());
-        appointment.setStatus(AppointmentStatus.SCHEDULED);       // ⭐ Varsayılan durum
+        appointment.setStatus(AppointmentStatus.SCHEDULED);
         appointment.setNotes(appointmentDto.getNotes());
 
         Appointment savedAppointment = appointmentRepository.save(appointment);
@@ -267,17 +250,6 @@ public class AppointmentServiceImpl implements AppointmentService {
         return mapToDto(updatedAppointment);
     }
 
-    // ──────────────────────────────────────────────────────────
-    // ⭐ DURUM GÜNCELLEME — Sadece durumu değiştir
-    //
-    // Randevuyu iptal etmek veya tamamlandı olarak işaretlemek
-    // için tüm bilgileri göndermek yerine sadece durumu
-    // güncelleyebilirsin.
-    //
-    // AppointmentStatus.valueOf("COMPLETED")
-    // → String'i Enum'a çevirir
-    // → Eğer geçersiz bir değer gelirse hata fırlatır
-    // ──────────────────────────────────────────────────────────
     @Override
     @Transactional
     public AppointmentDto updateAppointmentStatus(Long id, String status) {
@@ -343,7 +315,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         dto.setStatus(appointment.getStatus().name()); // Enum → String
         dto.setNotes(appointment.getNotes());
 
-        // ⭐ İlişkili entity'lerden bilgi çekme
+        // İlişkili entity'lerden bilgi çekme
         // Hasta bilgisi
         dto.setPatientId(appointment.getPatient().getId());
         dto.setPatientFullName(

@@ -16,8 +16,13 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import com.hospital.appointmentsystem.doctor.api.DoctorService;
 import com.hospital.appointmentsystem.doctor.api.DoctorDto;
-import com.hospital.appointmentsystem.doctor.impl.DoctorRegistrationRequest;
-import com.hospital.appointmentsystem.doctor.impl.DoctorRegistrationRequestRepository;
+import com.hospital.appointmentsystem.doctor.api.DoctorRegistrationService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import com.hospital.appointmentsystem.security.passwordreset.PasswordResetService;
 import com.hospital.appointmentsystem.security.passwordreset.PasswordResetService.PasswordResetException;
 
@@ -41,14 +46,14 @@ public class AuthController {
     private final PatientService patientService;
     private final DoctorService doctorService;
     private final UserRepository userRepository;
-    private final DoctorRegistrationRequestRepository doctorRegistrationRequestRepository;
+    private final AccountRegistrationService accountRegistrationService;
     private final PasswordResetService passwordResetService;
 
     public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil,
             UserDetailsService userDetailsService, UserService userService,
             PatientService patientService, DoctorService doctorService,
             UserRepository userRepository,
-            DoctorRegistrationRequestRepository doctorRegistrationRequestRepository,
+            AccountRegistrationService accountRegistrationService,
             PasswordResetService passwordResetService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
@@ -57,7 +62,7 @@ public class AuthController {
         this.patientService = patientService;
         this.doctorService = doctorService;
         this.userRepository = userRepository;
-        this.doctorRegistrationRequestRepository = doctorRegistrationRequestRepository;
+        this.accountRegistrationService = accountRegistrationService;
         this.passwordResetService = passwordResetService;
     }
 
@@ -67,12 +72,23 @@ public class AuthController {
     public record AuthResponse(boolean needsPasswordChange, String role) {
     }
 
-    public record RegisterRequest(String tcIdentityNumber, String firstName, String lastName, String email,
-            String phoneNumber, String password) {
+    public record RegisterRequest(
+            @NotBlank(message = "TC Kimlik No zorunludur.") @Pattern(regexp = "[0-9]{11}", message = "TC Kimlik No 11 haneli olmalıdır.") String tcIdentityNumber,
+            @NotBlank(message = "Ad zorunludur.") String firstName,
+            @NotBlank(message = "Soyad zorunludur.") String lastName,
+            @NotBlank(message = "E-posta zorunludur.") @Email(message = "Geçerli bir e-posta adresi giriniz.") String email,
+            String phoneNumber,
+            @NotBlank(message = "Şifre zorunludur.") @Size(min = 6, message = "Şifreniz en az 6 karakter olmalıdır.") String password) {
     }
 
-    public record DoctorRegisterRequest(String tcIdentityNumber, String firstName, String lastName, String email,
-            String phoneNumber, Long departmentId, String specialization) {
+    public record DoctorRegisterRequest(
+            @NotBlank(message = "TC Kimlik No zorunludur.") @Pattern(regexp = "[0-9]{11}", message = "TC Kimlik No 11 haneli olmalıdır.") String tcIdentityNumber,
+            @NotBlank(message = "Ad zorunludur.") String firstName,
+            @NotBlank(message = "Soyad zorunludur.") String lastName,
+            @NotBlank(message = "E-posta zorunludur.") @Email(message = "Geçerli bir e-posta adresi giriniz.") String email,
+            String phoneNumber,
+            @NotNull(message = "Bölüm seçimi zorunludur.") Long departmentId,
+            String specialization) {
     }
 
     public record ForgotPasswordRequest(String tcIdentityNumber, String email) {
@@ -134,64 +150,17 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    @org.springframework.transaction.annotation.Transactional
-    public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
-        if (isBlank(registerRequest.tcIdentityNumber()) || !registerRequest.tcIdentityNumber().matches("[0-9]{11}")
-                || isBlank(registerRequest.email()) || isBlank(registerRequest.firstName())
-                || isBlank(registerRequest.lastName())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Hata: TC (11 hane), ad, soyad ve e-posta zorunludur."));
-        }
-        if (userService.existsByUsername(registerRequest.tcIdentityNumber())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Hata: Bu TC Kimlik Numarası zaten kayıtlı."));
-        }
-        if (userService.existsByEmail(registerRequest.email())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Hata: Bu e-posta adresi zaten kullanılıyor."));
-        }
-        if (registerRequest.password() == null || registerRequest.password().length() < 6) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Hata: Şifreniz en az 6 karakter olmalıdır."));
-        }
-
-        // Önce hastayı kaydet
-        PatientDto patientDto = new PatientDto(null, registerRequest.firstName(), registerRequest.lastName(),
-                registerRequest.tcIdentityNumber(), registerRequest.phoneNumber(),
-                registerRequest.email());
-        PatientDto savedPatient = patientService.createPatient(patientDto);
-
-        // Sonra kullanıcıyı oluştur (ROLE_PATIENT) - TC Kimlik Numarasını kullanıcı adı
-        // olarak kullanıyoruz.
-        userService.registerUser(registerRequest.tcIdentityNumber(), registerRequest.email(),
-                registerRequest.password(),
-                "ROLE_PATIENT", savedPatient.getId());
-
+    public ResponseEntity<MessageResponse> registerUser(@Valid @RequestBody RegisterRequest request) {
+        accountRegistrationService.registerPatient(request.tcIdentityNumber(), request.firstName(),
+                request.lastName(), request.email(), request.phoneNumber(), request.password());
         return ResponseEntity.ok(new MessageResponse("Kullanıcı başarıyla kaydedildi."));
     }
 
     @PostMapping("/doctor-register")
-    public ResponseEntity<?> registerDoctor(@RequestBody DoctorRegisterRequest request) {
-        if (isBlank(request.tcIdentityNumber()) || !request.tcIdentityNumber().matches("[0-9]{11}")
-                || isBlank(request.email()) || isBlank(request.firstName()) || isBlank(request.lastName())
-                || request.departmentId() == null) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Hata: TC (11 hane), ad, soyad, e-posta ve bölüm zorunludur."));
-        }
-        if (userService.existsByUsername(request.tcIdentityNumber())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Hata: Bu TC Kimlik Numarası zaten kayıtlı."));
-        }
-        if (userService.existsByEmail(request.email())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Hata: Bu e-posta adresi zaten kullanılıyor."));
-        }
-
-        DoctorRegistrationRequest regRequest = new DoctorRegistrationRequest();
-        regRequest.setTcIdentityNumber(request.tcIdentityNumber());
-        regRequest.setFirstName(request.firstName());
-        regRequest.setLastName(request.lastName());
-        regRequest.setEmail(request.email());
-        regRequest.setPhoneNumber(request.phoneNumber());
-        regRequest.setDepartmentId(request.departmentId());
-        regRequest.setSpecialization(request.specialization());
-        regRequest.setPassword(""); // Dummy empty password since it will be generated by Admin via OTP
-
-        doctorRegistrationRequestRepository.save(regRequest);
-
+    public ResponseEntity<MessageResponse> registerDoctor(@Valid @RequestBody DoctorRegisterRequest request) {
+        accountRegistrationService.submitDoctorRegistration(new DoctorRegistrationService.SubmitCommand(
+                request.tcIdentityNumber(), request.firstName(), request.lastName(), request.email(),
+                request.phoneNumber(), request.departmentId(), request.specialization()));
         return ResponseEntity.ok(
                 new MessageResponse("Kayıt isteğiniz alınmıştır. Yönetici onayından sonra giriş yapabileceksiniz."));
     }
@@ -223,10 +192,6 @@ public class AuthController {
             };
             return ResponseEntity.badRequest().body(new MessageResponse("Hata: " + errorMsg));
         }
-    }
-
-    private static boolean isBlank(String s) {
-        return s == null || s.isBlank();
     }
 
     public record ForceChangePasswordRequest(String tcIdentityNumber, String oldPassword, String newPassword) {

@@ -5,26 +5,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-/**
- * ╔══════════════════════════════════════════════════════════════════╗
- * ║  🗄️ PATIENT REPOSITORY — Hasta Veritabanı İşlemleri            ║
- * ╠══════════════════════════════════════════════════════════════════╣
- * ║                                                                  ║
- * ║  📌 OPTIONAL NEDİR?                                             ║
- * ║  Optional<Patient>, "belki var belki yok" anlamına gelir.       ║
- * ║                                                                  ║
- * ║  Neden kullanılır?                                               ║
- * ║  → TC ile hasta arıyorsun ama o TC'de hasta olmayabilir         ║
- * ║  → null döndürmek yerine Optional döndürüyoruz                 ║
- * ║  → NullPointerException hatasını önler                          ║
- * ║                                                                  ║
- * ║  Kullanımı:                                                      ║
- * ║  Optional<Patient> result = repo.findByTcIdentityNumber("123"); ║
- * ║  if (result.isPresent()) { ... bulundu ... }                    ║
- * ║  else { ... bulunamadı ... }                                    ║
- * ║                                                                  ║
- * ╚══════════════════════════════════════════════════════════════════╝
- */
 @Repository
 public interface PatientRepository extends JpaRepository<Patient, Long> {
 

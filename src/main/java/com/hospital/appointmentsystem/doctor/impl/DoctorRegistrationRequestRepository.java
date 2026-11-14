@@ -7,5 +7,5 @@ import java.util.List;
 
 @Repository
 public interface DoctorRegistrationRequestRepository extends JpaRepository<DoctorRegistrationRequest, Long> {
-    List<DoctorRegistrationRequest> findByStatusOrderByRequestDateDesc(String status);
+    List<DoctorRegistrationRequest> findByStatusOrderByRequestDateDesc(DoctorRegistrationStatus status);
 }
