@@ -12,8 +12,9 @@ const inter = Inter({
 
 export const metadata = {
   title: 'Hastane Randevu Sistemi',
-  description: 'DDD Mimari ile geliştirilmiş Hastane Randevu Sistemi',
+  description: 'Hastane randevu, muayene ve doktor yönetimi: hasta, doktor ve yönetici panelleri.',
   manifest: '/manifest.json',
+  icons: { icon: '/favicon.ico', apple: '/icons/apple-touch-icon.png' },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
