@@ -2,6 +2,7 @@
 import { createContext, useContext, useEffect, useCallback, useSyncExternalStore } from 'react';
 import { dictionaries } from '../locales';
 import { translateError } from '../utils/errorTranslator';
+import { translate } from '../utils/translate';
 
 export const THEMES = [
   { id: 'indigo', name: 'İndigo', hex: '#4f46e5', hover: '#4338ca', rgb: '79, 70, 229' },
@@ -113,12 +114,7 @@ export function SettingsProvider({ children }) {
   }, [themeColor, theme, mounted]);
 
   // Translation function
-  const t = (key) => {
-    if (!key) return key;
-    const normalizedKey = typeof key === 'string' ? key.normalize('NFC').trim() : key;
-    if (!dictionaries[language]) return normalizedKey;
-    return dictionaries[language][normalizedKey] || normalizedKey;
-  };
+  const t = (key) => translate(dictionaries, language, key);
 
   const tErr = (rawMessage) => translateError(rawMessage, language);
 

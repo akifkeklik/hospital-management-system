@@ -61,7 +61,7 @@ endpoint with `@PreAuthorize`, including ownership rules (a patient sees only th
 | Area | Technologies |
 |---|---|
 | Backend | Java 17, Spring Boot 3, Spring Security, Spring Data JPA, Flyway, Actuator + Prometheus |
-| Frontend | Next.js 16, React 19 |
+| Frontend | Next.js 16, React 19, eight interface languages |
 | Data | MySQL 8 in production, H2 in tests |
 | Quality | JUnit 5, Mockito, Spring Security Test, JaCoCo, GitHub Actions, Docker |
 
@@ -82,7 +82,7 @@ In the `dev` profile, test users are created (doctor `88888888888`, patient `999
 
 ```bash
 mvn verify                           # 218 backend tests on H2, external services mocked
-cd frontend && npm run lint && npm run build
+cd frontend && npm run lint && npm test && npm run build   # 13 frontend unit tests
 ```
 
 CI runs both on every push. Coverage reports are produced by JaCoCo in `target/site/jacoco`.
@@ -94,7 +94,9 @@ This is a portfolio project, not a certified medical system.
 - **Schema management:** Flyway runs the migrations, but `ddl-auto` still defaults to `update` because the
   production schema was first created by Hibernate. Switching the default to `validate` needs a baseline
   migration that matches production first; see the postmortem.
-- **Frontend:** JavaScript without automated tests; backend behaviour is covered, the UI is checked manually.
+- **Frontend:** JavaScript. Unit tests cover the API client, error translation and translations: every
+  language must have every key, and every key the code uses must exist. Screens themselves are checked
+  manually; there are no browser tests yet.
 - **AI symptom routing** is a suggestion for which department to see, never a diagnosis. Without
   `GEMINI_API_KEY` it uses a built-in demo fallback.
 
